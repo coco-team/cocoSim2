@@ -9,7 +9,7 @@
             "Port":"1",
             "CompiledPortDimensions":"[1 1]",
             "CompiledPortDataType":"double",
-            "pre":"",
+            "pre":[],
             "post":"Add"
         },
         "In2":{
@@ -18,7 +18,7 @@
             "Port":"2",
             "CompiledPortDimensions":"[1 1]",
             "CompiledPortDataType":"double",
-            "pre":"",
+            "pre":[],
             "post":"Add"
         },
         "Add":{
@@ -41,7 +41,7 @@
             "OutMin":"[]",
             "OutMax":"[]",
             "pre":"Add",
-            "post":""
+            "post":[]
         }
     }
 }
