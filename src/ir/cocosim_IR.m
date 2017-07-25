@@ -32,6 +32,14 @@ end
 file_name = strrep(file_name, ' ', '_');
 ir.(file_name) = subsystems_struct(file_name);
 
+%% Stop the simulation
+try
+    Cmd = [simulink_model_path, '([], [], [], ''term'');'];
+    eval(Cmd);
+catch
+    %do nothing
+end
+
 %% Saving the json ir
 json_model = json_encode(ir); %faire en sorte qu'il y ait des sauts de ligne dans la réécriture de la fonction json_encode
 % essayer d'enlever le escape des slash si possible pour l'esthétique
