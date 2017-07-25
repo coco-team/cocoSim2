@@ -66,7 +66,7 @@ Inport_param.Others = {'UseBusObject', 'BusObject'};
 Subsystem_param = struct();
 Subsystem_param.DialogParameters = {'ShowPortLabels', 'TemplateBlock', 'Permissions', 'PermitHierarchicalResolution', 'TreatAsAtomicUnit',...
     'MinAlgLoopOccurrences', 'PropExecContextOutsideSubsystem', 'IsSubsystemVirtual'};
-Subsystem_param.Others = {'TreatAsGroupedWhenPropagatingVariantConditions', 'DataTypeOverride', 'MinMaxOverflowLogging', 'Virtual'};
+Subsystem_param.Others = {'DataTypeOverride', 'MinMaxOverflowLogging', 'Virtual'};
 
 TriggerPort_param = struct();
 TriggerPort_param.DialogParameters = {'ShowOutputPort', 'TriggerType'};
@@ -77,7 +77,7 @@ ModelReference_param.DialogParameters = {'all'};
 ModelReference_param.Others = {'ProtectedModel', 'Variants', 'DefaultDataLogging'};
 
 keySet = {'DiscreteIntegrator', 'Delay', 'DiscreteFilter', 'Mux',...
-    'MultiPortSwitch', 'Scope', 'Outport', 'Inport', 'Subsystem',...
+    'MultiPortSwitch', 'Scope', 'Outport', 'Inport', 'SubSystem',...
     'TriggerPort', 'ModelReference'};
 valueSet = {DiscreteIntegrator_param, Delay_param, DiscreteFilter_param,...
     Mux_param, MultiPortSwitch_param, Scope_param, Outport_param, Inport_param, Subsystem_param, TriggerPort_param, ModelReference_param};

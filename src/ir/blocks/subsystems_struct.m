@@ -34,8 +34,7 @@ end
 % Print of all blocks contained in the subsystem or block_diagram
 for i=1:numel(content)
     [parent, sub_name, ~] = fileparts(content{i});
-    % TODO : trouver un moyen de faire ça en 2 lignes. Faut-il stocker les
-    % noms vu qu'on les perd ?
+    % TODO : trouver un moyen de faire ça en 2 lignes.
     sub_name = strrep(sub_name, ' ', '_');
     sub_name = regexprep(sub_name, '\n', '_');
     sub_name = strrep(sub_name, '-', '_');
@@ -43,24 +42,25 @@ for i=1:numel(content)
     sub_name = strrep(sub_name, ')', '');
     
     sub_type = get_param(content{i}, 'BlockType');
-    S.(sub_name) = common_struct(content{i});
+    Common = common_struct(content{i});
     if strcmp(get_param(content{i}, 'Mask'), 'on')
         % masked subsystems
         mask_type = get_param(content{i}, 'MaskType');
-        S.(sub_name).DialogParameters = dialog_parameters_struct(content{i}, mask_type);
+        DialogParameters = dialog_parameters_struct(content{i}, mask_type);
         if isKey(block_param_map, mask_type)
-            S.(sub_name).Others = other_parameters(content{i}, mask_type);
+            Others = other_parameters(content{i}, mask_type);
         end
     else
         % subsystems not masked or block_diagram
-        S.(sub_name).DialogParameters = dialog_parameters_struct(content{i}, sub_type);
+        DialogParameters = dialog_parameters_struct(content{i}, sub_type);
         if isKey(block_param_map, sub_type)
-            S.(sub_name).Others = other_parameters(content{i}, sub_type);
+            Others = other_parameters(content{i}, sub_type);
         end
     end
+    S.(sub_name) = catstruct(Common, DialogParameters, Others);
     if strcmp(sub_type, 'SubSystem')
         S.(sub_name).Content = subsystems_struct(content{i}, true);
-    end   
+    end
 end
 end
 

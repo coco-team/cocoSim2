@@ -27,10 +27,12 @@ catch
     warning('Simulation of the model failed. The model doesn''t compile.');
 end
 
+ir.meta.date = datestr(datetime('today'));
+
 [dir, file_name, ~] = fileparts(simulink_model_path);
 
 file_name = strrep(file_name, ' ', '_');
-ir.(file_name) = subsystems_struct(file_name);
+ir.(file_name).Content = subsystems_struct(file_name);
 
 %% Stop the simulation
 try
@@ -42,6 +44,7 @@ end
 
 %% Saving the json ir
 json_model = json_encode(ir); %faire en sorte qu'il y ait des sauts de ligne dans la réécriture de la fonction json_encode
+json_model = strrep(json_model,'\/','/');
 % essayer d'enlever le escape des slash si possible pour l'esthétique
 
 % To save the json in a file :

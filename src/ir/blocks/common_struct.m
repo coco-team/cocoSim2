@@ -8,7 +8,7 @@ function [ S ] = common_struct( file_name )
 
 %% Construction of the internal representation
 S = struct();
-S.path = file_name;
+S.Path = file_name;
 S.BlockType = get_param(file_name, 'BlockType');
 S.Name = get_param(file_name, 'Name');
 
@@ -16,15 +16,16 @@ S.Name = get_param(file_name, 'Name');
 ports = get_param(file_name, 'PortConnectivity');
 pre = {};
 post = {};
+[parent, ~, ~] = fileparts(file_name);
 if ~isempty(ports)
     try
         for i=1:numel(ports)
             block = get(ports(i).SrcBlock);
             if (~isempty(block))
-                pre(numel(pre) + 1) = {block.Name};
+                pre(numel(pre) + 1) = cellstr(cell2mat([cellstr(parent) cellstr('/') {block.Name}]));
             else
                 block = get(ports(i).DstBlock);
-                post(numel(post) + 1) = {block.Name};
+                post(numel(post) + 1) = cellstr(cell2mat([cellstr(parent) cellstr('/') {block.Name}]));
             end
         end
     catch
@@ -32,8 +33,8 @@ if ~isempty(ports)
     end
 end
 
-S.pre = pre;
-S.post = post;
+S.Pre = pre;
+S.Post = post;
 
 % Calculate the sample time
 CompiledSampleTime = get_param(file_name, 'CompiledSampleTime');
