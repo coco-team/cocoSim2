@@ -18,7 +18,7 @@
 % Bitwise Operator, Saturation Dynamic, Compare To Constant,
 % Compare To Zero, Abs, Reshape, DotProduct, Signum, Gain, Polyval,
 % MinMax, Sum, Bias, Concatenate, Rounding, Math, Sqrt, Trigonometry,
-% Assignment, DataTypeConversion, SignalSpecification, ConversionOutput,
+% Assignment, DataTypeConversion, SignalSpecification,
 % Demux, Merge, Switch, From, Goto, BusSelector, BusCreator, BusAssignment,
 % Selector, Terminator, ToWorkspace, Step, Constant, S-Function, Fcn,
 % EnablePort, If, SwitchCase
@@ -43,7 +43,7 @@ DiscreteFilter_param.DialogParameters = {'Numerator', 'Denominator',...
 DiscreteFilter_param.Others = {};
 
 Mux_param = struct();
-Mux_param.DialogParameters = {'Inputs', 'DispalyOption'};
+Mux_param.DialogParameters = {'Inputs', 'DisplayOption'};
 Mux_param.Others = {'UseBusObject', 'BusObject', 'NonVirtualBus'};
 
 MultiPortSwitch_param = struct();

@@ -6,7 +6,7 @@ S = struct();
 
 dialog_param = get_param(file_name, 'DialogParameters');
 if ~isempty(dialog_param)
-    if isKey(block_param_map, block_type) && ~strcmp(block_param_map(block_type).DialogParameters{1}, 'all')
+    if isKey(block_param_map, block_type) && ~isempty(block_param_map(block_type).DialogParameters) && ~strcmp(block_param_map(block_type).DialogParameters{1}, 'all')
         value = block_param_map(block_type);
         for i=1:numel(value.DialogParameters)
             S.(value.DialogParameters{i}) = get_param(file_name, value.DialogParameters{i});

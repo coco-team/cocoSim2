@@ -36,6 +36,9 @@ for i=1:numel(content)
     [parent, sub_name, ~] = fileparts(content{i});
     sub_name = strrep(sub_name, ' ', '_');
     sub_name = regexprep(sub_name, '\n', '_');
+    sub_name = strrep(sub_name, '-', '_');
+    sub_name = strrep(sub_name, '(', '');
+    sub_name = strrep(sub_name, ')', '');
     sub_type = get_param(content{i}, 'BlockType');
     S.(sub_name) = common_struct(content{i});
     if strcmp(get_param(content{i}, 'Mask'), 'on')
