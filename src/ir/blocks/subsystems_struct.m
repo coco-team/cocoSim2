@@ -1,4 +1,4 @@
-function [ S ] = subsystems_struct( file_name, is_subsystem )
+function [ S ] = subsystems_struct( block_path, is_subsystem )
 
 % SUBSYSTEMS_STRUCT - internal representation of subsystems
 %
@@ -21,25 +21,20 @@ IR_config; %TODO : find a way to charge IR_config only once
 %% Construction of the struct
 S = struct();
 
-if is_subsystem && strcmp(get_param(file_name, 'Mask'), 'on') && ~strcmp(get_param(file_name, 'MaskType'), '')
+if is_subsystem && strcmp(get_param(block_path, 'Mask'), 'on') && ~strcmp(get_param(block_path, 'MaskType'), '')
     % Masked subsystems
-    content = find_system(file_name, 'LookUnderMasks', 'all', 'FollowLinks', 'on');
+    content = find_system(block_path, 'LookUnderMasks', 'all', 'FollowLinks', 'on');
     content(1) = []; %the first one is file_name, we already have it
 else
     % subsystems not masked or block_diagram
-    content = find_system(file_name, 'SearchDepth', '1');
+    content = find_system(block_path, 'SearchDepth', '1');
     content(1) = []; %the first one is file_name, we already have it
 end
 
 % Print of all blocks contained in the subsystem or block_diagram
 for i=1:numel(content)
     [parent, sub_name, ~] = fileparts(content{i});
-    % TODO : trouver un moyen de faire ça en 2 lignes.
-    sub_name = strrep(sub_name, ' ', '_');
-    sub_name = regexprep(sub_name, '\n', '_');
-    sub_name = strrep(sub_name, '-', '_');
-    sub_name = strrep(sub_name, '(', '');
-    sub_name = strrep(sub_name, ')', '');
+    sub_name = Utils.name_format(sub_name);
     
     sub_type = get_param(content{i}, 'BlockType');
     Common = common_struct(content{i});

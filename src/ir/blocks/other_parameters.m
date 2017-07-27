@@ -1,4 +1,4 @@
-function [ S ] = other_parameters( file_name, block_type )
+function [ S ] = other_parameters( block_path, block_type )
 
 % OTHER_PARAMETERS - create the internal representation of misc
 % parameters' blocks
@@ -17,7 +17,7 @@ if isKey(block_param_map, block_type)
     % there are 'other' parameters that need to be represented
     value = block_param_map(block_type);
     for i=1:numel(value.Others)
-        S.(value.Others{i}) = get_param(file_name, value.Others{i});
+        S.(value.Others{i}) = get_param(block_path, value.Others{i});
     end
 end
 

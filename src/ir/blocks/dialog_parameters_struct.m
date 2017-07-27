@@ -1,4 +1,4 @@
-function [ S ] = dialog_parameters_struct( file_name, block_type )
+function [ S ] = dialog_parameters_struct( block_path, block_type )
 
 % DIALOG_PARAMETERS_STRUCT - create the internal representation of dialog
 % box parameters' blocks
@@ -13,7 +13,7 @@ IR_config;
 
 S = struct();
 
-dialog_param = get_param(file_name, 'DialogParameters');
+dialog_param = get_param(block_path, 'DialogParameters');
 if ~isempty(dialog_param)
     if isKey(block_param_map, block_type) && isempty(block_param_map(block_type).DialogParameters)
         %do nothing
@@ -21,13 +21,13 @@ if ~isempty(dialog_param)
         %filter with what is in the map
         value = block_param_map(block_type);
         for i=1:numel(value.DialogParameters)
-            S.(value.DialogParameters{i}) = get_param(file_name, value.DialogParameters{i});
+            S.(value.DialogParameters{i}) = get_param(block_path, value.DialogParameters{i});
         end
     else
         %no filter, print all
         fields = fieldnames(dialog_param);
         for i=1:numel(fields)
-            S.(fields{i}) = get_param(file_name, fields{i});
+            S.(fields{i}) = get_param(block_path, fields{i});
         end
     end
 end
