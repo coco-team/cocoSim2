@@ -1,4 +1,4 @@
-function json_model = cocosim_IR( simulink_model_path )
+function json_model = cocosim_IR( simulink_model_path, df_export )
 
 % COCOSIM_IR - create the internal representation of a Simulink model for cocoSim
 %
@@ -6,11 +6,18 @@ function json_model = cocosim_IR( simulink_model_path )
 %   model, and return the json representation
 %   
 %   json_model = COCOSIM_IR(model_path)
+%   json_model = COCOSIM_IR(model_path, df_export) if you want to export
+%   the json in a file
 
 %% Initialisation
-addpath('./blocks');
-addpath('./utils');
-addpath('../utils');
+[ir_path, ~, ~] = fileparts(mfilename('fullpath'));
+addpath(fullfile(ir_path, 'blocks'));
+addpath(fullfile(ir_path, 'utils'));
+addpath(fullfile(ir_path, '..', 'utils'));
+
+if nargin < 2
+    df_export = false;
+end
 
 load_system(simulink_model_path);
 
@@ -42,16 +49,19 @@ catch
     %do nothing
 end
 
+
 %% Saving the json ir
 json_model = json_encode(ir); %faire en sorte qu'il y ait des sauts de ligne dans la réécriture de la fonction json_encode
 json_model = strrep(json_model,'\/','/');
 % essayer d'enlever le escape des slash si possible pour l'esthétique
 
 % To save the json in a file :
-file_json = [file_name '.json'];
-% Open or create the file
-fid = fopen(file_json, 'w');
-% Write in the file
-fprintf(fid, '%s\n', json_model);
-fclose(fid);
+if df_export
+    file_json = [file_name '.json'];
+    % Open or create the file
+    fid = fopen(file_json, 'w');
+    % Write in the file
+    fprintf(fid, '%s\n', json_model);
+    fclose(fid);
+end
 end
