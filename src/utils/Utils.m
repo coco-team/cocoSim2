@@ -593,10 +593,10 @@ classdef Utils
             end
         end
         
-        function [fun_name, chart] = get_MATLAB_function_name(block)
+        function [fun_name, chart] = get_MATLAB_function_name(block_path)
             % Get stateflow chart
             root = sfroot;
-            chart = root.find('-isa', 'Stateflow.EMChart', '-and', 'Path', char(block.origin_name));
+            chart = root.find('-isa', 'Stateflow.EMChart', '-and', 'Path', block_path);
             
             % Get the MATLAB function script
             script = chart.Script;

@@ -1,5 +1,8 @@
-function json_model = cocosim_IR( simulink_model_path, df_export )
-
+function [ir_struct, all_blocks, subsyst_blocks] = cocosim_IR( simulink_model_path, df_export )
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This file is part of CoCoSim.
+% Copyright (C) 2014-2016  Carnegie Mellon University
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % COCOSIM_IR - create the internal representation of a Simulink model for cocoSim
 %
 %   This function create a json file of the internal representation of the
@@ -22,24 +25,24 @@ end
 load_system(simulink_model_path);
 
 %% Construction of the internal representation
-ir = struct();
-ir.meta.file_path = simulink_model_path;
+ir_struct = struct();
+ir_struct.meta.file_path = simulink_model_path;
 
 % launch of the simulation of the model to get the compiled values.
 try
     Cmd = [simulink_model_path, '([], [], [], ''compile'');'];
     eval(Cmd);
-    ir.meta.sampleTime = Utils.get_BlockDiagram_SampleTime(simulink_model_path);
+    ir_struct.meta.sampleTime = Utils.get_BlockDiagram_SampleTime(simulink_model_path);
 catch
     warning('Simulation of the model failed. The model doesn''t compile.');
 end
 
-ir.meta.date = datestr(datetime('today'));
+ir_struct.meta.date = datestr(datetime('today'));
 
 [dir, file_name, ~] = fileparts(simulink_model_path);
 
-file_name = strrep(file_name, ' ', '_');
-ir.(file_name).Content = subsystems_struct(file_name);
+file_name_modif = Utils.name_format(file_name);
+[ir_struct.(file_name_modif).Content, all_blocks, subsyst_blocks] = subsystems_struct(file_name);
 
 %% Stop the simulation
 try
@@ -51,7 +54,7 @@ end
 
 
 %% Saving the json ir
-json_model = json_encode(ir); %faire en sorte qu'il y ait des sauts de ligne dans la réécriture de la fonction json_encode
+json_model = json_encode(ir_struct); %faire en sorte qu'il y ait des sauts de ligne dans la réécriture de la fonction json_encode
 json_model = strrep(json_model,'\/','/');
 % essayer d'enlever le escape des slash si possible pour l'esthétique
 

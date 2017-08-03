@@ -1,5 +1,8 @@
-function [ S ] = subsystems_struct( block_path, is_subsystem )
-
+function [ S, all_blocks, subsyst_blocks ] = subsystems_struct( block_path, is_subsystem )
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This file is part of CoCoSim.
+% Copyright (C) 2014-2016  Carnegie Mellon University
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SUBSYSTEMS_STRUCT - internal representation of subsystems
 %
 %   This function construct recursivly the internal representation of
@@ -20,10 +23,12 @@ IR_config; %TODO : find a way to charge IR_config only once
 
 %% Construction of the struct
 S = struct();
+all_blocks = {};
+subsyst_blocks = {Utils.name_format(block_path)};
 
 if is_subsystem && strcmp(get_param(block_path, 'Mask'), 'on') && ~strcmp(get_param(block_path, 'MaskType'), '')
     % Masked subsystems
-    content = find_system(block_path, 'LookUnderMasks', 'all', 'FollowLinks', 'on');
+    content = find_system(block_path, 'LookUnderMasks', 'all', 'FollowLinks', 'on', 'SearchDepth', '1');
     content(1) = []; %the first one is file_name, we already have it
 else
     % subsystems not masked or block_diagram
@@ -33,6 +38,7 @@ end
 
 % Print of all blocks contained in the subsystem or block_diagram
 for i=1:numel(content)
+    all_blocks = [all_blocks, Utils.name_format(content(i))];
     [parent, sub_name, ~] = fileparts(content{i});
     sub_name = Utils.name_format(sub_name);
     
@@ -54,7 +60,28 @@ for i=1:numel(content)
     end
     S.(sub_name) = catstruct(Common, DialogParameters, Others);
     if strcmp(sub_type, 'SubSystem')
-        S.(sub_name).Content = subsystems_struct(content{i}, true);
+        [S.(sub_name).Content, next_blocks, next_subsyst] = subsystems_struct(content{i}, true);
+        all_blocks = [all_blocks, next_blocks];
+        subsyst_blocks = [subsyst_blocks, next_subsyst];
+    elseif strcmp(sub_type, 'ModelReference')
+        model_ref = get_param(content{i}, 'ModelFile');
+        load_system(model_ref);
+        try
+            Cmd = [model_ref, '([], [], [], ''compile'');'];
+            eval(Cmd);
+        catch
+            warning('Simulation of the model referenced failed. The model doesn''t compile.');
+        end
+        [~, model_name, ~] = fileparts(model_ref);
+        [S.(sub_name).Content, next_blocks, next_subsyst] = subsystems_struct(model_name);
+        try
+            Cmd = [model_ref, '([], [], [], ''term'');'];
+            eval(Cmd);
+        catch
+            %do nothing
+        end
+        all_blocks = [all_blocks, next_blocks];
+        subsyst_blocks = [subsyst_blocks, next_subsyst];
     end
 end
 end

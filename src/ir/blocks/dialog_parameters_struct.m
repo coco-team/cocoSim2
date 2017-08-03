@@ -1,5 +1,8 @@
 function [ S ] = dialog_parameters_struct( block_path, block_type )
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This file is part of CoCoSim.
+% Copyright (C) 2014-2016  Carnegie Mellon University
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DIALOG_PARAMETERS_STRUCT - create the internal representation of dialog
 % box parameters' blocks
 %

@@ -66,7 +66,7 @@ Inport_param.Others = {'UseBusObject', 'BusObject'};
 Subsystem_param = struct();
 Subsystem_param.DialogParameters = {'ShowPortLabels', 'TemplateBlock', 'Permissions', 'PermitHierarchicalResolution', 'TreatAsAtomicUnit',...
     'MinAlgLoopOccurrences', 'PropExecContextOutsideSubsystem', 'IsSubsystemVirtual'};
-Subsystem_param.Others = {'DataTypeOverride', 'MinMaxOverflowLogging', 'Virtual'};
+Subsystem_param.Others = {'DataTypeOverride', 'MinMaxOverflowLogging', 'Virtual', 'SFBlockType'};
 
 TriggerPort_param = struct();
 TriggerPort_param.DialogParameters = {'ShowOutputPort', 'TriggerType'};
