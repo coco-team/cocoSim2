@@ -5,9 +5,17 @@ if isa(Object, 'char')
     path = strsplit(Object, filesep);
     Object_search = ir_struct;
     for i=1:numel(path)-1
-        Object_search = Object_search.(path{i}).Content;
+        try
+            Object_search = Object_search.(Utils.name_format(path{i})).Content;
+        catch
+            error(['error, reference to non-existent field : ', Utils.name_format(path{i})]);
+        end
     end
-    Object_struct = Object_search.(path{numel(path)});
+    try
+        Object_struct = Object_search.(Utils.name_format(path{numel(path)}));
+    catch
+        error(['error, reference to non-existent field : ', Utils.name_format(path{numel(path)})]);
+    end
 elseif isa(Object, 'double')
     if isfield(ir_struct, 'Handle') && ir_struct.Handle == Object
         Object_struct = ir_struct;

@@ -14,34 +14,31 @@ if isa(Object, 'char')
     path = strsplit(Object, filesep);
     Object_search = ir_struct;
     for i=1:numel(path)-1
-        Object_search = Object_search.(path{i}).Content;
+        try
+            Object_search = Object_search.(Utils.name_format(path{i})).Content;
+        catch
+            error(['error, reference to non-existent field : ', Utils.name_format(path{i})]);
+        end
     end
-    ParamValue = Object_search.(path{numel(path)}).(Parameter);
+    if ~isfield(Object_search, Utils.name_format(path{numel(path)}))
+        error(['error, reference to non-existent field : ', Utils.name_format(path{numel(path)})]);
+    elseif ~isfield(Object_search.(Utils.name_format(path{numel(path)})), Parameter)
+                error(['error, reference to non-existent field : ', Parameter]);
+    else
+        ParamValue = Object_search.(Utils.name_format(path{numel(path)})).(Parameter);
+    end
 elseif isa(Object, 'double')
     Object_struct = get_struct(ir_struct, Object);
     if isempty(Object_struct)
         error('Handle not valid.');
     end
-    ParamValue = Object_struct.(Parameter);
+    try
+        ParamValue = Object_struct.(Parameter);
+    catch
+        error(['error, reference to non-existent field : ', Parameter]);
+    end
 else
     error('Error. \n Specified Object must be an id or a string of a path to a block not a %s.', class(Object));
 end
 
 end
-
-%function [ParamValue] = cocoget_param_aux(ir_struct, Handle, Parameter)
-%    ParamValue = [];
-%    if isfield(ir_struct, 'Handle') && ir_struct.Handle == Handle
-%        ParamValue = ir_struct.(Parameter);
-%    else
-%        fields = fieldnames(ir_struct);
-%        i = 1;
-%        while i <= numel(fields) && isempty(ParamValue)
-%            if isa(ir_struct.(fields{i}), 'struct')
-%                ParamValue = cocoget_param_aux(ir_struct.(fields{i}), Handle, Parameter);
-%            end
-%            i = i+1;
-%        end
-%    end
-%end
-
