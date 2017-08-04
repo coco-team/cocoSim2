@@ -30,6 +30,7 @@ if is_subsystem && strcmp(get_param(block_path, 'Mask'), 'on') && ~strcmp(get_pa
     % Masked subsystems
     content = find_system(block_path, 'LookUnderMasks', 'all', 'FollowLinks', 'on', 'SearchDepth', '1');
     content(1) = []; %the first one is file_name, we already have it
+    comment = find_system()
 else
     % subsystems not masked or block_diagram
     content = find_system(block_path, 'SearchDepth', '1');
