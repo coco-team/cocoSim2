@@ -1,16 +1,17 @@
-%% The map contains BlockTypes associate with parameters the user want to print
+%% The map contains BlockTypes associate with parameters the user want to add in the IR
 % It helps to have a more refined internal representation
+% Only the specified parameters in the map for the specified BlockType
+% will be in the IR
 
-%% Parameters are in 2 lists :
-% -The DialogParameters which can be changed by the dialog's box of Simulink
-% -Other parameters
-
-%% Some BlockTypes have little numbers of parameters and don't need to be filtered
-% You can choice to do it anyway by concatenate their list to the Map
-% (See documentation for the parameters list,
-% you can get the DialogParameters of a block with get_param(block_path, 'DialogParameters')).
-% if you only want to add some other parameters, you can put 'all' in the
-% dialog one to not have to copy all the parameters
+%% Default
+% If a BlockType doesn't appear in the map, by default, all (and only) the
+% dialogParameters will be in the internal representation.
+% If you want to add other specific parameters of a block, or filter the
+% dialog parameters represented in the IR, you can concatenate the list of
+% your choosen parameters in the map
+% (see the documentation for the list of specific parameters of a block,
+% you can do get_param(block_path, 'DialogParameters') to get all the
+% dialog parameters of a block)
 
 %% Here are the list of the BlockTypes not in the map :
 % ZeroPole, Saturate, DiscreteStateSpace, UnitDelay, Memory,
@@ -27,58 +28,31 @@
 
 global block_param_map;
 
-DiscreteIntegrator_param = struct();
-DiscreteIntegrator_param.DialogParameters = {'IntegratorMethod', 'gainval',...
+block_param_map('DiscreteIntegrator') = {'IntegratorMethod', 'gainval',...
     'ExternalReset', 'InitialConditionSource', 'InitialCondition',...
     'LimitOutput', 'LowerSaturationLimit','UpperSaturationLimit'};
-DiscreteIntegrator_param.Others = {};
 
-Delay_param = struct();
-Delay_param.DialogParameters = {'InitialCondition', 'DelayLength'};
-Delay_param.Others = {};
+block_param_map('Delay') = {'InitialCondition', 'DelayLength'};
 
-DiscreteFilter_param = struct();
-DiscreteFilter_param.DialogParameters = {'Numerator', 'Denominator',...
+block_param_map('DiscreteFilter') = {'Numerator', 'Denominator',...
     'a0EqualsOne', 'InitialStates'};
-DiscreteFilter_param.Others = {};
 
-Mux_param = struct();
-Mux_param.DialogParameters = {'Inputs', 'DisplayOption'};
-Mux_param.Others = {'UseBusObject', 'BusObject', 'NonVirtualBus'};
+block_param_map('Mux') = {'Inputs', 'DisplayOption', 'UseBusObject', 'BusObject', 'NonVirtualBus'};
 
-MultiPortSwitch_param = struct();
-MultiPortSwitch_param.DialogParameters = {'DataPortOrder', 'DataPortIndices'...
+block_param_map('MultiPortSwitch') = {'DataPortOrder', 'DataPortIndices'...
     'Inputs', 'DataPortForDefault', 'AllowDiffInputSizes'};
-MultiPortSwitch_param.Others = {};
 
-Scope_param = struct();
-Scope_param.DialogParameters = {};
-Scope_param.Others = {'Floating'};
+block_param_map('Scope') = {'Floating'};
 
-Outport_param = struct();
-Outport_param.DialogParameters = {'Port', 'CompiledPortDimensions', 'CompiledPortDataTypes'};
-Outport_param.Others = {'UseBusObject', 'BusObject'};
+block_param_map('Outport') = {'Port', 'CompiledPortDimensions', 'CompiledPortDataTypes', 'UseBusObject', 'BusObject'};
 
-Inport_param = struct();
-Inport_param.DialogParameters = {'Port', 'CompiledPortDimensions', 'CompiledPortDataTypes'};
-Inport_param.Others = {'UseBusObject', 'BusObject'};
+block_param_map('Inport') = {'Port', 'CompiledPortDimensions', 'CompiledPortDataTypes', 'UseBusObject', 'BusObject'};
 
-Subsystem_param = struct();
-Subsystem_param.DialogParameters = {'ShowPortLabels', 'TemplateBlock', 'Permissions', 'PermitHierarchicalResolution', 'TreatAsAtomicUnit',...
-    'MinAlgLoopOccurrences', 'PropExecContextOutsideSubsystem', 'IsSubsystemVirtual'};
-Subsystem_param.Others = {'DataTypeOverride', 'MinMaxOverflowLogging', 'Virtual', 'SFBlockType'};
+block_param_map('SubSystem') = {'ShowPortLabels', 'TemplateBlock', 'Permissions', 'PermitHierarchicalResolution', 'TreatAsAtomicUnit',...
+    'MinAlgLoopOccurrences', 'PropExecContextOutsideSubsystem', 'IsSubsystemVirtual', 'DataTypeOverride', 'MinMaxOverflowLogging', 'Virtual', 'SFBlockType'};
 
-TriggerPort_param = struct();
-TriggerPort_param.DialogParameters = {'ShowOutputPort', 'TriggerType'};
-TriggerPort_param.Others = {};
+block_param_map('TriggerPort') = {'ShowOutputPort', 'TriggerType'};
 
-ModelReference_param = struct();
-ModelReference_param.DialogParameters = {'all'};
-ModelReference_param.Others = {'ProtectedModel', 'Variants', 'DefaultDataLogging'};
-
-keySet = {'DiscreteIntegrator', 'Delay', 'DiscreteFilter', 'Mux',...
-    'MultiPortSwitch', 'Scope', 'Outport', 'Inport', 'SubSystem',...
-    'TriggerPort', 'ModelReference'};
-valueSet = {DiscreteIntegrator_param, Delay_param, DiscreteFilter_param,...
-    Mux_param, MultiPortSwitch_param, Scope_param, Outport_param, Inport_param, Subsystem_param, TriggerPort_param, ModelReference_param};
-block_param_map = containers.Map(keySet, valueSet);
+block_param_map('ModelReference') = {'ModelNameDialog', 'ModelFile', 'ModelName', 'ParameterArgumentNames', 'ParameterArgumentValues',...
+    'SimulationMode', 'CodeInterface', 'Variant', 'VariantControl', 'OverrideUsingVariant', 'ActiveVariant',...
+    'GeneratePreprocessorConditionals', 'ProtectedModel', 'Variants', 'DefaultDataLogging'};

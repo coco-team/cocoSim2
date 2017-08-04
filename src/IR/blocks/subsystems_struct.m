@@ -19,7 +19,6 @@ if nargin < 2
 end
 
 addpath('../');
-IR_config; %TODO : find a way to charge IR_config only once
 
 %% Construction of the struct
 S = struct();
@@ -30,14 +29,23 @@ if is_subsystem && strcmp(get_param(block_path, 'Mask'), 'on') && ~strcmp(get_pa
     % Masked subsystems
     content = find_system(block_path, 'LookUnderMasks', 'all', 'FollowLinks', 'on', 'SearchDepth', '1');
     content(1) = []; %the first one is file_name, we already have it
-    comment = find_system()
+    comment = find_system(block_path, 'FindAll', 'on', 'Type', 'Annotation');
 else
     % subsystems not masked or block_diagram
     content = find_system(block_path, 'SearchDepth', '1');
     content(1) = []; %the first one is file_name, we already have it
+    comment = find_system(block_path, 'FindAll', 'on', 'Type', 'Annotation');
 end
 
-% Print of all blocks contained in the subsystem or block_diagram
+% IR of all comments in the subsystem or block_diagram
+for i=1:numel(comment)
+    S.Annotation = comment;
+    nom = ['Annotation', num2str(i)];
+    S.(nom).Text = get_param(comment(i), 'Text');
+    S.(nom).Handle = comment(i);
+end
+
+% IR of all blocks contained in the subsystem or block_diagram
 for i=1:numel(content)
     all_blocks = [all_blocks, Utils.name_format(content(i))];
     [parent, sub_name, ~] = fileparts(content{i});
@@ -48,18 +56,12 @@ for i=1:numel(content)
     if strcmp(get_param(content{i}, 'Mask'), 'on')
         % masked subsystems
         mask_type = get_param(content{i}, 'MaskType');
-        DialogParameters = dialog_parameters_struct(content{i}, mask_type);
-        if isKey(block_param_map, mask_type)
-            Others = other_parameters(content{i}, mask_type);
-        end
+        SpecificParameters = specific_parameters_struct(content{i}, mask_type);
     else
         % subsystems not masked or block_diagram
-        DialogParameters = dialog_parameters_struct(content{i}, sub_type);
-        if isKey(block_param_map, sub_type)
-            Others = other_parameters(content{i}, sub_type);
-        end
+        SpecificParameters = specific_parameters_struct(content{i}, sub_type);
     end
-    S.(sub_name) = catstruct(Common, DialogParameters, Others);
+    S.(sub_name) = catstruct(Common, SpecificParameters);
     if strcmp(sub_type, 'SubSystem')
         [S.(sub_name).Content, next_blocks, next_subsyst] = subsystems_struct(content{i}, true);
         all_blocks = [all_blocks, next_blocks];
