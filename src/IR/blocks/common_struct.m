@@ -12,7 +12,7 @@ function [ S ] = common_struct( block_path )
 
 %% Construction of the internal representation
 S = struct();
-S.Path = Utils.name_format(block_path);
+S.Path = IRUtils.name_format(block_path);
 S.BlockType = get_param(block_path, 'BlockType');
 S.Name = get_param(block_path, 'Name');
 S.Origin_path = block_path;

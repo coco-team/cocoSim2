@@ -28,6 +28,8 @@
 
 global block_param_map;
 
+block_param_map = containers.Map();
+
 block_param_map('DiscreteIntegrator') = {'IntegratorMethod', 'gainval',...
     'ExternalReset', 'InitialConditionSource', 'InitialCondition',...
     'LimitOutput', 'LowerSaturationLimit','UpperSaturationLimit'};

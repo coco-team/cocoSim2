@@ -1,4 +1,4 @@
-function [ir_struct, all_blocks, subsyst_blocks] = cocosim_IR( simulink_model_path, df_export )
+function [ir_struct, all_blocks, subsyst_blocks, handle_struct_map] = cocosim_IR( simulink_model_path, df_export )
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This file is part of CoCoSim.
 % Copyright (C) 2014-2016  Carnegie Mellon University
@@ -16,7 +16,6 @@ function [ir_struct, all_blocks, subsyst_blocks] = cocosim_IR( simulink_model_pa
 [ir_path, ~, ~] = fileparts(mfilename('fullpath'));
 addpath(fullfile(ir_path, 'blocks'));
 addpath(fullfile(ir_path, 'utils'));
-addpath(fullfile(ir_path, '..', 'utils'));
 
 if nargin < 2
     df_export = false;
@@ -29,20 +28,20 @@ ir_struct = struct();
 ir_struct.meta.file_path = simulink_model_path;
 
 % launch of the simulation of the model to get the compiled values.
+[~, file_name, ~] = fileparts(simulink_model_path);
 try
-    Cmd = [simulink_model_path, '([], [], [], ''compile'');'];
+    Cmd = [file_name, '([], [], [], ''compile'');'];
     eval(Cmd);
-    ir_struct.meta.sampleTime = Utils.get_BlockDiagram_SampleTime(simulink_model_path);
+    ir_struct.meta.sampleTime = IRUtils.get_BlockDiagram_SampleTime(simulink_model_path);
 catch
     warning('Simulation of the model failed. The model doesn''t compile.');
 end
 
 ir_struct.meta.date = datestr(datetime('today'));
 
-[dir, file_name, ~] = fileparts(simulink_model_path);
 
-file_name_modif = Utils.name_format(file_name);
-[ir_struct.(file_name_modif).Content, all_blocks, subsyst_blocks] = subsystems_struct(file_name);
+file_name_modif = IRUtils.name_format(file_name);
+[ir_struct.(file_name_modif).Content, all_blocks, subsyst_blocks, handle_struct_map] = subsystems_struct(file_name);
 
 %% Stop the simulation
 try

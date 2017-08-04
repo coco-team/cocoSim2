@@ -15,17 +15,17 @@ if isa(Object, 'char')
     Object_search = ir_struct;
     for i=1:numel(path)-1
         try
-            Object_search = Object_search.(Utils.name_format(path{i})).Content;
+            Object_search = Object_search.(IRUtils.name_format(path{i})).Content;
         catch
-            error(['error, reference to non-existent field : ', Utils.name_format(path{i})]);
+            error(['error, reference to non-existent field : ', IRUtils.name_format(path{i})]);
         end
     end
-    if ~isfield(Object_search, Utils.name_format(path{numel(path)}))
-        error(['error, reference to non-existent field : ', Utils.name_format(path{numel(path)})]);
-    elseif ~isfield(Object_search.(Utils.name_format(path{numel(path)})), Parameter)
+    if ~isfield(Object_search, IRUtils.name_format(path{numel(path)}))
+        error(['error, reference to non-existent field : ', IRUtils.name_format(path{numel(path)})]);
+    elseif ~isfield(Object_search.(IRUtils.name_format(path{numel(path)})), Parameter)
                 error(['error, reference to non-existent field : ', Parameter]);
     else
-        ParamValue = Object_search.(Utils.name_format(path{numel(path)})).(Parameter);
+        ParamValue = Object_search.(IRUtils.name_format(path{numel(path)})).(Parameter);
     end
 elseif isa(Object, 'double')
     Object_struct = get_struct(ir_struct, Object);

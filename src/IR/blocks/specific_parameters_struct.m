@@ -24,9 +24,11 @@ if isKey(block_param_map, block_type)
 else
     % no config, print all dialog parameters
     dialog_param = get_param(block_path, 'DialogParameters');
-    fields = fieldnames(dialog_param);
-    for i=1:numel(fields)
-        S.(fields{i}) = get_param(block_path, fields{i});
+    if ~isempty(dialog_param)
+        fields = fieldnames(dialog_param);
+        for i=1:numel(fields)
+            S.(fields{i}) = get_param(block_path, fields{i});
+        end
     end
 end
 

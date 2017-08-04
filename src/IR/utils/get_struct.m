@@ -6,15 +6,15 @@ if isa(Object, 'char')
     Object_search = ir_struct;
     for i=1:numel(path)-1
         try
-            Object_search = Object_search.(Utils.name_format(path{i})).Content;
+            Object_search = Object_search.(IRUtils.name_format(path{i})).Content;
         catch
-            error(['error, reference to non-existent field : ', Utils.name_format(path{i})]);
+            error(['error, reference to non-existent field : ', IRUtils.name_format(path{i})]);
         end
     end
     try
-        Object_struct = Object_search.(Utils.name_format(path{numel(path)}));
+        Object_struct = Object_search.(IRUtils.name_format(path{numel(path)}));
     catch
-        error(['error, reference to non-existent field : ', Utils.name_format(path{numel(path)})]);
+        error(['error, reference to non-existent field : ', IRUtils.name_format(path{numel(path)})]);
     end
 elseif isa(Object, 'double')
     if isfield(ir_struct, 'Handle') && ir_struct.Handle == Object
