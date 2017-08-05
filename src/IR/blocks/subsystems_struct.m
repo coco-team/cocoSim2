@@ -63,6 +63,9 @@ for i=1:numel(content)
     S.(sub_name) = catstruct(Common, SpecificParameters);
     handle_struct_map(get_param(content{i}, 'Handle')) = S.(sub_name);
     if strcmp(sub_type, 'SubSystem')
+        if strcmp(get_param(content{i}, 'Mask'), 'on')
+            S.(sub_name).MaskType = mask_type;
+        end
         [S.(sub_name).Content, next_blocks, next_subsyst, handle_struct_map_next] = subsystems_struct(content{i}, true);
         all_blocks = [all_blocks, next_blocks];
         subsyst_blocks = [subsyst_blocks, next_subsyst];

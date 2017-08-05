@@ -27,6 +27,7 @@ S.Post = ports.Outport;
 % Calculate the sample time
 S.CompiledSampleTime = get_param(block_path, 'CompiledSampleTime');
 S.CompiledPortDataTypes = get_param(block_path, 'CompiledPortDataTypes');
+S.CompiledPortDimensions = get_param(block_path, 'CompiledPortDimensions');
 
 end
 
