@@ -41,14 +41,14 @@
 %
 %% Code
 %
-function [output_string] = write_datatypeconversion(unbloc, inter_blk)
+function [output_string] = write_datatypeconversion(unbloc, inter_blk, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
-for idx_dim=1:unbloc.dstport_size
+for idx_dim=1:unbloc.CompiledPortWidths.Outport
 	output_string = app_sprintf(output_string, '\t%s = %s;\n', list_out{idx_dim}, list_in{idx_dim});
 end
 

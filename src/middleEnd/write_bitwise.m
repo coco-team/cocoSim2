@@ -42,19 +42,19 @@
 %
 %% Code
 %
-function [output_string op_name] = write_bitwise(unbloc, inter_blk, operator, bit_mask, use_bit_mask, num_input, real_world)
+function [output_string op_name] = write_bitwise(unbloc, inter_blk, operator, bit_mask, use_bit_mask, num_input, real_world, myblk)
 
 output_string = '';
 op_name = {};
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
 % Perform expansion if necessary
 dim = 1;
 dims = '';
-for idx_in=1:unbloc.num_input
-	[in_dim_r in_dim_c] = Utils.get_port_dims_simple(unbloc.inports_dim, idx_in);
+for idx_in=1:unbloc.Ports(1)
+	[in_dim_r in_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, idx_in);
 	if in_dim_r ~= 1
 		dim = in_dim_r;
 		if in_dim_c ~= 1
@@ -89,12 +89,12 @@ end
 
 use_bit_mask = strcmp(use_bit_mask, 'on');
 
-dt = Utils.get_lustre_dt(unbloc.outports_dt);
+dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Outport);
 
 op_name{1} = ['bitwise_' operator '_' dt];
 
 if use_bit_mask
-	[list_mask] = Utils.list_cst(bit_mask, unbloc.outports_dt{1});
+	[list_mask] = Utils.list_cst(bit_mask, unbloc.CompiledPortDataTypes.Outport{1});
 	% Expand Bitmask if necessary
 	if numel(list_mask) ~= numel(list_out)
 		idx_const = 1;
@@ -113,7 +113,7 @@ if use_bit_mask
 
 else
  
-	if unbloc.num_input == 1
+	if unbloc.Ports(1) == 1
 
 		if strcmp(operator, 'NOT')
 			for idx_out=1:numel(list_out)
@@ -133,11 +133,11 @@ else
 		for idx_out=1:numel(list_out)
 			assign_str = '';
 			closing_par = '';
-			for idx_in=1:unbloc.num_input-1
+			for idx_in=1:unbloc.Ports(1)-1
 				assign_str = app_sprintf(assign_str, '%s(%s, ', op_name{1}, list_in{(idx_in - 1) * numel(list_out) + idx_out});
 				closing_par = [closing_par ')'];
 			end
-			output_string = app_sprintf(output_string, '\t%s = %s%s%s;\n', list_out{idx_out}, assign_str, list_in{(unbloc.num_input-1) * numel(list_out) + idx_out}, closing_par);
+			output_string = app_sprintf(output_string, '\t%s = %s%s%s;\n', list_out{idx_out}, assign_str, list_in{(unbloc.Ports(1)-1) * numel(list_out) + idx_out}, closing_par);
 		end
 	end
 

@@ -25,15 +25,15 @@
 %
 %% Code
 %
-function [output_string add_vars] = write_dss(unbloc, dss_A, dss_B, dss_C, dss_D, X0, inter_blk, xml_trace)
+function [output_string add_vars] = write_dss(unbloc, dss_A, dss_B, dss_C, dss_D, X0, inter_blk, xml_trace, myblk)
 
 output_string = '';
 add_vars = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc,inter_blk);
+[list_in] = list_var_entree(unbloc,inter_blk, myblk);
 
-block_full_name = regexp(unbloc.name{1}, '/', 'split');
+block_full_name = regexp(unbloc.Path, filesep, 'split');
 block_name = Utils.concat_delim(block_full_name(end - unbloc.name_level : end), '_');
 tmp_var_prefix = [block_name '_tmp_'];
 
@@ -45,13 +45,13 @@ for k1=1:nstate-1
 	add_vars = app_sprintf(add_vars, '\t%s%s , ', tmp_var_prefix, num2str(k1));
 
 	% Add traceability for additional variables
-	xml_trace.add_Variable(sprintf('%s%s', tmp_var_prefix, num2str(k1)), unbloc.origin_name, 1, k1, true);
+	xml_trace.add_Variable(sprintf('%s%s', tmp_var_prefix, num2str(k1)), unbloc.Origin_path, 1, k1, true);
 end
 if nstate > 0
 	add_vars = app_sprintf(add_vars, '\t%s%s : real;\n', tmp_var_prefix, num2str(nstate));
 
 	% Add traceability for additional variables
-	xml_trace.add_Variable(sprintf('%s%s', tmp_var_prefix, num2str(nstate)), unbloc.origin_name, 1, 1, true);
+	xml_trace.add_Variable(sprintf('%s%s', tmp_var_prefix, num2str(nstate)), unbloc.Origin_path, 1, 1, true);
 end
 
 %%%%% states xi%%%%%%%%%%%

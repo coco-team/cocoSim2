@@ -24,12 +24,12 @@
 %
 %% Code
 %
-function [output_string, c_main_file] = write_extern_s_function(myblk, blks, function_name, parameters)
+function [output_string, c_main_file] = write_extern_s_function(unbloc, inter_blk, function_name, parameters, myblk)
 
 output_string = '';
 
-[list_out] = list_var_sortie(myblk);
-[list_in] = list_var_entree(myblk, blks);
+[list_out] = list_var_sortie(unbloc);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
 load 'tmp_data'
 legacy_file_name = fullfile(model_path, strcat(function_name, '.c'));
@@ -65,7 +65,7 @@ try
     nb_param = length(find(parameters == ',')) + 1;
     
     for idx_param=1:nb_param
-        param_dt = Utils.get_lustre_dt(myblk.parameters_dt{idx_param});
+        param_dt = Utils.get_lustre_dt(unbloc.parameters_dt{idx_param});
         list_param{idx_param} = ['param' num2str(idx_param) ' : ' param_dt];
     end
 catch
@@ -74,9 +74,9 @@ end
 
 parameters_string = Utils.concat_delim(list_param, '; ');
 
-dummy_expr = stub_lustrec(myblk, list_out, list_in, parameters_string);
+dummy_expr = stub_lustrec(unbloc, list_out, list_in, parameters_string);
 
-output_string = write_entree_sorties_extern_s_function(myblk, list_out, list_in, parameters_string);
+output_string = write_entree_sorties_extern_s_function(unbloc, list_out, list_in, parameters_string);
 output_string = app_sprintf(output_string, 'let\n');
 output_string = app_sprintf(output_string, '\t--! c_code: %s;\n', lustre_annot_name);
 output_string = app_sprintf(output_string, ' %s\n', dummy_expr);
@@ -88,15 +88,15 @@ end
 function [output_string] = write_entree_sorties_extern_s_function(unbloc, list_out, list_in, list_param)
 
 output_string = '';
-node_name = Utils.naming(unbloc.name{1});
+node_name = Utils.naming(unbloc.Path);
 
 buffer = '';
 
 if ~isempty(list_in)
     cpt_input_vars = 1;
-    for idx_input=1:unbloc.num_input
-        for idx_dim_in=1:unbloc.srcport_size(idx_input)
-            in_dt = Utils.get_lustre_dt(unbloc.inports_dt{idx_input});
+    for idx_input=1:unbloc.Ports(1)
+        for idx_dim_in=1:unbloc.CompiledPortWidths.Inport(idx_input)
+            in_dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Inport{idx_input});
             buffer{cpt_input_vars} = ['in' num2str(idx_input) '_' num2str(idx_dim_in) ': ' in_dt];
             cpt_input_vars = cpt_input_vars + 1;
         end
@@ -112,11 +112,11 @@ else
 end
 buffer = '';
 cpt_output_vars = 1;
-match = regexp(unbloc.name, '/', 'split');
+match = regexp(unbloc.Path, filesep, 'split');
 block_name = match{1}(end);
-for idx_output=1:unbloc.num_output
-    for idx_dim_out=1:unbloc.dstport_size(idx_output)
-        out_dt = Utils.get_lustre_dt(unbloc.outports_dt{idx_output});
+for idx_output=1:unbloc.Ports(2)
+    for idx_dim_out=1:unbloc.CompiledPortWidths.Outport(idx_output)
+        out_dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Outport{idx_output});
         buffer{cpt_output_vars} = [strjoin(block_name) '_' num2str(idx_output) '_' num2str(idx_dim_out) ': ' out_dt];
         %buffer{cpt_output_vars} = ['out' num2str(idx_output) '_' num2str(idx_dim_out) ': ' out_dt];
         cpt_output_vars = cpt_output_vars + 1;
@@ -140,11 +140,11 @@ function [output_string] = stub_lustrec(unbloc, list_out, list_in, list_param)
 output_string = '';
 buffer = '';
 cpt_output_vars = 1;
-match = regexp(unbloc.name, '/', 'split');
+match = regexp(unbloc.Path, filesep, 'split');
 block_name = match{1}(end);
-for idx_output=1:unbloc.num_output
-    for idx_dim_out=1:unbloc.dstport_size(idx_output)
-        out_dt = Utils.get_lustre_dt(unbloc.outports_dt{idx_output});
+for idx_output=1:unbloc.Ports(2)
+    for idx_dim_out=1:unbloc.CompiledPortWidths.Outport(idx_output)
+        out_dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Outport{idx_output});
         var = [strjoin(block_name) '_' num2str(idx_output) '_' num2str(idx_dim_out)];
         if strcmp(out_dt, 'bool')
             buffer{cpt_output_vars} = [var ' = true;'];

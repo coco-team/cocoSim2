@@ -16,22 +16,22 @@
 %
 %% Code
 %
-function [output_string] = write_zero_pole(unbloc, inter_blk, zero, poles, gain)
+function [output_string] = write_zero_pole(unbloc, inter_blk, zero, poles, gain, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
-[list_zeros] = Utils.list_cst(zero, unbloc.inports_dt{1});
-[list_poles] = Utils.list_cst(poles, unbloc.inports_dt{1});
-[list_gain] = Utils.list_cst(gain, unbloc.inports_dt{1});
+[list_zeros] = Utils.list_cst(zero, unbloc.CompiledPortDataTypes.Inport{1});
+[list_poles] = Utils.list_cst(poles, unbloc.CompiledPortDataTypes.Inport{1});
+[list_gain] = Utils.list_cst(gain, unbloc.CompiledPortDataTypes.Inport{1});
 
 [r_z c_z] = size(zero);
 [r_p c_p] = size(poles);
 [r_g c_g] = size(gain);
 
-[dim_r dim_c] = Utils.get_port_dims_simple(unbloc.outports_dim, 1);
+[dim_r dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Outport, 1);
 
 for idx_row=1:dim_r
 	numerator = '';

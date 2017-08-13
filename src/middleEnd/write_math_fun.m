@@ -57,15 +57,15 @@
 %% For all the others functions, calls to external functions are used.
 %% Code
 %
-function [output_string extern_funs] = write_math_fun(unbloc, inter_blk, math_op)
+function [output_string extern_funs] = write_math_fun(unbloc, inter_blk, math_op, myblk)
 
 output_string = '';
 extern_funs = {};
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
-if unbloc.num_input == 2
+if unbloc.Ports(1) == 2
 	list_in = Utils.expand_all_inputs(unbloc, list_in);
 end
 
@@ -73,8 +73,8 @@ end
 convert_fun = '';
 needs_convert = false;
 if strcmp(math_op, 'sqrt') || strcmp(math_op, 'rSqrt') || strcmp(math_op, 'signedSqrt')
-	out_dt = Utils.get_lustre_dt(unbloc.outports_dt{1});
-    in_dt = Utils.get_lustre_dt(unbloc.inports_dt{1});
+	out_dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Outport{1});
+    in_dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Inport{1});
 % 	if ~strcmp('real', out_dt) &&  ~(strcmp('int', in_dt) || strcmp('bool', in_dt))
 % 		convert_fun = get_param(unbloc.annotation, 'RndMeth');
 % 		needs_convert = true;
@@ -103,11 +103,11 @@ if strcmp(math_op, 'sqrt') || strcmp(math_op, 'rSqrt') || strcmp(math_op, 'signe
     end
 end
 
-dim = unbloc.dstport_size(1);
-dt = unbloc.outports_dt{1};
+dim = unbloc.CompiledPortWidths.Outport(1);
+dt = unbloc.CompiledPortDataTypes.Outport{1};
 out_dt_lus = Utils.get_lustre_dt(dt);
 
-is_complex = unbloc.out_cpx_sig(1) || unbloc.in_cpx_sig(1);
+is_complex = unbloc.CompiledPortComplexSignals.Outport(1) || unbloc.CompiledPortComplexSignals.Inport(1);
 
 if ~is_complex
 	% Output is not complex
@@ -135,7 +135,7 @@ if ~is_complex
 		end
 		extern_funs{1} = sprintf('%s double', math_op);
 	elseif strcmp(math_op, 'signedSqrt')
-		if strncmp(unbloc.inports_dt{1}, 'int', 3) || strncmp(unbloc.inports_dt{1}, 'uint', 4)
+		if strncmp(unbloc.CompiledPortDataTypes.Iinport{1}, 'int', 3) || strncmp(unbloc.CompiledPortDataTypes.Inport{1}, 'uint', 4)
 			zero = '0';
 		else
 			zero = '0.0';
@@ -252,8 +252,8 @@ else
 			output_string = app_sprintf(output_string, '\t%s.i = 2 * %s.r * %s.i;\n', list_out{idx_dim}, list_in{idx_dim}, list_in{idx_dim});
 		end
 	elseif strcmp(math_op, 'pow')
-		in1_dt = Utils.get_lustre_dt(unbloc.inports_dt{1});
-		in2_dt = Utils.get_lustre_dt(unbloc.inports_dt{1});
+		in1_dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Inport{1});
+		in2_dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Inport{1});
 		
 		for idx_dim=1:dim
 			output_string = app_sprintf(output_string, '\t%s = pow_complex_%s(%s, %s);\n', list_out{idx_dim}, out_dt_lus, list_in{idx_dim}, list_in{dim+idx_dim});

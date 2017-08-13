@@ -45,12 +45,12 @@
 %
 %% Code
 %
-function [output_string] = write_multiportswitch(unbloc, order, indices, inputs, default_dp, inter_blk)
+function [output_string] = write_multiportswitch(unbloc, order, indices, inputs, default_dp, inter_blk, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
 if strcmp(default_dp, 'Last data port')
 	add = 0;
@@ -98,7 +98,7 @@ end
 
 % Expand inputs if necessary
 % First input
-[in_dim_r in_dim_c] = Utils.get_port_dims_simple(unbloc.inports_dim, 1);
+[in_dim_r in_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, 1);
 if numel(list_out) ~= (in_dim_r * in_dim_c)
 	for idx=1:numel(list_out)
 		val{idx} = list_in{1};
@@ -109,9 +109,9 @@ end
 cpt_list_in = numel(list_out);
 
 % Other inputs
-for idx=2:unbloc.num_input
+for idx=2:unbloc.Ports(1)
 	val = {};
-	[in_dim_r in_dim_c] = Utils.get_port_dims_simple(unbloc.inports_dim, idx);
+	[in_dim_r in_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, idx);
 	if numel(list_out) ~= (in_dim_r * in_dim_c)
 		for idx_out=1:numel(list_out)
 			val{idx_out} = list_in{cpt_list_in + 1};
@@ -140,7 +140,7 @@ else
 				if_exp = [if_exp sprintf('if %s = %s then %s else ', list_in{idx_out}, num2str(in_values{idx_in}(idx_in_val)), list_in{(idx_in * numel(list_out)) + idx_out})];
 			end
 		end
-		if_exp = [if_exp list_in{(unbloc.num_input-1) * numel(list_out) + idx_out}];
+		if_exp = [if_exp list_in{(unbloc.Ports(1)-1) * numel(list_out) + idx_out}];
 		output_string = app_sprintf(output_string, '\t%s = %s;\n', list_out{idx_out}, if_exp);
 	end
 end

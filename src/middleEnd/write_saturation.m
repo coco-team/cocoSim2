@@ -19,12 +19,12 @@
 %
 %% Code
 %
-function [output_string] = write_saturation(nom_lustre_file, unbloc, sat_min, sat_max, rndmeth, inter_blk)
+function [output_string] = write_saturation(nom_lustre_file, unbloc, sat_min, sat_max, rndmeth, inter_blk, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
 sat_max = evalin('base', sat_max);
 sat_min = evalin('base', sat_min);
@@ -63,7 +63,7 @@ elseif dim_sat_max < dim_sat_min
 end
 
 % Expansion of input if necessary
-[in_dim_r in_dim_c] = Utils.get_port_dims_simple(unbloc.inports_dim, 1);
+[in_dim_r in_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, 1);
 
 in_dim = in_dim_r*in_dim_c;
 if in_dim < dim_sat_max
@@ -80,7 +80,7 @@ elseif dim_sat_max < in_dim
 end
 
 % Code printing
-if strcmp(unbloc.outports_dt{1}, 'double')
+if strcmp(unbloc.CompiledPortDataTypes.Outport{1}, 'double')
 	for idx_out=1:numel(list_out)
 		if1_str = sprintf([' if %s >= %f'], list_in{idx_out}, sat_max(idx_out));
 		then1_str = sprintf(['then %f'], sat_max(idx_out));
@@ -90,7 +90,7 @@ if strcmp(unbloc.outports_dt{1}, 'double')
 
 		output_string = app_sprintf(output_string,'\t%s = %s %s \n%s %s \n%s ;\n', list_out{idx_out}, if1_str, then1_str, if2_str, then2_str, else_str);
 	end
-elseif strncmp(unbloc.outports_dt{1}, 'int', 3) || strncmp(unbloc.outports_dt{1}, 'uint', 4)
+elseif strncmp(unbloc.CompiledPortDataTypes.Outport{1}, 'int', 3) || strncmp(unbloc.CompiledPortDataTypes.Outport{1}, 'uint', 4)
 	rndmeth = Utils.get_rounding_function(rndmeth);
 	for idx_out=1:numel(list_out)
 		max_str = [rndmeth '(' num2str(sat_max(idx_out)) ')'];
@@ -107,8 +107,6 @@ elseif strncmp(unbloc.outports_dt{1}, 'int', 3) || strncmp(unbloc.outports_dt{1}
 	end
 
 else
-
-	
 
 end
 

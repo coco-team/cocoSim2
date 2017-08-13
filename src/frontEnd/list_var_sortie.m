@@ -5,21 +5,21 @@
 
 function [list_out] = list_var_sortie(unbloc)
 
-block_full_name = regexp(unbloc.name, '/', 'split');
-if unbloc.name_level >= numel(block_full_name{1})
-	block_name = Utils.concat_delim(block_full_name{1}, '_');
-else
-	block_name = Utils.concat_delim(block_full_name{1}(end - unbloc.name_level : end), '_');
-end
+block_full_name = regexp(unbloc.Path, filesep, 'split');
+%if unbloc.name_level >= numel(block_full_name{1})
+block_name = Utils.concat_delim(block_full_name, '_');
+%else
+%	block_name = Utils.concat_delim(block_full_name{1}(end - unbloc.name_level : end), '_');
+%end
 
-dims = unbloc.outports_dim;
+dims = unbloc.CompiledPortDimensions.Outport;
 num_pred = 0;
 idx_dim = 1;
 
-for k1=1:unbloc.num_output
-	[is_bus, ~] = BusUtils.is_bus(unbloc.outports_dt{k1});
+for k1=1:unbloc.Ports(2)
+	[is_bus, ~] = BusUtils.is_bus(unbloc.CompiledPortDataTypes.Outport{k1});
 	if is_bus
-		for idx=1:unbloc.dstport_size(k1)
+		for idx=1:unbloc.CompiledPortWidths.Outport(k1)
 			list_out{num_pred + 1} = [block_name '_' num2str(k1) '_' num2str(idx)];
 			num_pred = num_pred + 1;
 			idx_dim = idx_dim + 1;

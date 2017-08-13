@@ -1,14 +1,16 @@
-function res_assertions = convert_assertions(obs_inter_blk, list_in, list_in_outport, xml_trace)
+function res_assertions = convert_assertions(obs_inter_blk, list_in, list_in_outport, xml_trace, myblk)
     
 	list_inport = '';
 	cpt_in = 1;
-	for idx_block=2:numel(obs_inter_blk)
-		if strcmp(obs_inter_blk{idx_block}.type, 'Inport')
-			list_inport{cpt_in} = obs_inter_blk{idx_block};
-			list_inport_names{cpt_in} = obs_inter_blk{idx_block}.origin_name;
-			in_name_as_list = regexp(obs_inter_blk{idx_block}.origin_name, '/', 'split');
-			list_inport_assert_var_names{cpt_in} = in_name_as_list{1}{end};
-			[inport_dims{cpt_in}.rows inport_dims{cpt_in}.cols] = Utils.get_port_dims_simple(obs_inter_blk{idx_block}.outports_dim, 1);
+    fields = fieldnames(obs_inter_blk.Content);
+	for idx_block=1:numel(fields)
+        ablock = get_struct(myblk, obs_inter_blk.Content.(fields{idx_block}));
+		if strcmp(ablock.BlockType, 'Inport')
+			list_inport{cpt_in} = ablock;
+			list_inport_names{cpt_in} = ablock.Origin_path;
+			in_name_as_list = regexp(ablock.Origin_path, filesep, 'split');
+			list_inport_assert_var_names{cpt_in} = in_name_as_list{end};
+			[inport_dims{cpt_in}.rows inport_dims{cpt_in}.cols] = Utils.get_port_dims_simple(ablock.CompiledPortDimensions.Outport, 1);
 			cpt_in = cpt_in + 1;
 		end
 	end
@@ -16,28 +18,27 @@ function res_assertions = convert_assertions(obs_inter_blk, list_in, list_in_out
 	assertions = '';
 	% Get Inport blocks annotations
 	for idx_in=1:numel(list_inport)
-		att_format_string = get_param(list_inport{idx_in}.origin_name, 'AttributesFormatString');
+		att_format_string = list_inport{idx_in}.AttributesFormatString;
 		strings = regexp(att_format_string, '\n', 'split');
-		for idx=1:numel(strings{1})
-			annot = strings{1}(idx);
+		for idx=1:numel(strings)
+			annot = strings(idx);
 			if ~strcmp(annot, '') && strncmp(annot, 'assume ', 7) && strcmp(annot{1}(end), ';')
                 
-				assertion = annot{1}(8:(end -1));
+				assertion = annot(8:(end -1));
 				assertions{numel(assertions) + 1} = assertion;
 			end
 		end
 	end
 
 	% Get SubSystem annotations
-	annots = find_system(obs_inter_blk{1}.annotation, 'FindAll', 'on', 'LookUnderMasks', 'all', 'Type', 'Annotation');
+	annots = obs_inter_blk.Annotation;
 
     for idx_annot=1:numel(annots)
-		value = get_param(annots(idx_annot), 'Name');
+		value = obs_inter_blk.(['Annotation' num2str(idx_annot)]).Text;
 		strings = regexp(value, '\n', 'split');
 		for idx=1:numel(strings)
-			annot = strings{idx};
+			annot = strings(idx);
 			if ~strcmp(annot, '') && strncmp(annot, 'assume ', 7) && strcmp(annot(end), ';')
-               
 				assertion = annot(8:(end -1));
 				assertions{numel(assertions) + 1} = assertion;
 			end
@@ -69,7 +70,7 @@ function res_assertions = convert_assertions(obs_inter_blk, list_in, list_in_out
 
 		for idx_in=numel(new_list_inport):-1:1
 			if strfind(assertion, new_list_inport{idx_in})
-				var_names{idx_in} = xml_trace.get_in_variable_name(obs_inter_blk{1}, new_list_inport{idx_in}, 1);
+				var_names{idx_in} = xml_trace.get_in_variable_name(inter_blk, new_list_inport{idx_in}, 1);
 			end
 		end
 

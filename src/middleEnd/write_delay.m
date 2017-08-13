@@ -22,21 +22,21 @@
 %
 %% Code
 %
-function [output_string] = write_delay(unbloc, init, delay_length, inter_blk)
+function [output_string] = write_delay(unbloc, init, delay_length, inter_blk, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
-[is_bus bus] = BusUtils.is_bus(unbloc.outports_dt{1});
+[is_bus bus] = BusUtils.is_bus(unbloc.CompiledPortDataTypes.Outport{1});
 if is_bus
 	[list_ic, list_fields] = BusUtils.list_cst(init, bus);
 else
-	[list_ic] = Utils.list_cst(init, unbloc.outports_dt{1});
+	[list_ic] = Utils.list_cst(init, unbloc.CompiledPortDataTypes.Outport{1});
 end
 
-[out_dim_r out_dim_c] = Utils.get_port_dims_simple(unbloc.outports_dim, 1);
+[out_dim_r out_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Outport, 1);
 
 [ic_dim_r ic_dim_c] = size(list_ic);
 
@@ -60,7 +60,7 @@ if numel(list_in) < numel(list_out)
     list_in = new_in;
 end
 
-out_dt = Utils.get_lustre_dt(unbloc.outports_dt{1});
+out_dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Outport{1});
 
 pre = '';
 for i=1:str2num(delay_length)
@@ -77,7 +77,7 @@ if is_bus
 	end
 else
 	for idx_out=1:numel(list_out)
-		if unbloc.out_cpx_sig(1)
+		if unbloc.CompiledPortComplexSignals.Outport(1)
 			ic_cpx = Utils.get_complex_def_str(list_ic{idx_out}, out_dt);
 			assign_str = sprintf('%s -> %s %s', ic_cpx,pre, list_in{idx_out});
 		else

@@ -38,12 +38,12 @@
 %
 %% Code
 %
-function [output_string] = write_ifelseif(unbloc, inter_blk, if_expr, elseif_expr, num_var, show_else)
+function [output_string] = write_ifelseif(unbloc, inter_blk, if_expr, elseif_expr, num_var, show_else, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
 if strcmp(show_else, 'on')
 	show_else = true;
@@ -57,8 +57,8 @@ elseif_expr = cellfun(@(x) strtrim(x), elseif_expr, 'UniformOutput', false);
 
 cpt_in = 1;
 % Replace inputs names (u1, u2, ...) with the correct variable name
-for idx_in=1:unbloc.num_input
-	[in_r in_c] = Utils.get_port_dims_simple(unbloc.inports_dim, idx_in);
+for idx_in=1:unbloc.Ports(1)
+	[in_r in_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, idx_in);
 	if in_r == 1 && in_c == 1
 		to_match = sprintf('u%d', idx_in);
 		if_expr = strrep(if_expr, to_match, list_in{cpt_in});
@@ -158,7 +158,7 @@ end
 % Convert the string content to double if necessary
 function result = convert_to_double(str, unbloc)
 	convert = false;
-	double_in_idx = find(cellfun(@(x) strcmp(Utils.get_lustre_dt(x), 'real'), unbloc.inports_dt));
+	double_in_idx = find(cellfun(@(x) strcmp(Utils.get_lustre_dt(x), 'real'), unbloc.CompiledPortDataTypes.Inport));
 	if numel(double_in_idx) > 0
 		convert = true;
 	end

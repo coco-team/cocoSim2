@@ -377,8 +377,10 @@ classdef Utils
         
         function [level] = get_pre_block_level(prename, inter_blk)
             level = 0;
-            for idx_blk=1:numel(inter_blk)
-                if strcmp(inter_blk{idx_blk}.name, prename)
+            fields = fieldnames(inter_blk.Content);
+            for idx_blk=1:numel(fields)
+                if strcmp(inter_blk.Content.(fields{idx_blk}).Path, prename)
+                    % TODO : find what name_level is for
                     level = inter_blk{idx_blk}.name_level;
                     return
                 end
@@ -403,8 +405,8 @@ classdef Utils
         function [list_in_out] = expand_all_inputs(block, list_in)
             dim = 1;
             dims = '';
-            for idx_in=1:block.num_input
-                [in_dim_r in_dim_c] = Utils.get_port_dims_simple(block.inports_dim, idx_in);
+            for idx_in=1:block.Ports(1)
+                [in_dim_r in_dim_c] = Utils.get_port_dims_simple(block.CompiledPortDimensions.Inport, idx_in);
                 if in_dim_r ~= 1
                     dim = in_dim_r;
                     if in_dim_c ~= 1
@@ -441,10 +443,10 @@ classdef Utils
         end
         
         function [list_in_out] = expand_all_inputs_according_output(block, list_in, out_nb)
-            dim = block.dstport_size(out_nb);
+            dim = block.CompiledPortWidths.Outport(out_nb);
             dims = '';
-            for idx_in=1:block.num_input
-                [in_dim_r in_dim_c] = Utils.get_port_dims_simple(block.inports_dim, idx_in);
+            for idx_in=1:block.Ports(1)
+                [in_dim_r in_dim_c] = Utils.get_port_dims_simple(block.CompiledPortDimensions.Inport, idx_in);
                 if in_dim_r ~= 1
                     dim = in_dim_r;
                     if in_dim_c ~= 1
@@ -553,38 +555,45 @@ classdef Utils
         function [res var_name] = is_reset(inter_blk)
             res = false;
             var_name = '';
-            if strcmp(inter_blk{1}.type, 'SubSystem')
-                if inter_blk{1}.action_reset || inter_blk{1}.foriter_reset || inter_blk{1}.enable_reset
+            if strcmp(inter_blk.BlockType, 'SubSystem')
+                if (strcmp(inter_blk.BlockType, 'ActionPort') && strcmp(inter_blk.InitializeStates, 'reset'))...
+                        || (strcmp(inter_blk.BlockType, 'ForIterator') && strcmp(inter_blk.ResetStates, 'reset'))...
+                        || (strcmp(inter_blk.BlockType, 'EnablePort') && strcmp(inter_blk.StatesWhenEnabling, 'reset'))
                     res = true;
                 end
             end
             if res
-                blk_path_elems = regexp(inter_blk{1}.name{1}, '/', 'split');
+                blk_path_elems = regexp(inter_blk.Path, filesep, 'split');
                 node_name = Utils.concat_delim(blk_path_elems, '_');
-                if inter_blk{1}.action_reset
+                if (strcmp(inter_blk.BlockType, 'ActionPort') && strcmp(inter_blk.InitializeStates, 'reset'))
                     var_name = [node_name Constants.ACTION_RESET];
-                elseif inter_blk{1}.enable_reset
+                elseif (strcmp(inter_blk.BlockType, 'EnablePort') && strcmp(inter_blk.StatesWhenEnabling, 'reset'))
                     var_name = [node_name Constants.ENABLE_RESET];
-                elseif inter_blk{1}.foriter_reset
+                elseif (strcmp(inter_blk.BlockType, 'ForIterator') && strcmp(inter_blk.ResetStates, 'reset'))
                     var_name = [node_name Constants.FOR_ITER_RESET];
                 end
             end
         end
         
-        function [res var_name dt] = needs_for_iter_var(inter_blk)
+        function [res var_name dt] = needs_for_iter_var(myblk, inter_blk)
             res = false;
             var_name = '';
             dt = '';
-            if strcmp(inter_blk{1}.type, 'SubSystem')
-                blocks = find_system(inter_blk{1}.origin_name);
-                block_types = get_param(blocks, 'BlockType');
+            if strcmp(inter_blk.BlockType, 'SubSystem')
+                fields = fieldnames(inter_blk.Content);
+                blocks = {};
+                for i=1:numel(fields)
+                    blocks = [blocks, inter_blk.Content.(fields{i}).Path];
+                end
+                block_types = cocoget_param(myblk, blocks, 'BlockType');
                 
                 index_for_iter = find(ismember(block_types, 'ForIterator'));
                 if numel(index_for_iter) > 0
-                    ext_incr = get_param(blocks{index_for_iter(1)}, 'ExternalIncrement');
+                    blk = get_struct(myblk, blocks{index_for_iter(1)});
+                    ext_incr = blk.ExternalIncrement;
                     if strcmp(ext_incr, 'off')
-                        dt = Utils.get_lustre_dt(get_param(blocks{index_for_iter(1)}, 'IterationVariableDataType'));
-                        blk_path_elems = regexp(inter_blk{1}.name{1}, '/', 'split');
+                        dt = Utils.get_lustre_dt(blk.IterationVariableDataType);
+                        blk_path_elems = regexp(inter_blk.Path, filesep, 'split');
                         node_name = Utils.concat_delim(blk_path_elems, '_');
                         var_name = [node_name Constants.FOR_ITER];
                         res = true;
@@ -743,7 +752,7 @@ classdef Utils
         
         function name = var_naming(unbloc, postfix)
             
-            block_full_name = regexp(unbloc.name, '/', 'split');
+            block_full_name = regexp(unbloc.Path, filesep, 'split');
             if unbloc.name_level >= numel(block_full_name{1})
                 block_name = Utils.concat_delim(block_full_name{1}, '_');
             else

@@ -39,21 +39,21 @@ output_string = '';
 var_str = '';
 [list_out] = list_var_sortie(unbloc);
 
-[is_bus bus] = BusUtils.is_bus(unbloc.outports_dt{1});
+[is_bus bus] = BusUtils.is_bus(unbloc.CompiledPortDataTypes.Outport{1});
 if is_bus
 	[list_const, list_fields] = BusUtils.list_cst(Kvalue, bus);
 else
-	[list_const] = Utils.list_cst(Kvalue, unbloc.outports_dt{1});
+	[list_const] = Utils.list_cst(Kvalue, unbloc.CompiledPortDataTypes.Outport{1});
 end
 
-[dim_r dim_c] = Utils.get_port_dims_simple(unbloc.outports_dim, 1);
+[dim_r dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Outport, 1);
 
 if is_bus
 	for idx=1:numel(list_const)
 		output_string = app_sprintf(output_string, '\t%s.%s = %s;\n', list_out{1}, list_fields{idx}, list_const{idx});
 	end
 else
-	if numel(list_const) == 1 && unbloc.dstport_size ~= 1
+	if numel(list_const) == 1 && unbloc.CompiledPortWidths.Outport ~= 1
 		value = list_const{1, 1};
 		for idx_row=1:dim_r
 			for idx_col=1:dim_c
@@ -63,9 +63,9 @@ else
 		end
 	end
 	
-	if unbloc.out_cpx_sig(1)
+	if unbloc.CompiledPortComplexSignals.Outport(1)
 		% Complex constant
-		dt = Utils.get_lustre_dt(unbloc.outports_dt{1});
+		dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Outport{1});
 		for idx_row=1:dim_r
 			for idx_col=1:dim_c
 				in_out_idx = idx_col + ((idx_row-1) * dim_c);
@@ -90,10 +90,10 @@ else
 		end
 	end
 end
-blk_type = get_param(unbloc.post{1}, 'BlockType');
+blk_type = cocoget_param(unbloc.Post{1}, 'BlockType');
 if strcmp(blk_type,'Merge')
-    annotation = regexprep(num2str(unbloc.post{1}),'\.','_');
-    name = strcat('Merge_',annotation,'_input',num2str(unbloc.dstport{1}),'_hasChanged');
+    annotation = regexprep(num2str(unbloc.Post{1}),'\.','_');
+    name = strcat('Merge_',annotation,'_input',num2str(unbloc.CompiledPortWidths.Outport{1}),'_hasChanged');
     var_str = [var_str '\t' name ': bool;\n'];
     output_string = app_sprintf(output_string, '\t%s = true;\n', name);
 end

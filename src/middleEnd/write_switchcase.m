@@ -26,12 +26,12 @@
 %
 %% Code
 %
-function [output_string] = write_switchcase(unbloc, inter_blk, cond, default_case)
+function [output_string] = write_switchcase(unbloc, inter_blk, cond, default_case, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
 if strcmp(default_case, 'on')
 	default_case = true;

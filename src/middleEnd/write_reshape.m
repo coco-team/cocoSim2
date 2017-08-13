@@ -25,15 +25,15 @@
 %
 %% Code
 %
-function [output_string] = write_reshape(unbloc, inter_blk)
+function [output_string] = write_reshape(unbloc, inter_blk, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc,inter_blk);
+[list_in] = list_var_entree(unbloc,inter_blk, myblk);
 
-[in_dim_r in_dim_c] = Utils.get_port_dims_simple(unbloc.inports_dim, 1);
-[out_dim_r out_dim_c] = Utils.get_port_dims_simple(unbloc.outports_dim, 1);
+[in_dim_r in_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, 1);
+[out_dim_r out_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Outport, 1);
 
 cpt = 1;
 for idx_c=1:in_dim_c

@@ -37,22 +37,22 @@
 %
 %% Code
 %
-function [output_string] = write_concatenate(unbloc, mode, dim, inter_blk)
+function [output_string] = write_concatenate(unbloc, mode, dim, inter_blk, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
 cpx_mode = false;
-if unbloc.out_cpx_sig(1)
+if unbloc.CompiledPortComplexSignals.Outport(1)
 	cpx_mode = true;
 	cpt_in = 0;
-	dt = Utils.get_lustre_dt(unbloc.outports_dt{1});
-	for idx_in=1:unbloc.num_input
-		[dim_r dim_c] = Utils.get_port_dims_simple(unbloc.inports_dim, idx_in);
+	dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Outport{1});
+	for idx_in=1:unbloc.Ports(1)
+		[dim_r dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, idx_in);
 		nb = dim_r * dim_c;
-		if ~unbloc.in_cpx_sig(idx_in)
+		if ~unbloc.CompiledPortComplexSignals.Inport(idx_in)
 			for idx=1:nb
 				list_in{cpt_in + idx} = Utils.real_to_complex_str(list_in{cpt_in + idx}, dt);
 			end
@@ -97,8 +97,8 @@ else
         ind_in = 1;
         res = [];
         nb_col = 0;
-        for idx_in=1:unbloc.num_input
-            [in_dim_r, in_dim_c] = Utils.get_port_dims_simple(unbloc.inports_dim, idx_in);
+        for idx_in=1:unbloc.Ports(1)
+            [in_dim_r, in_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, idx_in);
             for dim1=1:in_dim_r
                 for dim2=1:in_dim_c
                     res(dim1,nb_col+dim2) = ind_in;

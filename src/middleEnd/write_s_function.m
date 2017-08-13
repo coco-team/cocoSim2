@@ -17,14 +17,14 @@
 %
 %% Code
 %
-function [output_string] = write_s_function(unbloc, function_name, parameters, inter_blk)
+function [output_string] = write_s_function(unbloc, function_name, parameters, inter_blk, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
 [list_in] = list_var_entree(unbloc, inter_blk);
 
-block_full_name = regexp(unbloc.name{1}, '/', 'split');
+block_full_name = regexp(unbloc.Path, filesep, 'split');
 node_name = block_full_name{end};
 
 % Format list_in and list_out as string
@@ -48,6 +48,6 @@ end
 % end
 
 
-block_name = Utils.naming(unbloc.name{1});
+block_name = Utils.naming(unbloc.Path);
 output_string = app_sprintf(output_string, '\t%s = %s(%s);\n', list_out, block_name, list_in);
 end

@@ -215,17 +215,14 @@ cpt_in = 1;
 cpt_out = 1;
 
 parent_block_name = prop_node_name.parent_block_name;
-if numel(regexp(parent_block_name, '/', 'split')) == 1
-    idx_sub = 1;
+if numel(regexp(parent_block_name, filesep, 'split')) == 1
     main_model_name = parent_block_name;
+    sub_block = model_inter_blk;
 else
-    par_name_comp = regexp(parent_block_name, '/', 'split');
+    par_name_comp = regexp(parent_block_name, filesep, 'split');
     main_model_name = par_name_comp{1};
-    for idx_blk=2:numel(model_inter_blk)
-        if strcmp(parent_block_name, model_inter_blk{idx_blk}{1}.origin_name)
-            idx_sub = idx_blk;
-        end
-    end
+
+    sub_block = get_struct(model_inter_blk, Utils.name_format(parent_block_name));
 end
 
 % TODO: remove compilation here
@@ -233,27 +230,29 @@ warning off;
 code_compile = sprintf('%s([], [], [], ''compile'')', main_model_name);
 eval(code_compile);
 
-for idx_blk=1:numel(model_inter_blk{idx_sub})
-    inter_blk = model_inter_blk{idx_sub};
-    if strcmp(inter_blk{idx_blk}.type, 'Inport')
-        block_full_name = regexp(inter_blk{idx_blk}.origin_name{1}, '/', 'split');
+fields = fieldnames(sub_block.Content);
+
+for idx_blk=1:numel(fields)
+    ablock = sub_block.Content.(fields{idx_blk});
+    if strcmp(ablock.BlockType, 'Inport')
+        block_full_name = regexp(ablock.Origin_path, filesep, 'split');
         block_name = block_full_name{end};
         block_name = strrep(block_name, ' ', '_');
         IO_struct.inputs{cpt_in}.name = block_name;
-        IO_struct.inputs{cpt_in}.origin_name = inter_blk{idx_blk}.origin_name{1};
-        [dim_r dim_c] = Utils.get_port_dims_simple(inter_blk{idx_blk}.outports_dim, 1);
+        IO_struct.inputs{cpt_in}.origin_name = ablock.Origin_path;
+        [dim_r dim_c] = Utils.get_port_dims_simple(ablock.CompiledPortDimensions.Outport, 1);
         IO_struct.inputs{cpt_in}.dim_r = dim_r;
         IO_struct.inputs{cpt_in}.dim_c = dim_c;
-        inpu_ports_compiled_dt = get_param(IO_struct.inputs{cpt_in}.origin_name, 'CompiledPortDataTypes');
+        inpu_ports_compiled_dt = ablock.CompiledPortDataTypes;
         IO_struct.inputs{cpt_in}.dt = inpu_ports_compiled_dt.Outport;
         cpt_in = cpt_in + 1;
-    elseif strcmp(inter_blk{idx_blk}.type, 'Outport')
-        block_full_name = regexp(inter_blk{idx_blk}.origin_name{1}, '/', 'split');
+    elseif strcmp(ablock.BlockType, 'Outport')
+        block_full_name = regexp(ablock.Origin_path, filesep, 'split');
         block_name = block_full_name{end};
         block_name = strrep(block_name, ' ', '_');
         IO_struct.outputs{cpt_out}.name = block_name;
-        IO_struct.outputs{cpt_out}.origin_name = inter_blk{idx_blk}.origin_name{1};
-        [dim_r dim_c] = Utils.get_port_dims_simple(inter_blk{idx_blk}.inports_dim, 1);
+        IO_struct.outputs{cpt_out}.origin_name = ablock.Origin_path;
+        [dim_r dim_c] = Utils.get_port_dims_simple(ablock.CompiledPortDimensions.Inport, 1);
         IO_struct.outputs{cpt_out}.dim_r = dim_r;
         IO_struct.outputs{cpt_out}.dim_c = dim_c;
         cpt_out = cpt_out + 1;

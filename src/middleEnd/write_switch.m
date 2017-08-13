@@ -60,14 +60,14 @@
 %
 %% Code
 %
-function [output_string] = write_switch(unbloc, inter_blk, criteria, threshold)
+function [output_string] = write_switch(unbloc, inter_blk, criteria, threshold, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
-cond_dt = Utils.get_lustre_dt(unbloc.inports_dt{2});
+cond_dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Inport{2});
 
 if ~strcmp(criteria, 'u2 ~= 0')
 	if islogical(threshold) && strcmp(cond_dt, 'bool')
@@ -81,7 +81,7 @@ if ~strcmp(criteria, 'u2 ~= 0')
 			[list_threshold] = Utils.list_cst(threshold, 'real');
 		end
 	else
-		[list_threshold] = Utils.list_cst(threshold, unbloc.inports_dt{2});
+		[list_threshold] = Utils.list_cst(threshold, unbloc.CompiledPortDataTypes.Inport{2});
 	end
 end
 
@@ -121,9 +121,9 @@ end
 % disp(bus)
 
 % Get the size of the condition input (second one) and the variables for the conditions
-[dim_r_sec, dim_c_sec] = Utils.get_port_dims_simple(unbloc.inports_dim, 2);
+[dim_r_sec, dim_c_sec] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, 2);
 dim_second = dim_r_sec * dim_c_sec;
-list_in_cond = list_in(unbloc.dstport_size+1:unbloc.dstport_size+dim_second);
+list_in_cond = list_in(unbloc.CompiledPortWidths.Outport+1:unbloc.CompiledPortWidths.Outport+dim_second);
 
 % Redimention the list of conditions or the list of threshold values
 if ~strcmp(criteria, 'u2 ~= 0')
@@ -144,7 +144,7 @@ if ~strcmp(criteria, 'u2 ~= 0')
 	end
 end
 
-size_in = unbloc.dstport_size;
+size_in = unbloc.CompiledPortWidths.Outport;
 size_cond = numel(list_in_cond);
 
 is_bus_switch = false;

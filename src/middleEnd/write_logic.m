@@ -29,52 +29,52 @@
 %
 %% Code
 %
-function [output_string] = write_logic(unbloc, operator, inter_blk)
+function [output_string] = write_logic(unbloc, operator, inter_blk, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
 if strcmp(operator, 'NOT')
-    for idx_dim=1:unbloc.dstport_size
+    for idx_dim=1:unbloc.CompiledPortWidths.Outport
         output_string = app_sprintf(output_string, '\t%s = not %s;\n', list_out{idx_dim}, list_in{idx_dim});
     end
 else
     list_in = Utils.expand_all_inputs(unbloc, list_in);
     
     if strcmp(operator, 'AND') || strcmp(operator, 'OR') || strcmp(operator, 'XOR')
-        for idx_dim=1:unbloc.dstport_size
-            list_in_nth = Utils.get_elem_nth_shift(list_in, idx_dim, unbloc.dstport_size(1));
+        for idx_dim=1:unbloc.CompiledPortWidths.Outport
+            list_in_nth = Utils.get_elem_nth_shift(list_in, idx_dim, unbloc.CompiledPortWidths.Outport(1));
             right_string = Utils.concat_delim(list_in_nth, [' ' lower(operator) ' ']);
             output_string = app_sprintf(output_string, '\t%s = %s;\n', list_out{idx_dim}, right_string);
         end
     elseif strcmp(operator, 'IMPLIES')
-        for idx_dim=1:unbloc.dstport_size
-            list_in_nth = Utils.get_elem_nth_shift(list_in, idx_dim, unbloc.dstport_size(1));
+        for idx_dim=1:unbloc.CompiledPortWidths.Outport
+            list_in_nth = Utils.get_elem_nth_shift(list_in, idx_dim, unbloc.CompiledPortWidths.Outport(1));
             right_string = Utils.concat_delim(list_in_nth, [' ' '=>' ' ']);
             output_string = app_sprintf(output_string, '\t%s = %s;\n', list_out{idx_dim}, right_string);
         end
     elseif strcmp(operator, 'NXOR')
-        for idx_dim=1:unbloc.dstport_size
-            list_in_nth = Utils.get_elem_nth_shift(list_in, idx_dim, unbloc.dstport_size(1));
+        for idx_dim=1:unbloc.CompiledPortWidths.Outport
+            list_in_nth = Utils.get_elem_nth_shift(list_in, idx_dim, unbloc.CompiledPortWidths.Outport(1));
             right_string = Utils.concat_delim(list_in_nth, [' xor ']);
             output_string = app_sprintf(output_string, '\t%s = not(%s);\n', list_out{idx_dim}, right_string);
         end
     elseif strcmp(operator, 'NAND')
-        for idx_dim=1:unbloc.dstport_size
-            list_in_nth = Utils.get_elem_nth_shift(list_in, idx_dim, unbloc.dstport_size(1));
+        for idx_dim=1:unbloc.CompiledPortWidths.Outport
+            list_in_nth = Utils.get_elem_nth_shift(list_in, idx_dim, unbloc.CompiledPortWidths.Outport(1));
             right_string = Utils.concat_delim(list_in_nth, [' and ']);
             output_string = app_sprintf(output_string, '\t%s = not(%s);\n', list_out{idx_dim}, right_string);
         end
     elseif strcmp(operator, 'NOR')
-        for idx_dim=1:unbloc.dstport_size
-            list_in_nth = Utils.get_elem_nth_shift(list_in, idx_dim, unbloc.dstport_size(1));
+        for idx_dim=1:unbloc.CompiledPortWidths.Outport
+            list_in_nth = Utils.get_elem_nth_shift(list_in, idx_dim, unbloc.CompiledPortWidths.Outport(1));
             right_string = Utils.concat_delim(list_in_nth, [' or ']);
             output_string = app_sprintf(output_string, '\t%s = not(%s);\n', list_out{idx_dim}, right_string);
         end
     else
-        msg = sprintf('The block %s has type %s not supported \n', char(unbloc.origin_name),operator);
+        msg = sprintf('The block %s has type %s not supported \n', char(unbloc.Origin_path),operator);
         display_msg(msg, Constants.ERROR, 'write_logic', '');
     end
 end

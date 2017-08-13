@@ -26,13 +26,13 @@
 %
 %% Code
 %
-function [output_string] = write_bias(unbloc, bias, inter_blk)
+function [output_string] = write_bias(unbloc, bias, inter_blk, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
-[list_const] = Utils.list_cst(bias, unbloc.outports_dt{1});
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
+[list_const] = Utils.list_cst(bias, unbloc.CompiledPortDataTypes.Outport{1});
 
 if numel(list_const) ~= numel(list_out)
 	val = list_const{1};
@@ -48,13 +48,13 @@ if numel(list_in) ~= numel(list_out)
 	end
 end
 
-dt = Utils.get_lustre_dt(unbloc.outports_dt{1});
-if unbloc.out_cpx_sig(1)
+dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Outport{1});
+if unbloc.CompiledPortComplexSignals.Outport(1)
 	for idx=1:numel(list_out)
 		const_real = evalin('base', sprintf('real(%s);', list_const{idx}));
 		const_imag = evalin('base', sprintf('imag(%s);', list_const{idx}));
 		if strcmp(dt, 'real')
-			if unbloc.in_cpx_sig(1)
+			if unbloc.CompiledPortComplexSignals.Inport(1)
 				output_string = app_sprintf(output_string, '\t%s.r = %s.r + %10.10f;\n', char(list_out{idx}), list_in{idx}, const_real);
 				output_string = app_sprintf(output_string, '\t%s.i = %s.i + %10.10f;\n', char(list_out{idx}), list_in{idx}, const_imag);
 			else
@@ -62,7 +62,7 @@ if unbloc.out_cpx_sig(1)
 				output_string = app_sprintf(output_string, '\t%s.i = %10.10f;\n', char(list_out{idx}), const_imag);
 			end
 		else
-			if unbloc.in_cpx_sig(1)
+			if unbloc.CompiledPortComplexSignals.Inport(1)
 				output_string = app_sprintf(output_string, '\t%s.r = %s.r + %d;\n', char(list_out{idx}), list_in{idx}, const_real);
 				output_string = app_sprintf(output_string, '\t%s.i = %s.i + %d;\n', char(list_out{idx}), list_in{idx}, const_imag);
 			else

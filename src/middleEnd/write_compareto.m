@@ -54,19 +54,19 @@
 %
 
 function [output_string, add_vars] = write_compareto(unbloc, inter_blk, operator, const, ...
-    outdtstr, xml_trace)
+    outdtstr, xml_trace, myblk)
 
 output_string = '';
 add_vars = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
-in_dt = Utils.get_lustre_dt(unbloc.inports_dt{1});
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
+in_dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Inport{1});
 
 if strcmp(in_dt, 'bool')
 	[list_const] = Utils.list_cst(const, 'write_compareto_bool');
 else
-	[list_const] = Utils.list_cst(const, unbloc.inports_dt{1});
+	[list_const] = Utils.list_cst(const, unbloc.CompiledPortDataTypes.Inport{1});
 end
 
 % Expand inputs if necessary
@@ -80,7 +80,7 @@ end
 
 
 is_cpx = false;
-if ~isreal(const) || unbloc.in_cpx_sig(1)
+if ~isreal(const) || unbloc.CompiledPortComplexSignals.Inport(1)
 	is_cpx = true;
 end
 
@@ -96,12 +96,12 @@ if numel(list_const) ~= numel(list_out)
 	list_const = new_const2;
 end
 
-dim = unbloc.dstport_size(1);
+dim = unbloc.CompiledPortWidths.Outport(1);
 if is_cpx
 	unique_const_val = false;
-	block_name_split = regexp(unbloc.name, '/', 'split');
+	block_name_split = regexp(unbloc.Path, filesep, 'split');
 	block_name = Utils.concat_delim(block_name_split{1}, '_');
-	dt = Utils.get_lustre_dt(unbloc.inports_dt{1});
+	dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Inport{1});
 	if numel(unique(list_const)) == 1
 		tmp_var_name = sprintf('%s_tmp', block_name);
 		add_vars = [add_vars sprintf('\t%s: complex_%s;\n', tmp_var_name, dt)];
@@ -111,7 +111,7 @@ if is_cpx
 		unique_const_val = true;
 
 		% Add traceability for additional variables
-		xml_trace.add_Variable(tmp_var_name, unbloc.origin_name, 1, 1, true);
+		xml_trace.add_Variable(tmp_var_name, unbloc.Origin_path, 1, 1, true);
 	else
 		for idx_const=1:numel(list_const)
 			tmp_var_name = sprintf('%s_tmp_%d', block_name, idx_const);
@@ -121,13 +121,13 @@ if is_cpx
 			list_const{idx_const} = tmp_var_name;
 
 			% Add traceability for additional variables
-			xml_trace.add_Variable(tmp_var_name, unbloc.origin_name, 1, idx_const, true);
+			xml_trace.add_Variable(tmp_var_name, unbloc.Origin_path, 1, idx_const, true);
 		end
 	end
 end
 
 if is_cpx
-	in_dt = Utils.get_lustre_dt(unbloc.inports_dt{1});
+	in_dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Inport{1});
 	if strcmp(in_dt, 'real')
 		zero = '0.0';
 	else
@@ -141,14 +141,14 @@ if is_cpx
 		end
 		output_string = app_sprintf(output_string,'\t%s = ', list_out{idx_out});
 		if not_op
-			if unbloc.in_cpx_sig(1)
+			if unbloc.CompiledPortComplexSignals.Inport(1)
 				comp_str = sprintf('not(%s.r %s %s.r)', list_in{idx_out}, operator, list_const{idx_const});
 				comp_str = sprintf('%s and not(%s.i %s %s.i);\n', comp_str, list_in{idx_out}, operator, list_const{idx_const});
 			else
 				comp_str = sprintf('not(%s %s %s.r) and %s.i = %s;\n', list_in{idx_out}, operator, list_const{idx_const}, list_const{idx_const}, zero);
 			end
 		else
-			if unbloc.in_cpx_sig(1)
+			if unbloc.CompiledPortComplexSignals.Inport(1)
 				comp_str = sprintf('(%s.r %s %s.r)', list_in{idx_out}, operator, list_const{idx_const});
 				comp_str = sprintf('%s and (%s.i %s %s.i);\n', comp_str, list_in{idx_out}, operator, list_const{idx_const});
 			else

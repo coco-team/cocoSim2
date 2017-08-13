@@ -29,35 +29,35 @@
 %
 %% Code
 %
-function [output_string] = write_busassignment(unbloc, inter_blk, assigned)
+function [output_string] = write_busassignment(unbloc, inter_blk, assigned, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
 assigned = regexp(assigned, ',', 'split');
 
-[is_bus bus] = BusUtils.is_bus(unbloc.inports_dt{1});
+[is_bus bus] = BusUtils.is_bus(unbloc.CompiledPortDataTypes.Inport{1});
 is_virtual = ~is_bus;
 
 data = {};
 cpt_bus_elements = 0;
 
 if is_virtual
-	index_first_assignment = unbloc.srcport_size(1);
+	index_first_assignment = unbloc.CompiledPortWidths.Inport(1);
 	cpt_bus_dims = 3;
-	for idx=1:numel(unbloc.input_signals)
-		elem = unbloc.input_signals{idx};
+	for idx=1:numel(unbloc.InputSignals)
+		elem = unbloc.InputSignals{idx};
 		data{idx}.Name = elem;
 		data{idx}.struct_idx = cpt_bus_elements;
-		if unbloc.inports_dim(cpt_bus_dims) == 1
-			cpt_bus_elements = cpt_bus_elements + unbloc.inports_dim(cpt_bus_dims+1);
-			data{idx}.Dimensions = unbloc.inports_dim(cpt_bus_dims+1);
+		if unbloc.CompiledPortDimensions.Inport(cpt_bus_dims) == 1
+			cpt_bus_elements = cpt_bus_elements + unbloc.CompiledPortDimensions.Inport(cpt_bus_dims+1);
+			data{idx}.Dimensions = unbloc.CompiledPortDimensions.Inport(cpt_bus_dims+1);
 			cpt_bus_dims = cpt_bus_dims + 2;
 		else
-			cpt_bus_elements = cpt_bus_elements + (unbloc.inports_dim(cpt_bus_dims+1) * unbloc.inports_dim(cpt_bus_dims+2));
-			data{idx}.Dimensions = [unbloc.inports_dim(cpt_bus_dims+1) unbloc.inports_dim(cpt_bus_dims+2)];
+			cpt_bus_elements = cpt_bus_elements + (unbloc.inports_dim(cpt_bus_dims+1) * unbloc.CompiledPortDimensions.Inport(cpt_bus_dims+2));
+			data{idx}.Dimensions = [unbloc.CompiledPortDimensions.Inport(cpt_bus_dims+1) unbloc.CompiledPortDimensions.Inport(cpt_bus_dims+2)];
 			cpt_bus_dims = cpt_bus_dims + 3;
 		end
 		index = find(strcmp(elem, assigned));
@@ -68,10 +68,10 @@ if is_virtual
 		end
 	end
 	
-	for idx=2:unbloc.num_input
-		index_data = find(cellfun(@(x) strcmp(x, assigned{idx-1}), unbloc.input_signals));
+	for idx=2:unbloc.Ports(1)
+		index_data = find(cellfun(@(x) strcmp(x, assigned{idx-1}), unbloc.InputSignals));
 		data{index_data}.start_idx = index_first_assignment;
-	   index_first_assignment = index_first_assignment + unbloc.srcport_size(idx);
+	   index_first_assignment = index_first_assignment + unbloc.CompiledPortWidths.Inport(idx);
 	end
 else
 	index_first_assignment = 1;
@@ -93,10 +93,10 @@ else
 		end
 	end
 	
-	for idx=2:unbloc.num_input
+	for idx=2:unbloc.Ports(1)
 		index_data = find(cellfun(@(x) strcmp(x.Name, assigned{idx-1}), data));
 		data{index_data}.start_idx = index_first_assignment;
-	   index_first_assignment = index_first_assignment + unbloc.srcport_size(idx);
+	   index_first_assignment = index_first_assignment + unbloc.CompiledPortWidths.Inport(idx);
 	end
 end
 

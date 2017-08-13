@@ -19,13 +19,13 @@
 %
 %% Code
 %
-function [output_string] = write_fromworkspace(unbloc, inter_blk, data)
+function [output_string] = write_fromworkspace(unbloc, inter_blk, data, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
 %[list_const] = Utils.list_cst(K, unbloc.outports_dt{1});
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
 classifier = class(data);
 if strcmp(classifier, 'timeseries')
@@ -49,8 +49,8 @@ else
 	end
 end
 
-dt = Utils.get_lustre_dt(unbloc.outports_dt{1});
-is_complex = unbloc.out_cpx_sig(1);
+dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Outport{1});
+is_complex = unbloc.CompiledPortComplexSignals.Outport(1);
 
 for idx_dim=1:numel(list_out)
 	lhs_str = '';

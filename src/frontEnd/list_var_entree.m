@@ -3,20 +3,22 @@
 % Copyright (C) 2014-2016  Carnegie Mellon University
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [li] = list_var_entree(unbloc, inter_blk)
+function [li] = list_var_entree(unbloc, inter_blk, ir_struct)
 cpt = 1;
 li = '';
 
-for idx_input=1:unbloc.num_input
-	preceding_block_full_name = regexp(unbloc.prename{idx_input}, '/', 'split');
-	pre_block_level = Utils.get_pre_block_level(unbloc.prename{idx_input}, inter_blk);
-	preceding_block_name = Utils.concat_delim(preceding_block_full_name{1}(end - pre_block_level : end), '_');
+for idx_input=1:unbloc.Ports(1)
+    pre = get_struct(ir_struct, unbloc.Pre(idx_input));
+    prename = pre.Path;
+	preceding_block_full_name = regexp(prename, filesep, 'split');
+	pre_block_level = pre.name_level;
+	preceding_block_name = Utils.concat_delim(preceding_block_full_name(end - pre_block_level : end), '_');
 
-	for idx_dim=1:unbloc.srcport_size(idx_input)
-		li{cpt} = [preceding_block_name '_' num2str(unbloc.srcport{idx_input} + 1) '_' num2str(idx_dim)];
+	for idx_dim=1:unbloc.CompiledPortWidths.Inport(idx_input)
+		li{cpt} = [preceding_block_name '_' num2str(unbloc.CompiledPortWidths.Inport(idx_input) + 1) '_' num2str(idx_dim)];
 		if numel(unbloc.conversion) > 0 && ~strcmp(unbloc.conversion{idx_input}, 'no')
-			li{cpt} = convert_input(li{cpt}, unbloc, unbloc.inports_dt{idx_input}, unbloc.conversion{idx_input}, idx_input);
-		end
+			li{cpt} = convert_input(li{cpt}, unbloc, unbloc.CompiledPortDataTypes.Inport{idx_input}, unbloc.conversion{idx_input}, idx_input);
+        end
 		cpt = cpt +1;
 	end
 end
@@ -50,7 +52,7 @@ if strcmp(in_dt, conv_dt)
 	return
 end
 
-if unbloc.in_cpx_sig(index)
+if unbloc.CompiledPortComplexSignals.Inport(index)
 	if strcmp(in_dt, 'int')
 		% Convert from int to real
 		out_str = sprintf('complex_real{ r = int_to_real(%s.r); i = int_to_real(%s.i)}', in_str, in_str);
@@ -61,19 +63,19 @@ if unbloc.in_cpx_sig(index)
 			save('tmp_dt_conv.mat', 'int_to_real');
 		end
 	else
-		out_str = sprintf('complex_int{ r = %s(%s.r); i = %s(%s.i)}', unbloc.rounding, in_str, unbloc.rounding, in_str);
+		out_str = sprintf('complex_int{ r = %s(%s.r); i = %s(%s.i)}', unbloc.RndMeth, in_str, unbloc.RndMeth, in_str);
 		if exist('tmp_dt_conv.mat', 'file') == 2
 			load 'tmp_dt_conv'
 			if exist('rounding', 'var')
-				if numel(rounding, unbloc.rounding) == 0
-					rounding = [rounding ' ' unbloc.rounding];
+				if numel(rounding, unbloc.RndMeth) == 0
+					rounding = [rounding ' ' unbloc.RndMeth];
 				end
 			else
-				rounding = unbloc.rounding;
+				rounding = unbloc.RndMeth;
 			end
 			save('tmp_dt_conv.mat', 'rounding', '-append');
 		else
-			rounding = unbloc.rounding;
+			rounding = unbloc.RndMeth;
 			save('tmp_dt_conv.mat', 'rounding');
 		end
 	end
@@ -109,19 +111,19 @@ else
 	else
 		if strcmp(conv_dt, 'int')
 			% real -> int conversion
-			out_str = sprintf('%s(%s)', unbloc.rounding, in_str);
+			out_str = sprintf('%s(%s)', unbloc.RndMeth, in_str);
 			if exist('tmp_dt_conv.mat', 'file') == 2
 				load 'tmp_dt_conv'
 				if exist('rounding', 'var')
-					if numel(rounding, unbloc.rounding) == 0
-						rounding = [rounding ' ' unbloc.rounding];
+					if numel(rounding, unbloc.RndMeth) == 0
+						rounding = [rounding ' ' unbloc.RndMeth];
 					end
 				else
-					rounding = unbloc.rounding;
+					rounding = unbloc.RndMeth;
 				end
 				save('tmp_dt_conv.mat', 'rounding', '-append');
 			else
-				rounding = unbloc.rounding;
+				rounding = unbloc.RndMeth;
 				save('tmp_dt_conv.mat', 'rounding');
 			end
 		else

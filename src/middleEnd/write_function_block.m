@@ -28,32 +28,32 @@
 %
 %% Code
 %
-function [output_string, ext_node, add_vars,external_math_functions] = write_function_block(unbloc, inter_blk, fun_expr, xml_trace)
+function [output_string, ext_node, add_vars,external_math_functions] = write_function_block(unbloc, inter_blk, fun_expr, xml_trace, myblk)
 external_math_functions = [];
 output_string = '';
 ext_node = '';
 add_vars = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
 % Prepare node header
-blk_path_elems = regexp(unbloc.name{1}, '/', 'split');
+blk_path_elems = regexp(unbloc.Path, filesep, 'split');
 node_call_name = Utils.concat_delim(blk_path_elems, '_');
 
-in_dt = Utils.get_lustre_dt(unbloc.inports_dt{1});
-out_dt = Utils.get_lustre_dt(unbloc.outports_dt{1});
+in_dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Inport{1});
+out_dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Outport{1});
 
 % Write function call
-[dim_out_r dim_out_c] = Utils.get_port_dims_simple(unbloc.outports_dim, 1);
-[dim_in_r dim_in_c] = Utils.get_port_dims_simple(unbloc.inports_dim, 1);
+[dim_out_r dim_out_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Outport, 1);
+[dim_in_r dim_in_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, 1);
 
 tmp_in_var = sprintf('tmp_in_%s', node_call_name);
 tmp_out_var = sprintf('tmp_out_%s', node_call_name);
 
 % Add traceability for additional variables
-xml_trace.add_Variable(tmp_in_var, unbloc.origin_name, 1, 1, true);
-xml_trace.add_Variable(tmp_out_var, unbloc.origin_name, 1, 1, true);
+xml_trace.add_Variable(tmp_in_var, unbloc.Origin_path, 1, 1, true);
+xml_trace.add_Variable(tmp_out_var, unbloc.Origin_path, 1, 1, true);
 
 if dim_in_r == 1 && dim_in_c == 1
     add_vars = sprintf('\t%s: %s;\n', tmp_in_var, in_dt);
@@ -211,9 +211,5 @@ else
 end
 % comment_string = sprintf('\t--!MATLAB_Code ''%s.m''', node_call_name);
 ext_node = app_sprintf(ext_node, 'let\n\t%s\ntel\n', code);
-
-
-
-
 
 end

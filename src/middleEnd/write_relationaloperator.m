@@ -31,12 +31,12 @@
 %
 %% Code
 %
-function [output_string] = write_relationaloperator(unbloc, operator, inter_blk)
+function [output_string] = write_relationaloperator(unbloc, operator, inter_blk, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
 % Expand inputs if necessary
 list_in = Utils.expand_all_inputs(unbloc, list_in);
@@ -47,22 +47,22 @@ if strcmp(operator, '==') || strcmp(operator, '~=')
 end
 
 is_complex = false;
-if unbloc.in_cpx_sig(1) || unbloc.in_cpx_sig(2)
+if unbloc.CompiledPortComplexSignals.Inport(1) || unbloc.CompiledPortComplexSignals.Inport(2)
 	is_complex = true;
 	dt = Utils.get_lustre_dt(unbloc.conversion{1});
 	% Convert the real input value to complex if necessary
-	if ~unbloc.in_cpx_sig(1)
+	if ~unbloc.CompiledPortComplexSignals.Inport(1)
 		for idx=1:numel(list_out)
 			list_in{idx} = Utils.real_to_complex_str(list_in{idx}, dt);
 		end
-	elseif ~unbloc.in_cpx_sig(2)
+	elseif ~unbloc.CompiledPortComplexSignals.Inport(2)
 		for idx=1:numel(list_out)
 			list_in{numel(list_in)/2 + idx} = Utils.real_to_complex_str(list_in{numel(list_in)/2 + idx}, dt);
 		end
 	end
 end
 
-dim = unbloc.dstport_size(1);
+dim = unbloc.CompiledPortWidths.Outport(1);
 for idx_out=1:numel(list_out)
 	output_string = app_sprintf(output_string,'\t%s = ', list_out{idx_out});
 	if is_complex

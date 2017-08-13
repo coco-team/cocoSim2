@@ -28,15 +28,15 @@
 %
 %% Code
 %
-function [output_string] = write_buscreator(unbloc, inter_blk, non_virtual)
+function [output_string] = write_buscreator(unbloc, inter_blk, non_virtual, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
 non_virtual = strcmp(non_virtual, 'on');
-[is_bus bus] = BusUtils.is_bus(unbloc.outports_dt{1});
+[is_bus bus] = BusUtils.is_bus(unbloc.CompiledPortDataTypes.Outport{1});
 is_virtual = ~is_bus;
 
 if non_virtual

@@ -20,12 +20,12 @@
 %
 %% Code
 %
-function [output_string] = write_polyval(unbloc, inter_blk, coefs)
+function [output_string] = write_polyval(unbloc, inter_blk, coefs, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
 for idx_out=1:numel(list_out)
 	mul_str = '';

@@ -36,21 +36,21 @@
 %
 %% Code
 %
-function [output_string] = write_gain(nom_lustre_file, unbloc, K, multiplication, inter_blk)
+function [output_string] = write_gain(nom_lustre_file, unbloc, K, multiplication, inter_blk, ir_struct)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_const] = Utils.list_cst(K, unbloc.outports_dt{1});
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_const] = Utils.list_cst(K, unbloc.CompiledPortDataTypes.Outport{1});
+[list_in] = list_var_entree(unbloc, inter_blk, ir_struct);
 
-[out_dim_r out_dim_c] = Utils.get_port_dims_simple(unbloc.outports_dim, 1);
-[out_dim out_dims] = Utils.get_port_dims(unbloc.outports_dim, 1);
-[in_dim_r in_dim_c] = Utils.get_port_dims_simple(unbloc.inports_dim, 1);
+[out_dim_r out_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Outport, 1);
+[out_dim out_dims] = Utils.get_port_dims(unbloc.CompiledPortDimensions.Outport, 1);
+[in_dim_r in_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, 1);
 
 % If the output is a complex number
-if unbloc.out_cpx_sig(1)
-	dt = Utils.get_lustre_dt(unbloc.outports_dt{1});
+if unbloc.CompiledPortComplexSignals.Outport(1)
+	dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Outport{1});
 	% Convert list const to complex values
 	[list_const_r list_const_i] = Utils.transform_list_const_to_complex(list_const, dt);
 end
@@ -83,8 +83,8 @@ if strcmp(multiplication, 'Element-wise(K.*u)')
 		list_in = new_in2;
 	end
 
-	if unbloc.out_cpx_sig(1)
-		if ~unbloc.in_cpx_sig(1)
+	if unbloc.CompiledPortComplexSignals.Outport(1)
+		if ~unbloc.CompiledPortComplexSignals.Inport(1)
 			for idx=1:numel(list_out)
 				output_string = [output_string sprintf('\t%s.r = %s * %s;\n', list_out{idx}, list_const_r{idx}, list_in{idx})];
 				output_string = [output_string sprintf('\t%s.i = %s * %s;\n', list_out{idx}, list_const_i{idx}, list_in{idx})];
@@ -105,7 +105,7 @@ if strcmp(multiplication, 'Element-wise(K.*u)')
 elseif strcmp(multiplication, 'Matrix(K*u)') || strcmp(multiplication, 'Matrix(K*u) (u vector)')
 
 	[k_dim_r k_dim_c] = size(K);
-	if unbloc.out_cpx_sig(1)
+	if unbloc.CompiledPortComplexSignals.Outport(1)
 		for idx_row=1:out_dim_r
 			for idx_col=1:out_dim_c
 				out_idx = idx_col + ((idx_row-1) * out_dim_c);
@@ -118,7 +118,7 @@ elseif strcmp(multiplication, 'Matrix(K*u)') || strcmp(multiplication, 'Matrix(K
 					end
 					k_idx = idx_iter + (idx_row-1) * k_dim_c;
 					in_idx = idx_col + (idx_iter-1) * in_dim_c;
-					if ~unbloc.in_cpx_sig(1)
+					if ~unbloc.CompiledPortComplexSignals.Inport(1)
 						product_str_r = [product_str_r sprintf('%s * %s', list_const_r{k_idx}, list_in{in_idx})];
 						product_str_i = [product_str_i sprintf('%s * %s', list_const_i{k_idx}, list_in{in_idx})];
 					else
@@ -152,7 +152,7 @@ elseif strcmp(multiplication, 'Matrix(K*u)') || strcmp(multiplication, 'Matrix(K
 elseif strcmp(multiplication, 'Matrix(u*K)')
 
 	[k_dim_r k_dim_c] = size(K);
-	if unbloc.out_cpx_sig(1)
+	if unbloc.CompiledPortComplexSignals.Outport(1)
 		for idx_row=1:out_dim_r
 			for idx_col=1:out_dim_c
 				out_idx = idx_col + ((idx_row-1) * out_dim_c);
@@ -165,7 +165,7 @@ elseif strcmp(multiplication, 'Matrix(u*K)')
 					end
 					k_idx = idx_col + ((idx_iter-1) * k_dim_c);
 					in_idx = idx_iter + ((idx_row-1) * in_dim_c);
-					if ~unbloc.in_cpx_sig(1)
+					if ~unbloc.CompiledPortComplexSignals.Inport(1)
 						product_str_r = [product_str_r sprintf('%s * %s', list_in{in_idx}, list_const_r{k_idx})];
 						product_str_i = [product_str_i sprintf('%s * %s', list_in{in_idx}, list_const_i{k_idx})];
 					else

@@ -28,31 +28,31 @@
 %
 %% Code
 %
-function [output_string add_vars] = write_goto_from(unbloc, inter_blk, goto_tag, xml_trace)
+function [output_string add_vars] = write_goto_from(unbloc, inter_blk, goto_tag, xml_trace, myblk)
 
 output_string = '';
 add_vars = '';
 
-if strcmp(unbloc.type, 'Goto')
-	[list_in] = list_var_entree(unbloc, inter_blk);
+if strcmp(unbloc.BlockType, 'Goto')
+	[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 	add_vars = '\t';
-	in_dt = Utils.get_lustre_dt(unbloc.inports_dt{1});
-	for idx_dim=1:unbloc.srcport_size
+	in_dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Inport{1});
+	for idx_dim=1:unbloc.CompiledPortWidths.Inport
 		var_name = sprintf('Goto_%s_%s',  goto_tag, num2str(idx_dim));
 		output_string = app_sprintf(output_string, '\t%s = %s;\n', var_name, list_in{idx_dim});
 		add_vars = [add_vars var_name];
-		if idx_dim == unbloc.srcport_size
+		if idx_dim == unbloc.CompiledPortWidths.Inport
 			add_vars = [add_vars ': ' in_dt ';\n'];
 		else
 			add_vars = [add_vars ', '];
 		end
 
 		% Add traceability for additional variables
-		xml_trace.add_Variable(var_name, unbloc.origin_name, 1, idx_dim, true);
+		xml_trace.add_Variable(var_name, unbloc.Origin_path, 1, idx_dim, true);
 	end
 else
 	[list_out] = list_var_sortie(unbloc);
-	for idx_dim=1:unbloc.dstport_size
+	for idx_dim=1:unbloc.CompiledPortWidths.Outport
 		var_name = sprintf('Goto_%s_%s',  goto_tag, num2str(idx_dim));
 		output_string = app_sprintf(output_string, '\t%s = %s;\n', list_out{idx_dim}, var_name);
 	end

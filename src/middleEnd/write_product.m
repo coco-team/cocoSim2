@@ -57,35 +57,35 @@
 %
 %% Code
 %
-function [output_string, var_str, extern_funs] = write_product(unbloc, inputs, multiplication, collapse_mode, collapse_dim, inter_blk, xml_trace)
+function [output_string, var_str, extern_funs] = write_product(unbloc, inputs, multiplication, collapse_mode, collapse_dim, inter_blk, xml_trace, myblk)
 
 output_string = '';
 var_str = '';
 extern_funs = {};
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
-if strcmp(unbloc.inports_dt{1}, 'double') || strcmp(unbloc.inports_dt{1}, 'single')
+if strcmp(unbloc.CompiledPortDataTypes.Inport{1}, 'double') || strcmp(unbloc.CompiledPortDataTypes.Inport{1}, 'single')
 	one = '1.0';
 else
 	one = '1';
 end
 
-dt = Utils.get_lustre_dt(unbloc.outports_dt{1});
+dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Outport{1});
 
 % Complex values management
 is_complex = false;
-if unbloc.out_cpx_sig(1)
+if unbloc.CompiledPortComplexSignals.Outport(1)
 	is_complex = true;
 	extern_funs{1} = ['complex_arith_' dt];
 	pred_dim = 0;
 	% Convert non-complex inputs to complex
-	for idx_in=1:unbloc.num_input
-		[dim_r, dim_c] = Utils.get_port_dims_simple(unbloc.inports_dim, idx_in);
+	for idx_in=1:unbloc.Ports(1)
+		[dim_r, dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, idx_in);
 		dim_size = dim_r * dim_c;
-		dt = Utils.get_lustre_dt(unbloc.inports_dt{idx_in});
-		if ~unbloc.in_cpx_sig(idx_in)
+		dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Inport{idx_in});
+		if ~unbloc.CompiledPortComplexSignals.Inport(idx_in)
 			for idx_dim=1:dim_size
 				list_in{pred_dim + idx_dim} = Utils.real_to_complex_str(list_in{pred_dim + idx_dim}, dt);
             end
@@ -94,11 +94,11 @@ if unbloc.out_cpx_sig(1)
 	end
 end
 
-block_full_name = regexp(unbloc.name{1}, '/', 'split');
+block_full_name = regexp(unbloc.Path, filesep, 'split');
 block_name = Utils.concat_delim(block_full_name(end - unbloc.name_level : end), '_');
 
 if strcmp(multiplication, 'Element-wise(.*)')
-	if unbloc.num_input == 1
+	if unbloc.Ports(1) == 1
 		if strcmp(collapse_mode, 'All dimensions')
 			str = '';
 			if is_complex
@@ -130,7 +130,7 @@ if strcmp(multiplication, 'Element-wise(.*)')
 			end
 			output_string = app_sprintf(output_string, '\t%s = %s;\n', char(list_out{1}), str);
 		else
-			[in_dim_r in_dim_c] = Utils.get_port_dims_simple(unbloc.inports_dim, 1);
+			[in_dim_r in_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, 1);
 			if collapse_dim == 1
 				% Product over the columns
 				for idx=1:numel(list_out)
@@ -218,7 +218,7 @@ if strcmp(multiplication, 'Element-wise(.*)')
 			end
 		end
     else
-        srcport_size = unbloc.srcport_size;
+        srcport_size = unbloc.CompiledPortWidths.Inport;
         if max(srcport_size) >1
             ind_size =  1;
             ind_input = 0;
@@ -238,15 +238,15 @@ if strcmp(multiplication, 'Element-wise(.*)')
 		for idx_output=1:numel(list_out)
 			if is_complex
 				str = '';
-				for idx_input=idx_output:unbloc.dstport_size:numel(list_in)
-					if (idx_input <= unbloc.dstport_size)
+				for idx_input=idx_output:unbloc.CompiledPortWidths.Outport:numel(list_in)
+					if (idx_input <= unbloc.CompiledPortWidths.Outport)
 						if strcmp(inputs(1), '/')
 							str = ['complex_inv_' dt '(' list_in{idx_input} ')'];
 						else
 							str = list_in{idx_input};
 						end
 					elseif (idx_input > idx_output)
-						idx_sign = ceil(idx_input/unbloc.dstport_size);
+						idx_sign = ceil(idx_input/unbloc.CompiledPortWidths.Outport);
 						if strcmp(inputs(idx_sign), '/')
 							str = sprintf('complex_mult_%s(%s, complex_inv_%s(%s))', dt, str, dt, list_in{idx_input});
 						else
@@ -256,15 +256,15 @@ if strcmp(multiplication, 'Element-wise(.*)')
 				end
             else
                 str = '';
-				for idx_input=idx_output:unbloc.dstport_size:numel(list_in)
-					if (idx_input <= unbloc.dstport_size)
+				for idx_input=idx_output:unbloc.dstpoCompiledPortWidths.Outport:numel(list_in)
+					if (idx_input <= unbloc.CompiledPortWidths.Outport)
 						if strcmp(inputs(1), '/')
 							str = [str '(' one ' / ' list_in{idx_input} ')'];
 						else
 							str = [str list_in{idx_input}];
 						end
 					elseif (idx_input > idx_output)
-						idx_sign = ceil(idx_input/unbloc.dstport_size);
+						idx_sign = ceil(idx_input/unbloc.CompiledPortWidths.Outport);
 						str = [str ' ' inputs(idx_sign) ' ' list_in{idx_input}];
 					end
 				end
@@ -276,16 +276,16 @@ else
 	% Matrix multiplication
 	if numel(regexp(inputs, '/')) ~= 0
 		msg = ['Matrix inversion for product block is not supported\n'];
-		msg = [msg unbloc.origin_name{1} '\n'];
+		msg = [msg unbloc.Origin_path '\n'];
 		display_msg(msg, 3, 'write_product', '');
 	else
-		if unbloc.num_input == 1
+		if unbloc.Ports(1) == 1
 			for idx=1:numel(list_out)
 				output_string = app_sprintf(output_string, '\t%s = %s;\n', char(list_out{idx}), char(list_in{idx}));
 			end
-		elseif unbloc.num_input == 2
-			[in1_dim_r in1_dim_c] = Utils.get_port_dims_simple(unbloc.inports_dim, 1);
-			[in2_dim_r in2_dim_c] = Utils.get_port_dims_simple(unbloc.inports_dim, 2);
+		elseif unbloc.Ports(1) == 2
+			[in1_dim_r in1_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, 1);
+			[in2_dim_r in2_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, 2);
 			list_in1 = list_in(1:(in1_dim_r*in1_dim_c));
 			list_in2 = list_in((in1_dim_r*in1_dim_c + 1):end);
 			for idx_row=1:in1_dim_r
@@ -319,15 +319,15 @@ else
 			end
 		else
 			tmp_prefix = [block_name '_tmp_'];
-			[in1_dim_r in1_dim_c] = Utils.get_port_dims_simple(unbloc.inports_dim, 1);
+			[in1_dim_r in1_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, 1);
 			numel_pred = in1_dim_r*in1_dim_c;
 			nb_tmp = 0;
 			list_in1 = list_in(1:numel_pred);
 
-			out_dt = Utils.get_lustre_dt(unbloc.outports_dt{1});
-			for idx_in=2:unbloc.num_input-1
+			out_dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Outport{1});
+			for idx_in=2:unbloc.Ports(1)-1
 
-				[in2_dim_r in2_dim_c] = Utils.get_port_dims_simple(unbloc.inports_dim, idx_in);
+				[in2_dim_r in2_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimenisons.Inport, idx_in);
 				numel_right = in2_dim_r * in2_dim_c;
 				list_in2 = list_in(numel_pred+1:numel_pred+numel_right);
                 
@@ -368,7 +368,7 @@ else
 						output_string = [output_string sprintf('\t%s = %s;\n', list_tmp_out{out_idx}, product_str)];
 	
 						% Add traceability for temporary variables
-						xml_trace.add_Variable(list_tmp_out{out_idx}, unbloc.origin_name, idx_in, out_idx, true);
+						xml_trace.add_Variable(list_tmp_out{out_idx}, unbloc.Origin_path, idx_in, out_idx, true);
 					end
 				end
 				in1_dim_c = in2_dim_c;
@@ -377,10 +377,10 @@ else
 				numel_pred = numel_pred + numel_right;
 			end
 
-			[in2_dim_r in2_dim_c] = Utils.get_port_dims_simple(unbloc.inports_dim, unbloc.num_input);
+			[in2_dim_r in2_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, unbloc.Ports(1));
 			numel_right = in2_dim_r * in2_dim_c;
 			list_in2 = list_in(numel_pred+1:numel_pred+numel_right);
-			[out_dim_r out_dim_c] = Utils.get_port_dims_simple(unbloc.outports_dim, 1);
+			[out_dim_r out_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Outport, 1);
 			for idx_row=1:out_dim_r
 				for idx_col=1:out_dim_c
 					out_idx = idx_col + ((idx_row-1) * out_dim_c);

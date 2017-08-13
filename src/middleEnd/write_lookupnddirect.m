@@ -29,7 +29,7 @@
 %
 %% Code
 %
-function [output_string] = write_lookupnddirect(unbloc, inter_blk, nb_dim, select, is_input, table)
+function [output_string] = write_lookupnddirect(unbloc, inter_blk, nb_dim, select, is_input, table, myblk)
 
 output_string = '';
 
@@ -47,11 +47,11 @@ end
 % If the selection is smaller to the table
 % or if we have a table as input then we have some input(s)
 if selection_size < nb_dim || strcmp(is_input, 'on')
-	[list_in] = list_var_entree(unbloc, inter_blk);
+	[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 end
 
 if selection_size < nb_dim
-	inputs_size = unbloc.srcport_size(1);
+	inputs_size = unbloc.CompiledPortWidths.Inport(1);
 else
 	inputs_size = 1;
 end
@@ -59,10 +59,10 @@ end
 table_as_input = false;
 complex_table = false;
 if strcmp(is_input, 'off')
-	[list_table] = Utils.list_cst(table, unbloc.outports_dt{1});
+	[list_table] = Utils.list_cst(table, unbloc.CompiledPortDataTypes.Outport{1});
 	[table_dim_r, table_dim_c] = size(table);
-	if unbloc.out_cpx_sig(1)
-		dt = Utils.get_lustre_dt(unbloc.outports_dt{1});
+	if unbloc.CompiledPortComplexSignals.Outport(1)
+		dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Outport{1});
 		% The output and thus the table is complex
 		[list_table_r, list_table_i] = Utils.transform_list_const_to_complex(list_table, dt);
 		complex_table = true;
@@ -70,11 +70,11 @@ if strcmp(is_input, 'off')
 else
 	table_as_input = true;
 	inputs_indices_size = 0;
-	for idx_in=1:unbloc.num_input-1
-		inputs_indices_size = inputs_indices_size + unbloc.srcport_size(idx_in);
+	for idx_in=1:unbloc.Ports(1)-1
+		inputs_indices_size = inputs_indices_size + unbloc.CompiledPortWidths.Inport(idx_in);
 	end
 	list_table = list_in(inputs_indices_size+1:end);
-	[table_dim_r, table_dim_c] = Utils.get_port_dims_simple(unbloc.inports_dim, unbloc.num_input);
+	[table_dim_r, table_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, unbloc.Ports(1));
 end
 
 if nb_dim <= 2
@@ -241,14 +241,14 @@ if nb_dim <= 2
 			end
 		else
 			msg = ['LookupNDDirect block configuration seems impossible:\n'];
-			msg = [msg unbloc.origin_name{1}];
+			msg = [msg unbloc.Origin_path];
 			display_msg(msg, Constants.ERROR, 'write_lookupnddirect', '');
 		end
 	end
 	
 else
 	msg = ['LookupNDDirect block not handled for more that 2 dimensional tables: \n'];
-	msg = [msg unbloc.origin_name{1}];
+	msg = [msg unbloc.Origin_path];
 	display_msg(msg, Constants.ERROR, 'write_lookupnddirect', '');
 end
 

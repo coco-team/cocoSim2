@@ -34,21 +34,21 @@
 %
 %% Code
 %
-function [output_string tmp_vars] = write_dotproduct(unbloc, inter_blk, xml_trace)
+function [output_string tmp_vars] = write_dotproduct(unbloc, inter_blk, xml_trace, myblk)
 
 output_string = '';
 tmp_vars = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
-block_full_name = regexp(unbloc.name{1}, '/', 'split');
+block_full_name = regexp(unbloc.Path, filesep, 'split');
 block_name = Utils.concat_delim(block_full_name(end - unbloc.name_level : end), '_');
 
-dim = unbloc.srcport_size(1);
-dt = Utils.get_lustre_dt(unbloc.outports_dt);
+dim = unbloc.CompiledPortWidths.Inport(1);
+dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Outport);
 
-if ~unbloc.out_cpx_sig(1)
+if ~unbloc.CompiledPortComplexSignals.Outport(1)
 	% Output is a real value (dummy but allowed)
 	prod_str = {};
 	for idx_dim=1:dim
@@ -61,10 +61,10 @@ else
 	tmp_real_prod_vars = {};
 	tmp_imag_prod_vars = {};
 	for idx_dim=1:dim
-		if unbloc.in_cpx_sig(1) && unbloc.in_cpx_sig(2)
+		if unbloc.CompiledPortComplexSignals.Inport(1) && unbloc.CompiledPortComplexSignals.Inport(2)
 			tmp_real_prod_str = sprintf('(%s.r * %s.r) - (%s.i * %s.i)', list_in{idx_dim}, list_in{idx_dim+dim}, list_in{idx_dim}, list_in{idx_dim+dim});
 			tmp_imag_prod_str = sprintf('(%s.r * %s.i) + (%s.i * %s.r)', list_in{idx_dim}, list_in{idx_dim+dim}, list_in{idx_dim}, list_in{idx_dim+dim});
-		elseif unbloc.in_cpx_sig(1)
+		elseif unbloc.CompiledPortComplexSignals.Inport(1)
 			tmp_real_prod_str = sprintf('(%s.r * %s)', list_in{idx_dim}, list_in{idx_dim+dim});
 			tmp_imag_prod_str = sprintf('(%s.i * %s)', list_in{idx_dim}, list_in{idx_dim+dim});
 		else
@@ -80,8 +80,8 @@ else
 		output_string = app_sprintf(output_string, '\t%s = %s;\n', tmp_imag_prod_vars{idx_dim}, tmp_imag_prod_str);
 
 		% Add traceability for additional variables
-		xml_trace.add_Variable(tmp_real_prod_vars{idx_dim}, unbloc.origin_name, 1, idx_dim, true);
-		xml_trace.add_Variable(tmp_imag_prod_vars{idx_dim}, unbloc.origin_name, 1, idx_dim, true);
+		xml_trace.add_Variable(tmp_real_prod_vars{idx_dim}, unbloc.Origin_path, 1, idx_dim, true);
+		xml_trace.add_Variable(tmp_imag_prod_vars{idx_dim}, unbloc.Origin_path, 1, idx_dim, true);
 	end
 	
 	real_sum_str = Utils.concat_delim(tmp_real_prod_vars, ' + ');

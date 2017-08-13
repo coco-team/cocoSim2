@@ -55,24 +55,24 @@
 %
 %% Code
 %
-function [output_string] = write_assignment(unbloc, inter_blk, nb_dim, index_opt, indices, index_mode)
+function [output_string] = write_assignment(unbloc, inter_blk, nb_dim, index_opt, indices, index_mode, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
 % Split the parameters values
 index_opt = regexp(index_opt, ',', 'split');
 indices = regexp(indices, ',', 'split');
 
-[in_nb_r in_nb_c] = Utils.get_port_dims_simple(unbloc.inports_dim, 1);
+[in_nb_r in_nb_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, 1);
 nb_in_elems = (in_nb_r*in_nb_c);
 
 cpt_in_dim = (in_nb_r*in_nb_c);
 
 % Expand second input if necessary
-[ext_in_nb_r ext_in_nb_c] = Utils.get_port_dims_simple(unbloc.inports_dim, 2);
+[ext_in_nb_r ext_in_nb_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, 2);
 if ext_in_nb_r == 1 && ext_in_nb_c == 1
 	val = list_in{cpt_in_dim+1};
 	new_list_in = [list_in(1:cpt_in_dim) cellfun(@(x) val, cell(1,nb_in_elems), 'UniformOutput', false)];
@@ -88,7 +88,7 @@ else
 end
 
 % Unfold the indices values if necessary
-[dims{1} dims{2}] = Utils.get_port_dims_simple(unbloc.outports_dim, 1);
+[dims{1} dims{2}] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Outport, 1);
 for idx_dim=1:nb_dim
 	if strcmp(index_opt{idx_dim}, 'Starting index (dialog)')
 		indices{idx_dim} = (indices{idx_dim}:dims{idx_dim});
@@ -113,7 +113,7 @@ if nb_dim == 1
 				op = '<=';
 			end
 			
-			[dims_ext{1} dims_ext{2}] = Utils.get_port_dims_simple(unbloc.inports_dim, 3);
+			[dims_ext{1} dims_ext{2}] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, 3);
 			if_cond = '';
 			for idx_ext_in=1:(dims_ext{1}*dims_ext{2})
 				if_cond{idx_ext_in} = sprintf('%s %s %s', list_in{(nb_in_elems*2)+idx_ext_in}, op, idx_str);
@@ -169,22 +169,22 @@ elseif nb_dim == 2
 
 			if_cond = '';
 			if one_as_input & ~two_as_input & col_to_be_changed
-				[dims_ext{1} dims_ext{2}] = Utils.get_port_dims_simple(unbloc.inports_dim, 3);
+				[dims_ext{1} dims_ext{2}] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, 3);
 				for idx_ext_in=1:(dims_ext{1}*dims_ext{2})
 					if_cond{idx_ext_in} = sprintf('%s %s %s', list_in{(nb_in_elems*2)+idx_ext_in}, op_one, idx_str_one);
 				end
 				if_cond_str = Utils.concat_delim(if_cond, ' or ');
 				output_string = app_sprintf(output_string, '\t%s = if %s then %s else %s;\n', list_out{idx_var}, if_cond_str, list_in{nb_in_elems+idx_var}, list_in{idx_var});
 			elseif ~one_as_input & two_as_input & row_to_be_changed
-				[dims_ext{1} dims_ext{2}] = Utils.get_port_dims_simple(unbloc.inports_dim, 3);
+				[dims_ext{1} dims_ext{2}] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, 3);
 				for idx_ext_in=1:(dims_ext{1}*dims_ext{2})
 					if_cond{idx_ext_in} = sprintf('%s %s %s', list_in{(nb_in_elems*2)+idx_ext_in}, op_two, idx_str_two);
 				end
 				if_cond_str = Utils.concat_delim(if_cond, ' or ');
 				output_string = app_sprintf(output_string, '\t%s = if %s then %s else %s;\n', list_out{idx_var}, if_cond_str, list_in{nb_in_elems+idx_var}, list_in{idx_var});
 			elseif one_as_input & two_as_input
-				[dims_ext_one{1} dims_ext_one{2}] = Utils.get_port_dims_simple(unbloc.inports_dim, 3);
-				[dims_ext_two{1} dims_ext_two{2}] = Utils.get_port_dims_simple(unbloc.inports_dim, 4);
+				[dims_ext_one{1} dims_ext_one{2}] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, 3);
+				[dims_ext_two{1} dims_ext_two{2}] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, 4);
 				idx_two = (nb_in_elems*2) + dims_ext_one{1} * dims_ext_one{2};
 				for idx_ext_one=1:(dims_ext_one{1} * dims_ext_one{2})
 					if_cond_col = '';
@@ -208,7 +208,7 @@ elseif nb_dim == 2
 	end
 else
 	msg = ['Assignment block does not yet supports more than 2 dimentional values\n'];
-	msg = [msg unbloc.origin_name{1} '\n'];
+	msg = [msg unbloc.Origin_path '\n'];
 	display_msg(msg, Constants.ERROR, 'write_assignment', '');
 end
 

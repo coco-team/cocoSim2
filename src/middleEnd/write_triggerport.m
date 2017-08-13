@@ -39,7 +39,7 @@ output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
 
-out_dt = Utils.get_lustre_dt(unbloc.outports_dt);
+out_dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Outport);
 
 if strcmp(out_dt, 'real')
 	str_val_post = '.0';
@@ -56,9 +56,9 @@ elseif strcmp(trigger_type, 'falling')
 		str_val{idx_dim} = ['-1' str_val_post];
 	end
 elseif strcmp(trigger_type, 'either')
-	name_cell = regexp(unbloc.name{1}, '/', 'split');
+	name_cell = regexp(unbloc.Path, filesep, 'split');
 	name = Utils.concat_delim(name_cell, '_');
-   trigger_input_dt = Utils.get_lustre_dt(inter_blk{1}.trigger_dt{1});
+   trigger_input_dt = Utils.get_lustre_dt(inter_blk.CompiledPortDataTypes.Trigger{1});
 	for idx_dim=1:numel(list_out)
 		if strcmp(trigger_input_dt, 'bool')
 			str_val{idx_dim} = sprintf('if %s_pre_1_%d and not(%s_1_%d) then -1%s else 1%s', name, idx_dim, name, idx_dim, str_val_post, str_val_post);

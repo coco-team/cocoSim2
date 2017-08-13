@@ -40,23 +40,23 @@
 %
 %% Code
 %
-function [output_string] = write_sum(unbloc, list_sign, collapse_mode, collapse_dim, inter_blk)
+function [output_string] = write_sum(unbloc, list_sign, collapse_mode, collapse_dim, inter_blk, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
-if strcmp(unbloc.inports_dt{1}, 'double') || strcmp(unbloc.inports_dt{1}, 'single')
+if strcmp(unbloc.CompiledPortDataTypes.Inport{1}, 'double') || strcmp(unbloc.CompiledPortDataTypes.Inport{1}, 'single')
 	zero = '0.0';
 else
 	zero = '0';
 end
 
-if unbloc.num_input == 1
+if unbloc.Ports(1) == 1
 	sign_str = [' ' list_sign(1) ' '];
 	if strcmp(collapse_mode, 'All dimensions')
-		if unbloc.out_cpx_sig(1)
+		if unbloc.CompiledPortComplexSignals.Outport(1)
 			str_real = '';
 			str_imag = '';
 			for idx=1:numel(list_in)
@@ -82,11 +82,11 @@ if unbloc.num_input == 1
 			output_string = app_sprintf(output_string, '\t%s = %s;\n', char(list_out{1}), str);
 		end
 	else
-		[in_dim_r in_dim_c] = Utils.get_port_dims_simple(unbloc.inports_dim, 1);
+		[in_dim_r in_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, 1);
 		if collapse_dim == 1
 			% Sum over the columns
 			for idx=1:numel(list_out)
-				if unbloc.out_cpx_sig(1)
+				if unbloc.CompiledPortComplexSignals.Outport(1)
 					str_real = '';
 					str_imag = '';
 					for idx_row=1:in_dim_r
@@ -117,7 +117,7 @@ if unbloc.num_input == 1
 		else
 			% Sum over the rows
 			for idx=1:numel(list_out)
-				if unbloc.out_cpx_sig(1)
+				if unbloc.CompiledPortComplexSignals.Outport(1)
 					str_real = '';
 					str_imag = '';
 					for idx_col=1:in_dim_c
@@ -149,12 +149,12 @@ if unbloc.num_input == 1
 	end
 else
 	% Convert real values to complex where needed
-	if unbloc.out_cpx_sig(1)
+	if unbloc.CompiledPortComplexSignals.Outport(1)
 		prev_dims = 0;
-		dt = Utils.get_lustre_dt(unbloc.outports_dt{1});
-		for idx_in=1:unbloc.num_input
-			[in_dim_r in_dim_c] = Utils.get_port_dims_simple(unbloc.inports_dim, idx_in);
-			if ~unbloc.in_cpx_sig(idx_in)
+		dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Outport{1});
+		for idx_in=1:unbloc.Ports(1)
+			[in_dim_r in_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, idx_in);
+			if ~unbloc.CompiledPortComplexSignals.Inport(idx_in)
 				for idx_dim=1:in_dim_r * in_dim_c
 					list_in{prev_dims+idx_dim} = Utils.real_to_complex_str(list_in{prev_dims+idx_dim}, dt);
 				end
@@ -166,8 +166,8 @@ else
 	% Perform expansion if necessary
 	dim = 1;
 	dims = '';
-	for idx_in=1:unbloc.num_input
-		[in_dim_r in_dim_c] = Utils.get_port_dims_simple(unbloc.inports_dim, idx_in);
+	for idx_in=1:unbloc.Ports(1)
+		[in_dim_r in_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, idx_in);
 		if in_dim_r ~= 1
 			dim = in_dim_r;
 			if in_dim_c ~= 1
@@ -202,12 +202,12 @@ else
 
 	for idx_output=1:numel(list_out)
 		in_idx = 1;
-		if unbloc.out_cpx_sig(1)
+		if unbloc.CompiledPortComplexSignals.Outport(1)
 			str_real = '';
 			str_imag = '';
-			for idx_input=idx_output:unbloc.dstport_size:numel(list_in)
+			for idx_input=idx_output:unbloc.CompiledPortWidths.Outport:numel(list_in)
 				sign_str = [' ' list_sign(in_idx) ' '];
-				if (idx_input <= unbloc.dstport_size) && strcmp(list_sign(1), '+')
+				if (idx_input <= unbloc.CompiledPortWidths.Outport) && strcmp(list_sign(1), '+')
 					str_real = [list_in{idx_input} '.r'];
 					str_imag = [list_in{idx_input} '.i'];
 				else
@@ -220,9 +220,9 @@ else
 			output_string = app_sprintf(output_string, '\t%s.i = %s;\n', char(list_out{idx_output}), str_imag);
 		else
 			str = '';
-			for idx_input=idx_output:unbloc.dstport_size:numel(list_in)
+			for idx_input=idx_output:unbloc.CompiledPortWidths.Outport:numel(list_in)
 				sign_str = [' ' list_sign(in_idx) ' '];
-				if (idx_input <= unbloc.dstport_size) && strcmp(list_sign(1), '+')
+				if (idx_input <= unbloc.CompiledPortWidths.Outport) && strcmp(list_sign(1), '+')
 					str = list_in{idx_input};
 				else
 					str = [str sign_str list_in{idx_input}];

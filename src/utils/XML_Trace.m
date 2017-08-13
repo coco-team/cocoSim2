@@ -113,7 +113,7 @@ classdef XML_Trace < handle
 			nodes = obj.traceRootNode.getElementsByTagName('Node');
 			for idx_node=0:nodes.getLength-1
 				block_name_node = nodes.item(idx_node).getAttribute('block_name');
-				if strcmp(block_name_node, subsystem.origin_name)
+				if strcmp(block_name_node, subsystem.Origin_path)
 					inputs = nodes.item(idx_node).getElementsByTagName('Input');
 					for idx_input=0:inputs.getLength-1
 						input = inputs.item(idx_input);

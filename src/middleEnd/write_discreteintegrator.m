@@ -51,18 +51,18 @@
 %%%
 %% Code
 %
-function [output_string, var_str] = write_discreteintegrator(unbloc, K, external_reset, T, vinit, inter_blk, sat_int)
+function [output_string, var_str] = write_discreteintegrator(unbloc, K, external_reset, T, vinit, inter_blk, sat_int, myblk)
 
 output_string = '';
 
 
-cst_type = unbloc.outports_dt{1};
+cst_type = unbloc.CompiledPortDataTypes.Outport{1};
 [list_out] = list_var_sortie(unbloc);
 [list_const] = Utils.list_cst(K, cst_type);
 [list_T] = Utils.list_cst(T, cst_type);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
-[dim_r, dim_c] = Utils.get_port_dims_simple(unbloc.outports_dim, 1);
+[dim_r, dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Outport, 1);
 
 % Expand inputs if necessary
 list_in = Utils.expand_all_inputs_according_output(unbloc, list_in, 1);
@@ -70,7 +70,7 @@ list_in = Utils.expand_all_inputs_according_output(unbloc, list_in, 1);
 [is_reset, reset_var_name] = Utils.is_reset(inter_blk);
 
 % Expand gain if necessary
-if numel(list_const) == 1 && unbloc.dstport_size ~= 1
+if numel(list_const) == 1 && unbloc.CompiledPortWidths.Outport ~= 1
     value = list_const{1, 1};
     for idx_row=1:dim_r
         for idx_col=1:dim_c
@@ -84,7 +84,7 @@ end
 
 if ~strcmp(vinit, '') && ~strcmp(class(vinit),'cell') % If vinit non-empty and is not a cell
     [list_init] = Utils.list_cst(vinit, cst_type);
-    if numel(list_init) == 1 && unbloc.dstport_size ~= 1
+    if numel(list_init) == 1 && unbloc.CompiledPortWidths.Outport ~= 1
         value = list_init{1, 1};
         for idx_row=1:dim_r
             for idx_col=1:dim_c
@@ -99,52 +99,50 @@ elseif iscell(vinit) % if vinit is a cell issued from an external condition (fun
     list_input='';
     list_input_init='';
    
+    nom_bloc_pre=nom_block(inter_blk,cocoget_param(unbloc.Pre{2}, 'Path'));
     
-    num_bloc_pre=num_block(inter_blk,unbloc.prename{2});
-    
-    for k2=1:inter_blk{num_bloc_pre}.num_input %test on input number
+    for k2=1:inter_blk.Content.(nom_bloc_pre).Ports(1) %test on input number
         
         if k2 > 1
             list_input=strcat(list_input,{', '});
-            
         end
         
-        [a b]=regexp (inter_blk{num_bloc_pre}.prename{k2}, '/', 'split');
-        num_out_pre=inter_blk{num_bloc_pre}.srcport{k2}+1; % numerotation starts at 0 !!
+        [a b]=regexp (cocoget_param(inter_blk.Content.(nom_bloc_pre).Pre{k2}, 'Path'), filesep, 'split');
+        num_out_pre=inter_blk.Content.(nom_bloc_pre).CompiledPortWidths.Inport{k2}+1; % numerotation starts at 0 !!
         
-        [li_index]=list_var_entree_prelude(inter_blk{num_bloc_pre});
+        %[li_index]=list_var_entree_prelude(inter_blk.Content.(nom_bloc_pre));
         
         
-        cpt=num_block(inter_blk, inter_blk{num_bloc_pre}.prename{k2});
+        cpt=nom_block(inter_blk, cocoget_param(inter_blk.Content.(nom_bloc_pre).Pre{k2}, 'Path'));
         
-        for k3=1:inter_blk{num_bloc_pre}.srcport_size(k2)
+        for k3=1:inter_blk.Content.(nom_bloc_pre).CompiledPortWidths.Inport(k2)
             if k3 > 1
                 list_input=strcat(list_input,{', '});
             end
-            num_pre_block=num_block(inter_blk,inter_blk{num_bloc_pre}.prename{k2});
+            nom_pre_block=nom_block(inter_blk,cocoget_param(inter_blk.Content.(nom_bloc_pre).Pre{k2}, 'Path'));
             
             list_input=strcat(list_input,{' '}, strcat(a{1}{end},'_',li_index{k3} ));
         end
         
         
         
-        if k3 < unbloc.srcport_size(k2)
+        if k3 < unbloc.CompiledPortWidths.Inport(k2)
             list_input=strcat(list_input,{', '});
         end
         
     end
     
-    vinit=strcat(nommage(inter_blk{num_bloc_pre}.name{1}),'(',list_input,')');% in this case vinit is a cell
+    vinit=strcat(nommage(inter_blk.Content.(nom_bloc_pre).Path),'(',list_input,')');% in this case vinit is a cell
     list_init=vinit;
 
 end
 
-out_dt = Utils.get_lustre_dt(unbloc.outports_dt{1});
-in_dt = Utils.get_lustre_dt(unbloc.inports_dt{1});
+out_dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Outport{1});
+in_dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Inport{1});
 needs_convert = false;
 convert_fun = '';
 if ~strcmp('real', out_dt) &&  ~(strcmp('int', in_dt) || strcmp('bool', in_dt))
-    convert_fun = get_param(unbloc.annotation, 'RndMeth');
+    convert_fun = unbloc.RndMeth;
     needs_convert = true;
     if exist('tmp_dt_conv.mat', 'file') == 2
         load 'tmp_dt_conv'
@@ -160,13 +158,13 @@ if ~strcmp('real', out_dt) &&  ~(strcmp('int', in_dt) || strcmp('bool', in_dt))
     end
 end
 if strcmp('real', out_dt) &&  (strcmp('int', in_dt) || strcmp('bool', in_dt))
-    msg = sprintf('The block %s has input of type %s but output of type %s \n', char(unbloc.origin_name),in_dt,char(list_out{1}),out_dt);
+    msg = sprintf('The block %s has input of type %s but output of type %s \n', unbloc.Origin_path,in_dt,char(list_out{1}),out_dt);
     msg = [msg sprintf('Be sure to change inputs to %s\n',out_dt)];
     display_msg(msg, Constants.ERROR, 'write_discreteintegrator', '');
 end
 nb_elem_first = dim_r * dim_c;
 
-if strcmp(unbloc.outports_dt{1}, 'double') || strcmp(unbloc.outports_dt{1}, 'simple') || strncmp(unbloc.outports_dt{1}, 'sfix', 4) || strncmp(unbloc.outports_dt{1}, 'ufix', 4)
+if strcmp(unbloc.CompiledPortDataTypes.Outport{1}, 'double') || strcmp(unbloc.CompiledPortDataTypes.Outport{1}, 'simple') || strncmp(unbloc.CompiledPortDataTypes.Outport{1}, 'sfix', 4) || strncmp(unbloc.CompiledPortDataTypes.Outport{1}, 'ufix', 4)
     conv_int = false;
 else
     conv_int = true;
@@ -182,7 +180,7 @@ for idx_row=1:dim_r
         
         if ~strcmp(external_reset, 'none') && strcmp(vinit, '')
             % 3 inputs to the block
-            [in2_dim_r, in2_dim_c] = Utils.get_port_dims_simple(unbloc.inports_dim, 2);
+            [in2_dim_r, in2_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, 2);
             
             nb_elem_second = in2_dim_r * in2_dim_c;
             shift_third_input = nb_elem_first + nb_elem_second;
@@ -234,15 +232,13 @@ for idx_row=1:dim_r
                 output_string = app_sprintf(output_string, '\t%s = %s;\n', list_out{in_out_idx}, out_str);
             end
         end
-        
-        
     end
 end
 
 
 end
 function [expression] = get_trigger_conditions(unbloc, external_reset,cond_var)
-trigger_dt = Utils.get_lustre_dt(unbloc.inports_dt{2});
+trigger_dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Inport{2});
 expression = '';
 
 if strcmp(trigger_dt, 'bool')
@@ -265,7 +261,7 @@ else
         zero = '0';
     else
         msg = sprintf('the reset input of block %s is of type double, we suggest to use integer or boolean types',...
-            char(unbloc.origin_name));
+            unbloc.Origin_path);
         display_msg(msg,Constants.WARNING, 'Reset Type','');
         zero = '0.0';
     end

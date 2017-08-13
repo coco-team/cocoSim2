@@ -11,18 +11,18 @@
 %
 %% Code
 %
-function [output_string] = write_outport(nom_lustre_file, unbloc, inter_blk)
+function [output_string] = write_outport(nom_lustre_file, unbloc, inter_blk, myblk)
 
 output_string = '';
 
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 list_out = '';
 
-block_full_name = regexp(unbloc.name{1}, '/', 'split');
+block_full_name = regexp(unbloc.Path, filesep, 'split');
 block_name = Utils.concat_delim(block_full_name(end - unbloc.name_level : end), '_');
-for idx_dim_in=1:unbloc.srcport_size
+for idx_dim_in=1:unbloc.CompiledPortWidths.Inport
 	%list_out{idx_dim_in} = ['out' num2str(unbloc.portnumber) '_' num2str(idx_dim_in) '_'];
-	list_out{idx_dim_in} = [block_name '_' num2str(unbloc.portnumber) '_' num2str(idx_dim_in)];
+	list_out{idx_dim_in} = [block_name '_' num2str(unbloc.Port) '_' num2str(idx_dim_in)];
 	%if strcmp(inter_blk{1}.type, 'SubSystem')
 	%	[a b] = regexp(inter_blk{1}.name{1}, '/', 'split');
 	%	list_out{idx_dim_in} = [list_out{idx_dim_in} a{end}];
@@ -33,7 +33,7 @@ for idx_dim_in=1:unbloc.srcport_size
 	%list_out{idx_dim_in} = [list_out{idx_dim_in} '_' embedding_node_name];
 end
 
-for idx_dim_in=1:unbloc.srcport_size
+for idx_dim_in=1:unbloc.CompiledPortWidths.Inport
 	output_string = app_sprintf(output_string, '\t%s = %s;\n', list_out{idx_dim_in}, list_in{idx_dim_in});
 end
 

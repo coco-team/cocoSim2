@@ -29,17 +29,17 @@
 %
 %% Code
 %
-function [output_string] = write_busselector(unbloc, inter_blk, output_signals, out_as_bus)
+function [output_string] = write_busselector(unbloc, inter_blk, output_signals, out_as_bus, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
 selected_signals = regexp(output_signals, ',', 'split');
 
 out_as_bus = strcmp(out_as_bus, 'on');
-[is_bus bus] = BusUtils.is_bus(unbloc.inports_dt{1});
+[is_bus bus] = BusUtils.is_bus(unbloc.CompiledPortDataTypes.Inport{1});
 is_virtual = ~is_bus;
 
 data = {};
@@ -47,26 +47,26 @@ cpt_bus_elements = 0;
 cpt_selected = 1;
 
 if is_virtual
-	index_first_assignment = unbloc.srcport_size(1);
+	index_first_assignment = unbloc.CompiledPortWidths.Inport(1);
 	cpt_bus_dims = 3;
-	for idx=1:numel(unbloc.input_signals)
-		elem = unbloc.input_signals{idx};
+	for idx=1:numel(unbloc.InputSignals)
+		elem = unbloc.InputSignals{idx};
 		index = find(strcmp(elem, selected_signals));
 		if numel(index) ~= 0
 			data{cpt_selected}.Name = elem;
 			data{cpt_selected}.struct_idx = cpt_bus_elements;
-			if unbloc.inports_dim(cpt_bus_dims) == 1
-				data{cpt_selected}.Dimensions = unbloc.inports_dim(cpt_bus_dims+1);
+			if unbloc.CompiledPortDimensions.Inport(cpt_bus_dims) == 1
+				data{cpt_selected}.Dimensions = unbloc.CompiledPortDimensions.Inport(cpt_bus_dims+1);
 			else
-				data{cpt_selected}.Dimensions = [unbloc.inports_dim(cpt_bus_dims+1) unbloc.inports_dim(cpt_bus_dims+2)];
+				data{cpt_selected}.Dimensions = [unbloc.CompiledPortDimensions.Inport(cpt_bus_dims+1) unbloc.CompiledPortDimensions.Inport(cpt_bus_dims+2)];
 			end
 			cpt_selected = cpt_selected + 1;
 		end
-		if unbloc.inports_dim(cpt_bus_dims) == 1
-			cpt_bus_elements = cpt_bus_elements + unbloc.inports_dim(cpt_bus_dims+1);
+		if unbloc.CompiledPortDimensions.Inport(cpt_bus_dims) == 1
+			cpt_bus_elements = cpt_bus_elements + unbloc.CompiledPortDimensions.Inport(cpt_bus_dims+1);
 			cpt_bus_dims = cpt_bus_dims + 2;
 		else
-			cpt_bus_elements = cpt_bus_elements + (unbloc.inports_dim(cpt_bus_dims+1) * unbloc.inports_dim(cpt_bus_dims+2));
+			cpt_bus_elements = cpt_bus_elements + (unbloc.CompiledPortDimensions.Inport(cpt_bus_dims+1) * unbloc.CompiledPortDimensions.Inport(cpt_bus_dims+2));
 			cpt_bus_dims = cpt_bus_dims + 3;
 		end
 	end
@@ -121,7 +121,7 @@ if out_as_bus
 else
 	nb_assigned = 0;
 	for idx_select=1:numel(selected_signals)
-		[out_dim_r out_dim_c] = Utils.get_port_dims_simple(unbloc.outports_dim, idx_select);
+		[out_dim_r out_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Outport, idx_select);
 		for idx_r=1:out_dim_r
 			for idx_c=1:out_dim_c
 				idx = idx_c + (idx_r-1) * out_dim_c;

@@ -34,22 +34,22 @@
 %
 %% Code
 %
-function [output_string extern_funs] = write_trigo(nom_lustre_file, unbloc, op_trigo, inter_blk)
+function [output_string extern_funs] = write_trigo(nom_lustre_file, unbloc, op_trigo, inter_blk, myblk)
 
 output_string = '';
 extern_funs = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
 % Expand if necessary
 if strcmp(op_trigo, 'atan2')
 	list_in = Utils.expand_all_inputs(unbloc, list_in);
 end
 
-dim = unbloc.dstport_size(1);
+dim = unbloc.CompiledPortWidths.Outport(1);
 
-if ~unbloc.out_cpx_sig(1)
+if ~unbloc.CompiledPortComplexSignals.Outport(1)
 	if strcmp(op_trigo, 'atan2')
 		for idx_dim=1:numel(list_out)
 			in_str = [list_in{idx_dim} ', ' list_in{idx_dim + dim}];

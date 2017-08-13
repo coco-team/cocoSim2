@@ -19,21 +19,21 @@
 %
 %% Code
 %
-function [output_string] = write_saturation_dynamic(unbloc, inter_blk, outMin, outMax)
+function [output_string] = write_saturation_dynamic(unbloc, inter_blk, outMin, outMax, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc,inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
-[dim_r dim_c] = Utils.get_port_dims_simple(unbloc.outports_dim, 1);
+[dim_r dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Outport, 1);
 
 % Expand inputs if necessary
 list_in = Utils.expand_all_inputs_according_output(unbloc, list_in, 1);
 
 if numel(outMin) ~= 0
-	[list_cstMin] = Utils.list_cst(outMin, unbloc.inports_dt{2});
-	if numel(list_cstMin) == 1 && unbloc.dstport_size ~= 1
+	[list_cstMin] = Utils.list_cst(outMin, unbloc.CompiledPortDataTypes.Inport{2});
+	if numel(list_cstMin) == 1 && unbloc.CompiledPortWidths.Outport ~= 1
 		value = list_cstMin{1, 1};
 		for idx_row=1:dim_r
 			for idx_column=1:dim_c
@@ -44,8 +44,8 @@ if numel(outMin) ~= 0
 end
 
 if numel(outMax) ~= 0 
-	[list_cstMax] = Utils.list_cst(outMax, unbloc.inports_dt{2});
-	if numel(list_cstMax) == 1 && unbloc.dstport_size ~= 1
+	[list_cstMax] = Utils.list_cst(outMax, unbloc.CompiledPortDataTypes.Inport{2});
+	if numel(list_cstMax) == 1 && unbloc.CompiledPortWidths.Outport ~= 1
 		value = list_cstMax{1, 1};
 		for idx_row=1:dim_r
 			for idx_column=1:dim_c

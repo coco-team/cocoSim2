@@ -4,14 +4,15 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % TODO: Make it more efficient (transform for loop as while loop)
-function [num]=num_block(blks, block_name)
-num=-1;
-for k1= 1:numel(blks)
+function [nom]=nom_block(blks, block_name)
+nom='';
+fields = fieldnames(blks.Content);
+for k1= 1:numel(fields)
  
-   % tmp=regexp(blks{k1}.name,'/','split');
+   % tmp=regexp(blks.Content.(fields{k1}).Path,filesep,'split');
    % name=tmp{1}{2};
-    if strcmp(blks{k1}.name, block_name)
-        num=k1;
+    if strcmp(blks.Content.(fields{k1}).Path, block_name)
+        nom=fields{k1};
    end
 end
 

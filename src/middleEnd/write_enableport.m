@@ -5,7 +5,7 @@
 
 %% Enable block
 %
-% The Enable block equips the surrounding subsytem with an enable port. It
+% The Enable block equips the sursubsytem with an enable port. It
 % the block has no output (the parameter ShowOutputPort is disabled) then
 % nothing is printed for this block. Else it provides the value of the
 % surrounding SubSystem enable port.
@@ -22,9 +22,9 @@ output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
 
-out_dt = Utils.get_lustre_dt(unbloc.outports_dt);
+out_dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Outport);
 
-name_cell = regexp(unbloc.name{1}, '/', 'split');
+name_cell = regexp(unbloc.Path, filesep, 'split');
 name = Utils.concat_delim(name_cell, '_');
 for idx_dim=1:numel(list_out)
 	str_val{idx_dim} = sprintf('%s_1_%d', name, idx_dim);

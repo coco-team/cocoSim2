@@ -17,7 +17,7 @@
 %
 %% Code
 %
-function  [output_string] =write_merge(unbloc, inter_blk)
+function  [output_string] =write_merge(unbloc, inter_blk, myblk)
 
 output_string = '';
 % unbloc
@@ -26,7 +26,7 @@ output_string = '';
 numel_out = numel(list_out);
 numel_in = numel(list_in);
 right_exp = '';
-annotation = regexprep(num2str(unbloc.annotation),'\.','_');
+annotation = regexprep(num2str(unbloc.Handle),'\.','_');
 for ind_in=1:numel_out:numel_in
     %this version has the problem if an input change its value but it still
     %equal to previous value.

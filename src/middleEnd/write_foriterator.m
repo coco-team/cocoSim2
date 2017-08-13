@@ -25,7 +25,7 @@
 %
 %% Code
 %
-function [output_string] = write_foriterator(unbloc, inter_blk, ext_incr, show_iter_port, iter_dt, index_mode)
+function [output_string] = write_foriterator(unbloc, inter_blk, ext_incr, show_iter_port, iter_dt, index_mode, myblk)
 
 output_string = '';
 
@@ -48,12 +48,12 @@ if strcmp(show_iter_port, 'on')
 	end
 
 	if strcmp(ext_incr, 'on')
-		[list_in] = list_var_entree(unbloc, inter_blk);
+		[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 		for idx=1:numel(list_out) 
 			output_string = app_sprintf(output_string, '\t%s = %s -> pre(%s);\n', list_out{idx}, state, list_in{idx});
 		end
-	else
-		[res var_iter] = Utils.needs_for_iter_var(inter_blk);
+    else
+		[res var_iter] = Utils.needs_for_iter_var(myblk, inter_blk);
 		for idx=1:numel(list_out)
 			output_string = app_sprintf(output_string, '\t%s = %s;\n', list_out{idx}, var_iter);
 		end

@@ -26,14 +26,14 @@
 %
 %% Code
 %
-function [output_string] = write_crossproduct(unbloc, inter_blk)
+function [output_string] = write_crossproduct(unbloc, inter_blk, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
-if ~unbloc.out_cpx_sig(1)
+if ~unbloc.CompiledPortComplexSignals.Outport(1)
 	lhs_str = sprintf('%s * %s - %s * %s', list_in{2}, list_in{6}, list_in{3}, list_in{5});
 	output_string = app_sprintf(output_string, '\t%s = %s;\n', list_out{1}, lhs_str);
 

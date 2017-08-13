@@ -5,7 +5,7 @@
 
 % Main file for CoCoSim
 
-function [nom_lustre_file, sf2lus_Time, nb_actions, Query_time]=cocoSim(model_full_path, const_files, default_Ts, trace, dfexport)
+function [nom_lustre_file, sf2lus_Time, nb_actions, Query_time]=cocosim_vieux(model_full_path, const_files, default_Ts, trace, dfexport)
 bdclose('all')
 open(model_full_path);
 % Checking the number of arguments
@@ -47,7 +47,9 @@ addpath(fullfile(cocoSim_path, 'frontEnd'));
 addpath(fullfile(cocoSim_path, 'pp'));
 addpath(fullfile(cocoSim_path, 'utils'));
 addpath(fullfile(cocoSim_path, '.'));
-addpath(fullfile(cocoSim_path, 'ir'));
+addpath(fullfile(cocoSim_path, 'IR'));
+addpath(fullfile(cocoSim_path, 'IR/utils'));
+addpath(fullfile(cocoSim_path, 'IR_pp'));
 
 addpath(cocoSim_path);
 config;
@@ -160,11 +162,16 @@ display_msg('Building internal format', Constants.INFO, 'cocoSim', '');
 [models, subsystems] = find_mdlrefs(file_name);
 
 %%%%%% Internal representation building %%%%%%
-%[inter_blk, blks, complex_structs]= mk_internalRep(file_name, ...
-%    dfexport, models, ...
-%    subsystems, mat_files, ...
-%    default_Ts);
-[ir_struct, blks, subs_blks] = cocosim_IR(file_name, dfexport);
+[ir_struct, all_blks, subs_blks] = cocosim_IR(file_name, dfexport);
+%Pre process of IR
+[ir_struct, complex_structs] = ir_pp(ir_struct, file_name);
+
+json_model = json_encode(ir_struct);
+file_json = 'debug.json';
+fid = fopen(file_json, 'w');
+% Write in the file
+fprintf(fid, '%s\n', json_model);
+fclose(fid);
 
 % Create traceability informations in XML format
 display_msg('Start tracebility', Constants.INFO, 'cocoSim', '');
@@ -192,24 +199,24 @@ cocospec = [];
 print_spec = false;
 is_SF = false;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% les blocks sont contenu chaque fois dans (name).Content
-% retourner le nbe de content. for tous les content prendre les fieldnames
-% et faire un for dessus.
+nb_subs = numel(subs_blks);
+for idx_subsys=(numel(nb_subs)):-1:1
+    sub_struct = get_struct(ir_struct, subs_blks{idx_subsys});
+    if idx_subsys == 1
+        fields = fieldnames(sub_struct.Content);
+        sub_struct = sub_struct.Content.(fields{1});
+    end
 
-for idx_subsys=numel(subs_blks):-1:1
-    msg = sprintf('Compiling %s:%s', cocoget_param(ir_struct, subs_blks{i}, 'Name'),...
-        cocoget_param(ir_struct, subs_blks{i}, 'BlockType'));
+    msg = sprintf('Compiling %s:%s', sub_struct.Origin_path, sub_struct.BlockType);
     display_msg(msg, Constants.DEBUG, 'cocoSim', '');
     
     %%%%%%% Matlab functions and CoCoSpec code generation %%%%%%%%%%%%%%%
     is_matlab_function = false;
     is_cocospec = false;
     is_Chart = false;
-    if idx_subsys ~= 1 && ~strcmp(cocoget_param(ir_struct, subs_blks{i}, 'BlockType'), 'ModelReference')
-        sf_sub = cocoget_param(ir_struct, subs_blks{i}, 'SFBlockType');
-        cocospec_name = cocoget_param(ir_struct, subs_blks{i}, 'Name');
+    if idx_subsys ~= 1 && ~strcmp(sub_struct.BlockType, 'ModelReference')
+        sf_sub = sub_struct.SFBlockType;
+        cocospec_name = sub_struct.Name;
         if strcmp(cocospec_name, 'CoCoSpec')
             is_cocospec = true;
         elseif strcmp(sf_sub, 'MATLAB Function')
@@ -219,11 +226,12 @@ for idx_subsys=numel(subs_blks):-1:1
             is_SF = true;
         end
     end
+    
     if is_cocospec
         display_msg('CoCoSpec Found', Constants.INFO, 'cocoSim', '');
-        [contract_name, chart] = Utils.get_MATLAB_function_name(cocoget_param(ir_struct, subs_blks{i}, 'Origin_path'));
+        [contract_name, chart] = Utils.get_MATLAB_function_name(sub_struct.Origin_path);
         spec_lines = regexp(chart.Script, sprintf('\n'), 'split');
-        blk_path_elems = regexp(cocoget_param(ir_struct, subs_blks{i}, 'Path'), filesep, 'split'); %filesep à la place de '/'
+        blk_path_elems = regexp(sub_struct.Path, '/', 'split');
         node_call_name = Utils.concat_delim(blk_path_elems, '_');
         disp(node_call_name)
         cocospec_file = fullfile(output_dir, strcat([contract_name], '_cocospec.lus'));
@@ -242,12 +250,10 @@ for idx_subsys=numel(subs_blks):-1:1
     elseif is_matlab_function
         display_msg('Found Embedded Matlab', Constants.INFO, 'cocoSim', '');
         try
-            [fun_name, chart] = Utils.get_MATLAB_function_name(cocoget_param(ir_struct, subs_blks{i}, 'Origin_path'));
-            sub_struct = get_struct(ir_struct, subs_blks{i})
-            [mat_fun_node] = write_matlab_function_node(sub_struct, subs_blk, sub_struct.Content, fun_name, chart, xml_trace);
-            
+            [fun_name, chart] = Utils.get_MATLAB_function_name(sub_struct.Origin_path);
+            [mat_fun_node] = write_matlab_function_node(sub_struct, ir_struct, sub_struct.Content, fun_name, chart, xml_trace);
             extern_nodes_string = [extern_nodes_string mat_fun_node];
-            blk_path_elems = regexp(cocoget_param(ir_struct, subs_blks{i}, 'Path'), filesep, 'split'); %replace '/' by filesep
+            blk_path_elems = regexp(sub_struct.Path, '/', 'split');
             node_call_name = Utils.concat_delim(blk_path_elems, '_');
             disp(node_call_name)
             fun_file = fullfile(output_dir, strcat([node_call_name '_' fun_name], '.m'));
@@ -262,15 +268,14 @@ for idx_subsys=numel(subs_blks):-1:1
             display_msg(ME.getReport(), Constants.DEBUG, 'cocoSim', '');
             display_msg(['Unable to process Embedded Matlab :' ME.message], Constants.ERROR, 'cocoSim', '');
         end
-        
-        
+     
     elseif is_Chart
         display_msg('Found Stateflow', Constants.INFO, 'cocoSim', '');
-        load_system(cocoget_param(ir_struct, subs_blks{i}, 'Origin_path'));
+        load_system(sub_struct.Origin_path);
         rt = sfroot;
         m = rt.find('-isa', 'Simulink.BlockDiagram', 'Name',file_name);
-        chart = m.find('-isa','Stateflow.Chart', 'Path', cocoget_param(ir_struct, subs_blks{i}, 'Origin_path'));
-%         chart = chartArray(strcmp(chartArray.get('Path'),cocoget_param(ir_struct, subs_blks{i}, 'Origin_path'));
+        chart = m.find('-isa','Stateflow.Chart', 'Path', sub_struct.Origin_path);
+%         chart = chartArray(strcmp(chartArray.get('Path'),inter_blk{idx_subsys}{1}.origin_name));
         [ block_string,external_nodes_i,nb_actions, ~] = chart2lus( chart, 0, xml_trace,file_name );
         if ~strcmp(SOLVER, 'Z') && ~strcmp(SOLVER, 'NONE')
             msg = 'Currently only Zustre can be used to verify Stateflow models';
@@ -280,15 +285,15 @@ for idx_subsys=numel(subs_blks):-1:1
         nodes_string = [nodes_string block_string];
         extern_Stateflow_nodes_fun = [extern_Stateflow_nodes_fun, external_nodes_i];
         %%%%% Standard Simulink blocks code generation %%%%%%%%%%%%%%%
-    elseif (idx_subsys == 1 || ~Constants.is_property(cocoget_param(ir_struct, subs_blks{i}, 'MaskType')) && numel(sub_struct.CompiledPortDataTypes.Outport) ~= 0
-        % si que 1 seul subsystem ????
-        if strcmp(cocoget_param(subs_blks{i}, 'BlockType'), 'SubSystem')
-            sf_sub = cocoget_param(cocoget_param(subs_blks{i}, 'Handle'), 'SFBlockType');
+    elseif (idx_subsys == 1 || (strcmp(sub_struct.BlockType, 'SubSystem') && ~Constants.is_property(sub_struct.MaskType))) && sub_struct.Ports(2) ~= 0
+       
+        if strcmp(sub_struct.BlockType, 'SubSystem')
+            sf_sub = sub_struct.SFBlockType;
             if idx_subsys == 1 && strcmp(sf_sub, 'Chart')
-                load_system(cocoget_param(subs_blks{i}, 'Origin_path'));
+                load_system(sub_struct.Origin_path);
                 rt = sfroot;
                 m = rt.find('-isa', 'Simulink.BlockDiagram');
-                chart = m.find('-isa','Stateflow.Chart', 'Path', cocoget_param(subs_blks{i}, 'Path'));
+                chart = m.find('-isa','Stateflow.Chart', 'Path', sub_struct.Origin_path);
                 [ block_string,external_nodes_i,nb_actions, ~] = chart2lus( chart, 0, xml_trace,file_name );
                 nodes_string = [nodes_string block_string];
                 extern_Stateflow_nodes_fun = [extern_Stateflow_nodes_fun, external_nodes_i];
@@ -318,9 +323,9 @@ for idx_subsys=numel(subs_blks):-1:1
                     property_node_name{idx_prop_names}.parent_node_name = file_name;
                     property_node_name{idx_prop_names}.parent_block_name = file_name;
                 else
-                    res = regexp(cocoget_param(ir_struct, subs_blks{i}, 'Path'), filesep, 'split'); %'/' par filesep
+                    res = regexp(sub_blk.Path, filesep, 'split');
                     property_node_name{idx_prop_names}.parent_node_name = Utils.concat_delim(res, '_');
-                    property_node_name{idx_prop_names}.parent_block_name = cocoget_param(ir_struct, subs_blks{i}, 'Origin_path');
+                    property_node_name{idx_prop_names}.parent_block_name = sub_blk.Origin_path;
                 end
                 property_node_names{numel(property_node_names) + 1} = property_node_name{idx_prop_names};
             end
@@ -338,8 +343,6 @@ end
 
 % Open file for writing
 fid = fopen(nom_lustre_file, 'a');
-
-
 
 % add external nodes called from action like min, max and matlab functions
 % or int_to_real and real_to_int

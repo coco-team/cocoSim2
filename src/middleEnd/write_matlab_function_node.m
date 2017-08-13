@@ -26,35 +26,21 @@ function [header] = write_matlab_function_node(block, main_blk, inter_blk, fun_n
 
 header = '';
 
-% Get parent subsystem
-full_name = regexp(block.Origin_path, filesep, 'split');
-if numel(full_name{1}(1:end-1)) == 1
-	idx_parent_subsystem = 1;
-	parent_subsystem = main_blk{idx_parent_subsystem};
-	parent_node_name = full_name{1}{1};
-else
-    % TODO grosse modif
-	idx_parent_subsystem = get_subsys_index(main_blk, Utils.concat_delim(full_name{1}(1:end-1), filesep));
-	parent_subsystem = main_blk{idx_parent_subsystem};
-	full_parent_name = regexp(parent_subsystem{1}.name, filesep, 'split');
-	parent_node_name = Utils.concat_delim(full_parent_name{1}, '_');
-end
-
 % Prepare node header
 blk_path_elems = regexp(block.Path, filesep, 'split');
 node_call_name = Utils.concat_delim(blk_path_elems, '_');
 
 header = sprintf('node %s_%s (', node_call_name, fun_name);
 
-xml_trace_node = xml_trace.create_Node_Element(block.Origin_path, node_call_name);
+xml_trace_node = xml_trace.create_Node_Element(xml_trace, block.Origin_path, node_call_name);
 
 inputs = {};
 % Get inputs
 for idx_in=1:numel(block.Pre)
    in_name = char(chart.Inputs(idx_in).Name);
-	in_dt = Utils.get_lustre_dt(block.CompiledPortDataTypes.Inport{idx_in}); %ici
-	[dim_r dim_c] = Utils.get_port_dims_simple(block.inports_dim, idx_in);
-	if block.in_cpx_sig(idx_in)
+	in_dt = Utils.get_lustre_dt(block.CompiledPortDataTypes.Inport{idx_in});
+	[dim_r dim_c] = Utils.get_port_dims_simple(block.CompiledPortDimensions.Iport, idx_in);
+	if block.CompiledPortComplexSignals{1}.Inport(idx_in)
 		in_dt = ['complex_' in_dt];
 	end
 	if dim_r == 1 && dim_c == 1
@@ -74,11 +60,11 @@ header = app_sprintf(header, '%s;)\nreturns (', inputs_string);
 
 outputs = {};
 % Get outputs
-for idx_out=1:numel(block.post)
+for idx_out=1:numel(block.Post)
 	out_name = char(chart.Outputs(idx_out).Name);
-	out_dt = Utils.get_lustre_dt(block.outports_dt{idx_out});
-	[dim_r dim_c] = Utils.get_port_dims_simple(block.outports_dim, idx_out);
-	if block.out_cpx_sig(idx_out)
+	out_dt = Utils.get_lustre_dt(block.CompiledPortDataTypes.Outport{idx_out});
+	[dim_r dim_c] = Utils.get_port_dims_simple(block.CompiledPortDimensions.Outport, idx_out);
+	if block.CompiledPortComplexSignals{1}.Outport(idx_in)
 		out_dt = ['complex_' out_dt];
 	end
 	if dim_r == 1 && dim_c == 1

@@ -23,19 +23,19 @@
 %
 %% Code
 %
-function [output_string] = write_selector(unbloc, inter_blk, nb_dim, index_opt, indices, index_mode, output_sizes)
+function [output_string] = write_selector(unbloc, inter_blk, nb_dim, index_opt, indices, index_mode, output_sizes, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
 % Split the parameters values
 index_opt = regexp(index_opt, ',', 'split');
 indices = regexp(indices, ',', 'split');
 output_sizes = regexp(output_sizes, ',', 'split');
 
-[dims_in{1} dims_in{2}] = Utils.get_port_dims_simple(unbloc.inports_dim, 1);
+[dims_in{1} dims_in{2}] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, 1);
 nb_in_elems = (dims_in{1}*dims_in{2});
 
 % Evaluate the indices values
@@ -56,7 +56,7 @@ for idx_dim=1:nb_dim
 	end
 end
 	
-[dims_out{1} dims_out{2}] = Utils.get_port_dims_simple(unbloc.outports_dim, 1);
+[dims_out{1} dims_out{2}] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Outport, 1);
 maxi_out = max(dims_out{1}, dims_out{2});
 
 if nb_dim == 1
@@ -132,9 +132,9 @@ elseif nb_dim == 2
 				idx_last = (row_idx) * dims_in{2};
 				output_string = app_sprintf(output_string, '\t%s = %s%s;\n', list_out{idx_var_out}, if_cond, list_in{idx_last});
 			elseif rows_as_input & cols_as_input
-				[dims_ext_one{1} dims_ext_one{2}] = Utils.get_port_dims_simple(unbloc.inports_dim, 2);
+				[dims_ext_one{1} dims_ext_one{2}] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, 2);
 				size_one = dims_ext_one{1} * dims_ext_one{2};
-				[dims_ext_two{1} dims_ext_two{2}] = Utils.get_port_dims_simple(unbloc.inports_dim, 3);
+				[dims_ext_two{1} dims_ext_two{2}] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Inport, 3);
                 size_two = dims_ext_two{1} * dims_ext_two{2};
 
 				if_cond = {};
@@ -169,7 +169,7 @@ elseif nb_dim == 2
 	end
 else
 	msg = ['Assignment block does not yet supports more than 2 dimentional values\n'];
-	msg = [msg unbloc.origin_name{1} '\n'];
+	msg = [msg unbloc.Origin_path '\n'];
 	display_msg(msg, Constants.ERROR, 'write_assignment', '');
 end
 

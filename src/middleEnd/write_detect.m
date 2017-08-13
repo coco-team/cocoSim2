@@ -87,14 +87,14 @@
 %
 %% Code
 %
-function [output_string, add_vars] = write_detect(unbloc, inter_blk, vinit)
+function [output_string, add_vars] = write_detect(unbloc, inter_blk, vinit, myblk)
 
 output_string = '';
 add_vars = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_vinit] = Utils.list_cst(vinit, unbloc.inports_dt{1});
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_vinit] = Utils.list_cst(vinit, unbloc.CompiledPortDataTypes.Inport{1});
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
 % Redimention of list_vinit
 if numel(list_vinit) ~= numel(list_out)
@@ -120,19 +120,19 @@ if numel(list_in) ~= numel(list_out)
 	list_in = new_in2;
 end
 
-if strcmp(unbloc.inports_dt{1}, 'double') || strcmp(unbloc.inports_dt{1}, 'single')
+if strcmp(unbloc.CompiledPortDataTypes.Inport{1}, 'double') || strcmp(unbloc.CompiledPortDataTypes.Inport{1}, 'single')
 	zero = '0.0';
 else
 	zero = '0';
 end
 
-mask = unbloc.mask_type;
+mask = unbloc.MaskType;
 if strcmp(mask, Constants.detect_change)
-	if unbloc.in_cpx_sig(1)
+	if unbloc.CompiledPortComplexSignals.Inport(1)
 		% If the input is a complex number, update the init value
 		list_vinit_r = {};
 		list_vinit_i = {};
-		dt = Utils.get_lustre_dt(unbloc.inports_dt{1});
+		dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Inport{1});
 		for idx=1:numel(list_vinit)
 			const_val_real = evalin('base', sprintf('real(%s);', list_vinit{idx}));
 			const_val_imag = evalin('base', sprintf('imag(%s);', list_vinit{idx}));
@@ -155,7 +155,7 @@ if strcmp(mask, Constants.detect_change)
 		end
 	end
 elseif strcmp(mask, Constants.detect_dec) 
-	if strcmp(unbloc.inports_dt{1}, 'boolean')
+	if strcmp(unbloc.CompiledPortDataTypes.Inport{1}, 'boolean')
 		for idx=1:numel(list_out)
 			output_string = app_sprintf(output_string, '\t%s = not(%s) and (%s -> pre(%s));\n', list_out{idx}, list_in{idx}, list_vinit{idx}, list_in{idx});
 		end
@@ -165,7 +165,7 @@ elseif strcmp(mask, Constants.detect_dec)
 		end
 	end
 elseif strcmp(mask, Constants.detect_inc) 
-	if strcmp(unbloc.inports_dt{1}, 'boolean')
+	if strcmp(unbloc.CompiledPortDataTypes.Inport{1}, 'boolean')
 		for idx=1:numel(list_out)
 			output_string = app_sprintf(output_string, '\t%s = %s and not (%s -> pre(%s));\n', list_out{idx}, list_in{idx}, list_vinit{idx}, list_in{idx});
 		end
@@ -175,7 +175,7 @@ elseif strcmp(mask, Constants.detect_inc)
 		end
 	end
 elseif strcmp(mask, Constants.detect_rise_pos)
-	if strcmp(unbloc.inports_dt{1}, 'boolean')
+	if strcmp(unbloc.CompiledPortDataTypes.Inport{1}, 'boolean')
 		for idx=1:numel(list_out)
 			output_string = app_sprintf(output_string, '\t%s = %s and not (%s -> pre (%s));\n', list_out{idx}, list_in{idx}, list_vinit{idx}, list_in{idx});
 		end
@@ -185,7 +185,7 @@ elseif strcmp(mask, Constants.detect_rise_pos)
 		end
 	end
 elseif strcmp(mask, Constants.detect_rise_nonneg) 
-	if strcmp(unbloc.inports_dt{1}, 'boolean')
+	if strcmp(unbloc.CompiledPortDataTypes.Inport{1}, 'boolean')
 		for idx=1:numel(list_out)
 			output_string = app_sprintf(output_string, '\t%s = true and not (%s -> true);\n', list_out{idx}, list_vinit{idx});
 		end
@@ -195,7 +195,7 @@ elseif strcmp(mask, Constants.detect_rise_nonneg)
 		end
 	end
 elseif strcmp(mask, Constants.detect_fall_neg) 
-	if strcmp(unbloc.inports_dt{1}, 'boolean')
+	if strcmp(unbloc.CompiledPortDataTypes.Inport{1}, 'boolean')
 		for idx=1:numel(list_out)
 			output_string = app_sprintf(output_string, '\t%s = false;\n', list_out{idx});
 		end
@@ -205,7 +205,7 @@ elseif strcmp(mask, Constants.detect_fall_neg)
 		end
 	end
 elseif strcmp(mask, Constants.detect_fall_nonpos)
-	if strcmp(unbloc.inports_dt{1}, 'boolean')
+	if strcmp(unbloc.CompiledPortDataTypes.Inport{1}, 'boolean')
 		for idx=1:numel(list_out)
 			output_string = app_sprintf(output_string, '\t%s = not(%s) and (not %s -> pre (%s));\n', list_out{idx}, list_in{idx}, list_vinit{idx}, list_in{idx});
 		end
@@ -215,7 +215,7 @@ elseif strcmp(mask, Constants.detect_fall_nonpos)
 		end
 	end	
 else
-	error_msg = ['Unhandled masked block: ' unbloc.origin_name{1}];
+	error_msg = ['Unhandled masked block: ' unbloc.Origin_path];
 	error_msg = [error_msg '\nMask type: ' mask];
 	display_msg(error_msg, Constants.ERROR, 'write_detect', '');
 end

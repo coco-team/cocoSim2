@@ -18,29 +18,29 @@
 %
 %% Code
 %
-function [output_string] = write_memory(unbloc, init, inter_blk)
+function [output_string] = write_memory(unbloc, init, inter_blk, myblk)
 
 output_string = '';
 
 [list_out] = list_var_sortie(unbloc);
-[list_in] = list_var_entree(unbloc, inter_blk);
+[list_in] = list_var_entree(unbloc, inter_blk, myblk);
 
-[is_bus bus] = BusUtils.is_bus(unbloc.outports_dt{1});
+[is_bus bus] = BusUtils.is_bus(unbloc.CompiledPortDataTypes.Outport{1});
 if is_bus
 	[list_ic, list_fields] = BusUtils.list_cst(init, bus);
 else
-	[list_ic] = Utils.list_cst(init, unbloc.outports_dt{1});
+	[list_ic] = Utils.list_cst(init, unbloc.CompiledPortDataTypes.Outport{1});
 end
 
-if unbloc.out_cpx_sig(1)
+if unbloc.CompiledPortComplexSignals.Outport(1)
 	% The output is complex so both input and init should be complex too
-	dt = Utils.get_lustre_dt(unbloc.outports_dt{1});
+	dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Outport{1});
 	for idx=1:numel(list_ic)
 		list_ic{idx} = Utils.get_complex_def_str(list_ic{idx}, dt);
 	end
 end
 
-[out_dim_r out_dim_c] = Utils.get_port_dims_simple(unbloc.outports_dim, 1);
+[out_dim_r out_dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Outport, 1);
 
 [ic_dim_r ic_dim_c] = size(list_ic);
 

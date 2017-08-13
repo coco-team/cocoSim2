@@ -27,7 +27,7 @@
 %
 %% Code
 %
-function [output_string ext_funs] = write_signum(unbloc, inter_blk)
+function [output_string ext_funs] = write_signum(unbloc, inter_blk, myblk)
 
 output_string = '';
 ext_funs = '';
@@ -35,8 +35,8 @@ ext_funs = '';
 [list_out] = list_var_sortie(unbloc);
 [list_in] = list_var_entree(unbloc, inter_blk);
 
-dt = Utils.get_lustre_dt(unbloc.inports_dt{1});
-if ~unbloc.in_cpx_sig(1)
+dt = Utils.get_lustre_dt(unbloc.CompiledPortDataTypes.Inport{1});
+if ~unbloc.CompiledPortComplexSignals.Inport(1)
 	if strcmp(dt, 'real')
 		zero = '0.0';
 		one = '1.0';
