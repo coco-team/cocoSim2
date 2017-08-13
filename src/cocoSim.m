@@ -5,7 +5,7 @@
 
 % Main file for CoCoSim
 
-function [nom_lustre_file, sf2lus_Time, nb_actions, Query_time]=cocosim_vieux(model_full_path, const_files, default_Ts, trace, dfexport)
+function [nom_lustre_file, sf2lus_Time, nb_actions, Query_time]=cocoSim(model_full_path, const_files, default_Ts, trace, dfexport)
 bdclose('all')
 open(model_full_path);
 % Checking the number of arguments
