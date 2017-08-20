@@ -31,7 +31,7 @@ classdef log4m < handle
     properties(SetAccess = protected)
         fullpath = 'log4m.log';  %Default file
         commandWindowLevel = log4m.ALL;
-        logLevel = log4m.ALL;
+        logLevel = log4m.INFO;
     end
     
     methods (Static)

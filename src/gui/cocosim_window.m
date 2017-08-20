@@ -103,15 +103,15 @@ properties_panel = uipanel(tab6,'Title','',...
 assignin('base','cocosim_tgroup_handle',cocosim_display_tgroup);
 assignin('base','cocosim_status_handle',t_status);
 if nargin==1
-    cocoSim(model_full_path);
+    lustre_verify(model_full_path);
 elseif nargin==2
-    cocoSim(model_full_path, const_files);
+    lustre_verify(model_full_path, const_files);
 elseif nargin==3
-    cocoSim(model_full_path, const_files, default_Ts);
+    lustre_verify(model_full_path, const_files, default_Ts);
 elseif nargin==4
-    cocoSim(model_full_path, const_files, default_Ts, trace);
+    lustre_verify(model_full_path, const_files, default_Ts, trace);
 elseif nargin==5
-    cocoSim(model_full_path, const_files, default_Ts, trace, dfexport);
+    lustre_verify(model_full_path, const_files, default_Ts, trace, dfexport);
 end
 
 %% callbacks
