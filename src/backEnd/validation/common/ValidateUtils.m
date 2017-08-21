@@ -10,7 +10,7 @@ classdef ValidateUtils
         end
         
         function vector = construct_random_booleans(nb_iterations, IMIN, IMAX, dim)
-            vector = boolean(Utils.construct_random_integers(nb_iterations, IMIN, IMAX, 'uint8',dim));
+            vector = boolean(ValidateUtils.construct_random_integers(nb_iterations, IMIN, IMAX, 'uint8',dim));
         end
         
         function vector = construct_random_doubles(nb_iterations, IMIN, IMAX,dim)
