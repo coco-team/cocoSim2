@@ -10,7 +10,7 @@ disp('--------------------------')
 disp('    WELCOME TO COCOSIM    ')
 disp('--------------------------')
 disp('... adding cocoSim path')
-addpath(fullfile(cocoSim_path, 'src'));
+addpath(genpath(fullfile(cocoSim_path, 'src')));
 addpath(fullfile(cocoSim_path, 'src','gui'));
 addpath(fullfile(cocoSim_path, 'src','utils'));
 config;

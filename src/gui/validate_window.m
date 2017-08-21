@@ -1,6 +1,6 @@
 function [valid, validation_compute,lustrec_failed, ...
     lustrec_binary_failed, sim_failed, lus_file_path, ...
-    sf2lus_time, nb_actions, Query_time] = validate_window(model_full_path,cocoSim_path, show_models,L)
+    sf2lus_time, Query_time] = validate_window(model_full_path,cocoSim_path, show_models,L)
 % validate_window plot the output of the call to cocosim function
 
 
@@ -153,19 +153,19 @@ nb_argin = nargin;
             if nb_argin==1
                 [valid, validation_compute,lustrec_failed, ...
                     lustrec_binary_failed, sim_failed, lus_file_path, ...
-                    sf2lus_time, nb_actions, Query_time] = validate_model(model_full_path);
+                    sf2lus_time, Query_time] = validate_lustre(model_full_path);
             elseif nb_argin==2
                 [valid, validation_compute,lustrec_failed, ...
                     lustrec_binary_failed, sim_failed, lus_file_path, ...
-                    sf2lus_time, nb_actions, Query_time] = validate_model(model_full_path,cocoSim_path);
+                    sf2lus_time, Query_time] = validate_lustre(model_full_path,cocoSim_path);
             elseif nb_argin==3
                 [valid, validation_compute,lustrec_failed, ...
                     lustrec_binary_failed, sim_failed, lus_file_path, ...
-                    sf2lus_time, nb_actions, Query_time] = validate_model(model_full_path,cocoSim_path, show_models);
+                    sf2lus_time, Query_time] = validate_lustre(model_full_path,cocoSim_path, show_models);
             elseif nb_argin==4
                 [valid, validation_compute,lustrec_failed, ...
                     lustrec_binary_failed, sim_failed, lus_file_path, ...
-                    sf2lus_time, nb_actions, Query_time] = validate_model(model_full_path,cocoSim_path, show_models,L,min_max_constraints);
+                    sf2lus_time, Query_time] = validate_lustre(model_full_path,cocoSim_path, show_models,L,min_max_constraints);
             end
             [~, file_name, ~] = fileparts(lus_file_path);
             open(file_name);
@@ -177,8 +177,8 @@ nb_argin = nargin;
                 display_msg('Simulation has failed',Constants.RESULT,'Validate','');
             end
         catch ME
-            display_msg(ME.getReport(), Constants.DEBUG,'Validate_model','');
-            display_msg(ME.message, Constants.ERROR,'Validate_model','');
+            display_msg(ME.getReport(), Constants.DEBUG,'validate_lustre','');
+            display_msg(ME.message, Constants.ERROR,'validate_lustre','');
         end
     end
 %% clear temporal values
