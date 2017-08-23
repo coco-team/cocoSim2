@@ -6,7 +6,7 @@
 
 function kind2(lustre_file_name, property_node_names, property_file_base_name, ir_struct, xml_trace)
      
-    config;
+    cocosim_config;
     try
        kind2_option = evalin('base','kind2_option');
     catch
