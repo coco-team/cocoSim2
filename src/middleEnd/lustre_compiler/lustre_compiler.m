@@ -48,7 +48,7 @@ addpath(fullfile(cocoSim_path, 'utils'));
 addpath(fullfile(cocoSim_path, '.'));
 
 addpath(cocoSim_path);
-config;
+cocosim_config;
 try
     SOLVER = evalin('base','SOLVER');
     RUST_GEN = evalin('base', 'RUST_GEN');
