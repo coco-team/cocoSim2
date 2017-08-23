@@ -15,7 +15,7 @@ addpath(fullfile(cocoSim_path, 'src','gui'));
 addpath(fullfile(cocoSim_path, 'src','utils'));
 cocosim_config;
 PWD = pwd;
-cd('src/frontEnd/IR/utils');
+cd(fullfile(cocoSim_path, 'src', 'frontEnd', 'IR', 'utils'));
 make;
 cd(PWD);
 
