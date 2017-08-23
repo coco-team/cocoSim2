@@ -24,7 +24,7 @@
 % TODO: return status, modularisation of the tool
 function [Query_time, properties_summary] =zustre(lustre_file_name, property_node_names, property_file_base_name, model_inter_blk, xml_trace, is_SF, smt_file)
 
-config;
+cocosim_config;
 SOLVER = evalin('base','SOLVER');
 
 [path file ext] = fileparts(lustre_file_name);
