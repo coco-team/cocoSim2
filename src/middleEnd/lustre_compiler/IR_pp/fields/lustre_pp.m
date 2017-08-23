@@ -90,10 +90,12 @@ for i=1:numel(fields)
             else
                 func_name = ['write_' blockType_format(sub_blk.MaskType)];
             end
-            % Block handled, so we won't open it. Remove its Content
+            % Block handled, so we won't open it.
             if exist(func_name, 'file')
-                ir_struct.Content.(fields{i}) = rmfield(ir_struct.Content.(fields{i}), 'Content');
+                ir_struct.Content.(fields{i}).HasWrite = true;
                 sub_blk = ir_struct.Content.(fields{i});
+            else
+                ir_struct.Content.(fields{i}).HasWrite = false;
             end
         end
         if isfield(sub_blk, 'Content')

@@ -49,17 +49,19 @@ elseif isa(Object, 'char')
         ParamValue = Object_search.(IRUtils.name_format(path{numel(path)})).(Parameter);
     end
 elseif isa(Object, 'double')
-    Object_struct = get_struct(ir_struct, Object);
-    if isempty(Object_struct)
-        error('Handle not valid.');
-    end
-    try
-        ParamValue = Object_struct.(Parameter);
-    catch
-        error(['error, reference to non-existent field : ', Parameter]);
+    ParamValue = {};
+    for i=1:numel(Object)
+        Object_struct = get_struct(ir_struct, Object(i));
+        if isempty(Object_struct)
+            error('Handle not valid.');
+        end
+        try
+            ParamValue = [ParamValue Object_struct.(Parameter)];
+        catch
+            error(['error, reference to non-existent field : ', Parameter]);
+        end
     end
 else
     error('Error. \n Specified Object must be an id or a string of a path to a block not a %s.', class(Object));
 end
-
 end

@@ -20,7 +20,7 @@ elseif isa(Object, 'double')
     if nargin >= 3 && isKey(handle_struct_map, Object)
         Object_struct = handle_struct_map(Object);
     else
-        if isfield(ir_struct, 'Handle') && ir_struct.Handle == Object
+        if isfield(ir_struct, 'Handle') && (ir_struct.Handle == Object)
             Object_struct = ir_struct;
         elseif ~isempty(ir_struct)
             fields = fieldnames(ir_struct);

@@ -53,10 +53,13 @@ try
     % inter_blk = subsystem de block
     %obs_idx_subsys = get_subsys_index(myblk, block.Origin_path);
     %obs_inter_blk = myblk{obs_idx_subsys};
-    obs_nblk = numel(block.Content);
-    obs_blks = block.Path;
-    
-    
+    fields = fieldnames(block.Content);
+    fields(cellfun('isempty', regexprep(fields, '^Annotation.*', ''))) = [];
+    obs_nblk = numel(fields);
+    obs_blks = {};
+    for i=1:numel(fields)
+        obs_blks = [obs_blks block.Content.(fields{i}).Path];
+    end
     % Get parent subsystem
     parent_subsystem = inter_blk;
     full_observer_name = regexp(block.Origin_path, filesep, 'split');
@@ -96,10 +99,11 @@ try
     % Get observer inputs
     obs_inputs_pre_as_inport = {};
     for idx_in=1:numel(block.Pre)
-        inport_block = get_struct(ir_struct, block.Pre(idx_in));
-        in_type = inport_block.BlockType;
+        inport_block = block.Content.(fields{idx_in});
+        pre_block = get_struct(ir_struct, block.Pre(idx_in));
+        in_type = pre_block.BlockType;
         inport_block_full_name = regexp(inport_block.Path, filesep, 'split');
-        pre_block_level = inport_block.name_level;
+        pre_block_level = pre_block.name_level;
         preceding_block_name = Utils.concat_delim(inport_block_full_name(end - pre_block_level : end), '_');
         
         if strcmp(in_type, 'Inport')
@@ -108,7 +112,7 @@ try
                 xml_trace.create_Inputs_Element();
             end
             % Get the number of the inport block connected to this input of the observer
-            number = str2num(inport_block.Port);
+            number = str2num(pre_block.Port);
             for idx_dim=1:block.CompiledPortWidths.Inport(idx_in)
                 list_in{cpt_in} = [preceding_block_name '_' num2str(block.PortConnectivity(idx_in).SrcPort + 1) '_' num2str(idx_dim)];
                 list_in_header{cpt_in} = [list_in{cpt_in} ' : ' LusUtils.get_lustre_dt(block.CompiledPortDataTypes.Inport(idx_in))];
@@ -131,21 +135,25 @@ try
             pre_block_out_idx = block.PortConnectivity(idx_in).SrcPort+1;
             
             % Get the number of the outport on which the observer input is connected on the observed block
-            type = cocoget_param(ir_struct, pre_block.Post(pre_block_out_idx), 'BlockType');
+            type = cocoget_param(ir_struct, pre_block.Post, 'BlockType');
             outport_index = find(strcmp(type, 'Outport'));
-            post_id = pre_block.Post(pre_block_out_idx);
-            pre_outport_block = get_struct(ir_struct, post_id(outport_index(1)));
-
+            post_id = pre_block.Post(outport_index);
+            pre_outport_block = get_struct(ir_struct, post_id);
+            
             %pre_outport_block_idx = get_block_index(parent_subsystem, parent_subsystem{pre_block_idx}.postname{pre_block_out_idx}(outport_index(1)));
             number = str2num(pre_outport_block.Port);
             
             input_dt = LusUtils.get_lustre_dt(block.CompiledPortDataTypes.Inport(idx_in));
+            input_block = block.Content.(fields{idx_in});
+            input_block_full_name = regexp(input_block.Path, filesep, 'split');
+            input_block_level = LusUtils.get_pre_block_level(input_block.Path, inter_blk);
+            input_block_name = Utils.concat_delim(input_block_full_name(end - input_block_level : end), '_');
             
             str = '';
             cpt_str = 1;
-            for idx_dim=1:inport_block.CompiledPortWidths.Outport(1)
+            for idx_dim=1:input_block.CompiledPortWidths.Outport(1)
                 % We order the outputs according to the number of the port in the observed subsystem
-                list_in_outport{cpt_not_in} = [preceding_block_name '_1_' num2str(idx_dim)];
+                list_in_outport{cpt_not_in} = [input_block_name '_1_' num2str(idx_dim)];
                 list_in_outport_parent_call_declaration{cpt_not_in} = [list_in_outport{cpt_not_in} ' : ' input_dt];
                 
                 obs_inputs_pre_as_outport{number}{idx_dim} = list_in_outport{cpt_not_in};
@@ -184,7 +192,6 @@ try
         end
     end
     
-    
     inputs_string = Utils.concat_delim(list_in_header, '; ');
     header = app_sprintf(header, '%s)\nreturns (', inputs_string);
     
@@ -193,10 +200,10 @@ try
     list_outputs = '';
     list_output_names = '';
     cpt_outports = 0;
-    fields = fieldnames(inter_blk.Content);
+    fields = fieldnames(block.Content);
     fields(cellfun('isempty', regexprep(fields, '^Annotation.*', ''))) = [];
     for idx_block=1:obs_nblk
-        ablock = get_struct(ir_struct, inter_blk.Content.(fields{idx_block}));
+        ablock = get_struct(ir_struct, block.Content.(fields{idx_block}).Path);
         if strcmp(ablock.BlockType, 'Outport')
             if cpt_outports == 0
                 % Create the "Outputs" traceability information element
@@ -225,6 +232,7 @@ try
     cptn=1;
     header = app_sprintf(header, 'var\n');
     for idx_block=1:obs_nblk
+        ablock = get_struct(ir_struct, block.Content.(fields{idx_block}).Path);
         list_output = '';
         noutput = ablock.Ports(2);
         % Only for the blocks that are not fby
@@ -242,8 +250,7 @@ try
     
     
     % Get cocospec
-    assertions = convert_cocospec(inter_blk, list_in, list_in_outport, xml_trace, ir_struct);
-    
+    assertions = convert_cocospec(block, list_in, list_in_outport, xml_trace, ir_struct);
     
     % Add the additional variables for the output of the call to the observed system
     inputs_str = Utils.concat_delim(list_in_outport_parent_call_declaration, ';\n\t');

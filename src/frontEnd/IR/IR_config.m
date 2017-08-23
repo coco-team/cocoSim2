@@ -73,7 +73,7 @@ block_param_map('ModelReference') = {'ModelNameDialog', 'ModelFile', 'ModelName'
 block_param_map('UnwantedParameters') = {'IconShape'};
 
 %% Add common parameters here
-block_param_map('CommonParameters') = {'CompiledSampleTime', 'CompiledPortDataTypes', 'CompiledPortDimensions', 'CompiledPortWidths', 'CompiledPortComplexSignals', 'PortConnectivity', 'Ports', 'Position'};
+block_param_map('CommonParameters') = {'CompiledSampleTime', 'CompiledPortDataTypes', 'CompiledPortDimensions', 'CompiledPortWidths', 'CompiledPortComplexSignals', 'PortConnectivity', 'Ports', 'Position', 'AttributesFormatString'};
 
 %% Stateflow Treatment
 stateflow_treatment = {''};

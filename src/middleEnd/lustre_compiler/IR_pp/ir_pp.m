@@ -24,7 +24,7 @@ end
 if df_export
     file_json =  'IR_pp_tmp.json';
     % Open or create the file
-     file_path = fullfile(output_dir, file_json);
+    file_path = fullfile(output_dir, file_json);
     fid = fopen(file_path, 'w');
     % Write in the file
     fprintf(fid, '%s\n', json_model);
@@ -51,11 +51,13 @@ else
     block_path = ir_struct.(block_name).Path;
 end
 if isfield(ir_struct.(block_name), 'Content')
-    subs_blks_list = {IRUtils.name_format(block_path)};
-    for i=1:numel(fields)
-        block = ir_struct.(block_name).Content.(fields{i});
-        if isfield(block, 'Content')
-            subs_blks_list = [subs_blks_list, get_not_handled_masked_subs(ir_struct.(block_name).Content, IRUtils.name_format(block.Name))];
+    if ~(isfield(ir_struct.(block_name), 'HasWrite') && ir_struct.(block_name).HasWrite)
+        subs_blks_list = {IRUtils.name_format(block_path)};
+        for i=1:numel(fields)
+            block = ir_struct.(block_name).Content.(fields{i});
+            if isfield(block, 'Content')
+                subs_blks_list = [subs_blks_list, get_not_handled_masked_subs(ir_struct.(block_name).Content, IRUtils.name_format(block.Name))];
+            end
         end
     end
 end
