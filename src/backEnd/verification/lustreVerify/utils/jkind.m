@@ -6,7 +6,7 @@
 
 function jkind(lustre_file_name, property_node_names, property_file_base_name, ir_struct, xml_trace)
      
-    config;
+    cocosim_config;
     
     for idx_prop=1:numel(property_node_names)
         if exist(JKIND,'file')
