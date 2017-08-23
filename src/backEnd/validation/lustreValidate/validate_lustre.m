@@ -21,7 +21,7 @@ end
 
 addpath(fullfile(cocoSim_path,'src/'));
 addpath(fullfile(cocoSim_path,'src/utils/'));
-config;
+cocosim_config;
 assignin('base', 'SOLVER', 'NONE');
 assignin('base', 'RUST_GEN', 0);
 assignin('base', 'C_GEN', 0);
