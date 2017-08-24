@@ -5,7 +5,7 @@
 
 % Main file for CoCoSim
 
-function [nom_lustre_file, sf2lus_Time, c_code]=lustre_compiler(model_full_path, const_files, default_Ts, trace, dfexport)
+function [nom_lustre_file, sf2lus_Time, c_code, property_node_name, ir_struct, xml_trace, is_SF]=lustre_compiler(model_full_path, const_files, default_Ts, trace, dfexport)
 bdclose('all')
 open(model_full_path);
 % Checking the number of arguments

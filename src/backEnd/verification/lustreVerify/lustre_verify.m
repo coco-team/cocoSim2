@@ -1,11 +1,32 @@
 function [ ] = lustre_verify( model_full_path, const_files, default_Ts, trace, dfexport )
 %LUSTRE_VERIFY 
-
-[nom_lustre_file, ~, c_code]=cocoSim(model_full_path, const_files, default_Ts, trace, dfexport);
+if nargin==5
+[nom_lustre_file, ~, c_code, property_node_names, ir_struct, xml_trace, is_SF]=lustre_compiler(model_full_path, const_files, default_Ts, trace, dfexport);
+elseif nargin==4
+[nom_lustre_file, ~, c_code, property_node_names, ir_struct, xml_trace, is_SF]=lustre_compiler(model_full_path, const_files, default_Ts, trace);
+elseif nargin==3
+[nom_lustre_file, ~, c_code, property_node_names, ir_struct, xml_trace, is_SF]=lustre_compiler(model_full_path, const_files, default_Ts);
+elseif nargin==2
+[nom_lustre_file, ~, c_code, property_node_names, ir_struct, xml_trace, is_SF]=lustre_compiler(model_full_path, const_files);
+elseif nargin==1
+[nom_lustre_file, ~, c_code, property_node_names, ir_struct, xml_trace, is_SF]=lustre_compiler(model_full_path);
+end
 
 Utils.update_status('Verification');
 smt_file = '';
 Query_time = 0;
+
+[model_path, file_name, ~] = fileparts(model_full_path);
+[models, ~] = find_mdlrefs(file_name);
+output_dir = fullfile(model_path, strcat('lustre_files/src_', file_name));
+property_file_base_name = fullfile(output_dir, strcat(file_name, '.property'));
+
+try
+    SOLVER = evalin('base','SOLVER');
+catch
+    SOLVER = 'NONE';
+end
+
 if numel(property_node_names) > 0 && not (strcmp(SOLVER, 'NONE'))
     if not (strcmp(SOLVER, 'Z') || strcmp(SOLVER,'K') || strcmp(SOLVER, 'J'))
         display_msg('Available solvers are Z for Zustre and K for Kind2', Constants.WARNING, 'cocoSim', '');
