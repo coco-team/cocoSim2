@@ -6,18 +6,23 @@ Here is a description of the structure of the IR :
 IR = {”meta” : META
       ”model_name” : {SUBS_IR}
       }
+      
 META = {”date” : date
         ”file_path” : model_path
         }
+        
 SUBS_IR = ”Content” : {BLOCKS_IR}
 
 BLOCKS_IR = ”block_formated_name” : {PROPERTIES}
             BLOCKS_IR
+            
 BLOCKS_IR = ”block_formated_name” : {PROPERTIES, SUBS_IR}
             BLOCKS_IR
+            
 BLOCKS_IR =  Λ
 
 PROPERTIES = PropertyName = value, PROPERTIES
+
 PROPERTIES = Λ
 
 ## Configuration
