@@ -21,7 +21,7 @@ BLOCKS_IR = ”block_formated_name” : {PROPERTIES, SUBS_IR}
             
 BLOCKS_IR =  Λ
 
-PROPERTIES = PropertyName = value, PROPERTIES
+PROPERTIES = "PropertyName" : value, PROPERTIES
 
 PROPERTIES = Λ
 
