@@ -25,6 +25,9 @@ PROPERTIES = PropertyName = value, PROPERTIES
 
 PROPERTIES = Λ
 
+There is one particular field for each block called "Origin_path". It contains the path to the block
+with its original name (with space and/or line breaks).
+
 ## Configuration
 You can set some configuration for existing (in the doc) parameters you want in your IR in
 IR_config.m.
