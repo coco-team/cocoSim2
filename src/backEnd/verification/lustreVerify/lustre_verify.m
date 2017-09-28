@@ -51,7 +51,7 @@ if numel(property_node_names) > 0 && not (strcmp(SOLVER, 'NONE'))
         display_msg('Running Zustre', Constants.INFO, 'Verification', '');
         try
             [Query_time, properties_summary] = zustre(nom_lustre_file, property_node_names, property_file_base_name, ir_struct, xml_trace, is_SF, smt_file);
-            update_properties_gui(properties_summary, model_full_path, output_dir);
+            update_properties_gui(properties_summary, nom_lustre_file, output_dir);
         catch ME
             display_msg(['Zustre has failed :' ME.message], Constants.ERROR, 'Verification', '');
             display_msg(ME.getReport(), Constants.DEBUG, 'Verification', '');
