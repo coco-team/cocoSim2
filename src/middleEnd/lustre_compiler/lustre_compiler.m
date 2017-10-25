@@ -145,11 +145,12 @@ end
 % Definition of the output files names
 output_dir = fullfile(model_path, strcat('lustre_files/src_', file_name));
 nom_lustre_file = fullfile(output_dir, strcat(file_name, '.lus'));
+nom_lustre_file2=fullfile(output_dir, strcat(file_name, '.old.lus'));
 mkdir(output_dir);
 trace_file_name = fullfile(output_dir, strcat(file_name, '.cocosim.trace.xml'));
 property_file_base_name = fullfile(output_dir, strcat(file_name, '.property'));
 
-initialize_files(nom_lustre_file);
+initialize_files(nom_lustre_file2);
 
 Utils.update_status('Building internal format');
 display_msg('Building internal format', Constants.INFO, 'cocoSim', '');
@@ -171,6 +172,16 @@ bus_decl = write_buses(bus_struct);
 %%%%%%%%%%%%%%% Retrieving nodes code %%%%%%%%%%%%%%%
 Utils.update_status('Lustre generation');
 display_msg('Lustre generation', Constants.INFO, 'cocoSim', '');
+
+%%%%%%%%%%%%%%%%%%
+
+json_file=fullfile(output_dir, strcat(file_name, '.json'));
+j2l_trans=edu.uiowa.json2lus.J2LTranslator(json_file);
+ppv=edu.uiowa.json2lus.lustreAst.LustrePrettyPrinter();
+%ppv.printLustreProgramToFile(j2l_trans.execute(), nom_lustre_file2);
+ppv.printLustreProgramToFile(j2l_trans.execute(), nom_lustre_file);
+
+%%%%%%%%%%%%%%%%%%
 
 extern_nodes_string = '';
 extern_Stateflow_nodes_fun = [];
@@ -289,7 +300,7 @@ for idx_subsys=nb_subs:-1:1
         %%%%% Standard Simulink blocks code generation %%%%%%%%%%%%%%%
     elseif (idx_subsys == 1 || (isfield(sub_struct, 'MaskType') && ~BlockUtils.is_property(sub_struct.MaskType))) && sub_struct.Ports(2) ~= 0
         [node_header, let_tel_code, extern_s_functions_string, extern_funs, properties_nodes, property_node_name, extern_matlab_funs, c_code, external_nodes_i] = ...
-            blocks2lustre(file_name, nom_lustre_file, ir_struct, subs_blks_list, mat_files, idx_subsys, trace, xml_trace);
+            blocks2lustre(file_name, nom_lustre_file2, ir_struct, subs_blks_list, mat_files, idx_subsys, trace, xml_trace);
         
         extern_Stateflow_nodes_fun = [extern_Stateflow_nodes_fun, external_nodes_i];
         extern_nodes_string = [extern_nodes_string extern_s_functions_string];
@@ -327,7 +338,7 @@ end
 %%%%%%%%%%%%%%%%% Lustre Code Printing %%%%%%%%%%%%%%%%%%%%%%
 
 % Open file for writing
-fid = fopen(nom_lustre_file, 'a');
+fid = fopen(nom_lustre_file2, 'a');
 
 % add external nodes called from action like min, max and matlab functions
 % or int_to_real and real_to_int

@@ -43,4 +43,5 @@ KIND2 = fullfile(solvers_path,'kind2');
 SEAHORN = 'PATH';
 cocosim_version = 'v0.1';
 
+javaaddpath(fullfile(cocosim_path,'tools','CocoSim_IR_Compiler-0.1-jar-with-dependencies.jar'));
 
