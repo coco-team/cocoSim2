@@ -175,7 +175,7 @@ display_msg('Lustre generation', Constants.INFO, 'cocoSim', '');
 
 %%%%%%%%%%%%%%%%%%
 
-json_file=fullfile(output_dir, strcat(file_name, '.json'));
+json_file=fullfile(output_dir, strcat(file_name, '_IR.json'));
 j2l_trans=edu.uiowa.json2lus.J2LTranslator(json_file);
 ppv=edu.uiowa.json2lus.lustreAst.LustrePrettyPrinter();
 %ppv.printLustreProgramToFile(j2l_trans.execute(), nom_lustre_file2);
