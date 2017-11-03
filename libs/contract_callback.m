@@ -1,5 +1,5 @@
 function contract_callback(action,block)    
-    if ~exist('ContractValidatorReady','var') == 1 || ...
+    if evalin( 'base', '~exist(''ContractValidatorReady'',''var'')' ) == 1 || ...
             evalin( 'base', 'ContractValidatorReady' )  == 0
         feval(action,block)
     end

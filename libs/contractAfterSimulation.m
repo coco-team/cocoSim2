@@ -1,4 +1,4 @@
 function contractAfterSimulation()
-    ContractValidatorReady=0;
+    assignin('base','ContractValidatorReady', 0);
 end
 
