@@ -164,9 +164,10 @@ set_param(block,'MaskDisplay',char(portStr));
                     
                     % get the target block name
                     targetBlockName = get_param(portConnectivity(j).SrcBlock, 'Name');
+                    
+                    destinationPath = strcat(blockModel,'/',targetBlockName,'/',inportBlockName); 
                     % add new port inside that block
-                    add_block('built-in/Inport', ...
-                                    strcat(blockModel,'/',targetBlockName,'/','input'),'MakeNameUnique','on');
+                    add_block('built-in/Inport', char(destinationPath),'MakeNameUnique','on');
                     
                     targetBlockPorts = get_param(portConnectivity(j).SrcBlock, 'PortHandles');
                     %connect the inport with the block            
@@ -196,9 +197,10 @@ set_param(block,'MaskDisplay',char(portStr));
                     
                     % get the target block name
                     targetBlockName = get_param(requireBlockHandle, 'Name');
+                    
+                    destinationPath = strcat(blockModel,'/',targetBlockName,'/',inportBlockName); 
                     % add new port inside that block
-                    add_block('built-in/Inport', ...
-                                    strcat(blockModel,'/',targetBlockName,'/','input'),'MakeNameUnique','on');
+                    add_block('built-in/Inport', char(destinationPath),'MakeNameUnique','on');
                     
                     targetBlockPorts = get_param(requireBlockHandle, 'PortHandles');
                     %connect the inport with the block            
@@ -216,9 +218,9 @@ set_param(block,'MaskDisplay',char(portStr));
                     
                     % get the target block name
                     targetBlockName = get_param(ensureBlockHandle, 'Name');
+                    destinationPath = strcat(blockModel,'/',targetBlockName,'/',inportBlockName); 
                     % add new port inside that block
-                    add_block('built-in/Inport', ...
-                                    strcat(blockModel,'/',targetBlockName,'/','input'),'MakeNameUnique','on');
+                    add_block('built-in/Inport', char(destinationPath),'MakeNameUnique','on');
                     
                     targetBlockPorts = get_param(ensureBlockHandle, 'PortHandles');
                     %connect the inport with the block            
