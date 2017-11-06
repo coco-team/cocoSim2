@@ -26,7 +26,7 @@ function [output_string, var_out] = write_Delay(block, ir_struct, varargin)
 
 var_out = {};
 
-init = LusUtils.getParamValue(ir_struct, block, block.X0);
+init = LusUtils.getParamValue(ir_struct, block, block.InitialCondition);
 delay_length = block.DelayLength;
 
 output_string = '';
