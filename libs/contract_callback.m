@@ -36,15 +36,93 @@ end
 index = index + 1;
 portStr(index) = {['port_label(''output'',',num2str(1),',''valid'')']};
 
-set_param(block,'MaskDisplay',char(portStr));
-
-
-%% add blocks
+%prepare for adding new blocks and lines
 blockModel = get_param(gcb, 'Parent');
 validatorBlock = gcb;
 ports = get_param(validatorBlock,'PortHandles');
 portConnectivity = get_param(validatorBlock, 'PortConnectivity');
+ContractValidatorBlock = evalin( 'base', 'ContractValidatorBlock');
+if ContractValidatorBlock.assumePorts + ...
+        ContractValidatorBlock.guaranteePorts + ...
+        ContractValidatorBlock.modeBlocksPorts ~= ...
+        assumePorts + guaranteePorts + modeBlocksPorts
+    
+        % remove all lines
+        for i = 1: length(ports.Inport)
+            if portConnectivity(i).SrcBlock ~= -1
+                sourcePort = get_param(portConnectivity(i).SrcBlock,'PortHandles');
+                delete_line(blockModel, sourcePort.Outport(1) ,ports.Inport(i));
+            end
+        end
+end
 
+set_param(block,'MaskDisplay',char(portStr));
+
+ports = get_param(validatorBlock,'PortHandles');
+portConnectivity = get_param(validatorBlock, 'PortConnectivity');
+
+
+%% restore old connections
+% check if the number of ports has changed
+% ContractValidatorBlock is set in callback LoadFcn of the validator block
+
+
+if ContractValidatorBlock.assumePorts + ...
+        ContractValidatorBlock.guaranteePorts + ...
+        ContractValidatorBlock.modeBlocksPorts ~= ...
+        assumePorts + guaranteePorts + modeBlocksPorts
+    
+        % remove all lines
+        %for i = 1: length(ports.Inport)
+        %    if portConnectivity(i).SrcBlock ~= -1
+        %        sourcePort = get_param(portConnectivity(i).SrcBlock,'PortHandles');
+        %        delete_line(blockModel, sourcePort.Outport(1) ,ports.Inport(i));
+         %   end
+        %end
+    
+    % connect assume lines
+    for i = 1: min(ContractValidatorBlock.assumePorts, assumePorts)
+        if ContractValidatorBlock.portConnectivity(i).SrcBlock ~= -1
+            try
+                sourcePort = get_param(ContractValidatorBlock.portConnectivity(i).SrcBlock,'PortHandles');
+                add_line(blockModel, sourcePort.Outport(1) ,ports.Inport(i));
+            catch
+            end
+        end
+    end
+    
+    % connect guarantee lines
+    for i = 1: min(ContractValidatorBlock.guaranteePorts, guaranteePorts)
+        if ContractValidatorBlock.portConnectivity(i + ContractValidatorBlock.assumePorts).SrcBlock ~= -1
+            try
+                sourcePort = get_param(ContractValidatorBlock.portConnectivity(i + ContractValidatorBlock.assumePorts).SrcBlock,'PortHandles');
+                add_line(blockModel, sourcePort.Outport(1) ,ports.Inport(i+assumePorts));
+            catch
+            end
+        end
+    end
+    
+    % connect mode lines
+    for i = 1: min(ContractValidatorBlock.modeBlocksPorts, modeBlocksPorts)
+        if ContractValidatorBlock.portConnectivity(i + ...
+                ContractValidatorBlock.assumePorts + ContractValidatorBlock.guaranteePorts).SrcBlock ~= -1
+            try
+                sourcePort = get_param(ContractValidatorBlock.portConnectivity(i + ...
+                    ContractValidatorBlock.assumePorts + ContractValidatorBlock.guaranteePorts).SrcBlock,'PortHandles');
+                add_line(blockModel, sourcePort.Outport(1) ,ports.Inport(i+assumePorts + guaranteePorts));
+            catch
+            end
+        end
+    end   
+     
+end
+
+
+validatorBlock = gcb;
+ports = get_param(validatorBlock,'PortHandles');
+portConnectivity = get_param(validatorBlock, 'PortConnectivity');
+
+%% add blocks
 gapWidth = 30;
 gapHeight = 20;
 
@@ -137,6 +215,16 @@ for i = 1 : length(portConnectivity)
         end
     end
 end
+
+%update ContractValidatorBlock
+
+portConnectivity = get_param(validatorBlock, 'PortConnectivity');
+evalin('base',strcat('ContractValidatorBlock.assumePorts = ', char(values(1))));    
+evalin('base',strcat('ContractValidatorBlock.guaranteePorts = ', char(values(2))));
+evalin('base',strcat('ContractValidatorBlock.modeBlocksPorts = ', char(values(3))));
+expression = {'ContractValidatorBlock.portConnectivity'};
+assignin('base','temp', portConnectivity');
+cellfun(@(lhs) evalin('base', [lhs '=temp']), expression);   
 
 % get the value of createInportsCheckbox
 createInportsValue = char(values(5));
