@@ -43,5 +43,8 @@ KIND2 = fullfile(solvers_path,'kind2');
 SEAHORN = 'PATH';
 cocosim_version = 'v0.1';
 
+%LUSTRE_COMPILER_DIR = fullfile(cocosim_path, 'src', 'middleEnd', 'lustre_compiler');
+
+LUSTRE_COMPILER_DIR = fullfile(cocosim_path, 'src', 'middleEnd', 'java_lustre_compiler');
 javaaddpath(fullfile(cocosim_path,'tools','CocoSim_IR_Compiler-0.1-jar-with-dependencies.jar'));
 
