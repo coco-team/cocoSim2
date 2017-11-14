@@ -41,9 +41,9 @@ if ~exist('default_Ts', 'var')
         default_Ts = 0.1;
     end
 end
-addpath(genpath(fullfile(cocoSim_path, 'backEnd')));
+%ToDo: folder doesn't exist addpath(genpath(fullfile(cocoSim_path, 'backEnd')));
 addpath(genpath(fullfile(cocoSim_path, 'frontEnd')));
-addpath(fullfile(cocoSim_path, 'utils'));
+%ToDo: folder doesn't exist addpath(fullfile(cocoSim_path, 'utils'));
 addpath(fullfile(cocoSim_path, '.'));
 
 addpath(cocoSim_path);
@@ -144,12 +144,12 @@ end
 % Definition of the output files names
 output_dir = fullfile(model_path, strcat('lustre_files/src_', file_name));
 nom_lustre_file = fullfile(output_dir, strcat(file_name, '.lus'));
-nom_lustre_file2=fullfile(output_dir, strcat(file_name, '.old.lus'));
+% ToDo: delete this line nom_lustre_file2=fullfile(output_dir, strcat(file_name, '.old.lus'));
 mkdir(output_dir);
 trace_file_name = fullfile(output_dir, strcat(file_name, '.cocosim.trace.xml'));
 property_file_base_name = fullfile(output_dir, strcat(file_name, '.property'));
 
-initialize_files(nom_lustre_file2);
+% ToDo: delete this line initialize_files(nom_lustre_file2);
 
 Utils.update_status('Building internal format');
 display_msg('Building internal format', Constants.INFO, 'cocoSim', '');
@@ -162,8 +162,10 @@ display_msg('Building internal format', Constants.INFO, 'cocoSim', '');
 [ir_struct, subs_blks_list] = ir_pp(ir_struct, 1, output_dir, subs_blks_list);
 % Create traceability informations in XML format
 display_msg('Start tracebility', Constants.INFO, 'cocoSim', '');
-xml_trace = XML_Trace(model_full_path, trace_file_name);
-xml_trace.init();
+
+xml_trace = '';
+%ToDo: delete this line xml_trace = XML_Trace(model_full_path, trace_file_name);
+%ToDo: delete this line xml_trace.init();
 
 % Print bus declarations
 bus_decl = write_buses(bus_struct);
@@ -177,291 +179,295 @@ display_msg('Lustre generation', Constants.INFO, 'cocoSim', '');
 json_file=fullfile(output_dir, strcat(file_name, '_IR.json'));
 j2l_trans=edu.uiowa.json2lus.J2LTranslator(json_file);
 ppv=edu.uiowa.json2lus.lustreAst.LustrePrettyPrinter();
-%ppv.printLustreProgramToFile(j2l_trans.execute(), nom_lustre_file2);
+%ToDo: delete this line ppv.printLustreProgramToFile(j2l_trans.execute(), nom_lustre_file2);
 ppv.printLustreProgramToFile(j2l_trans.execute(), nom_lustre_file);
 
 %%%%%%%%%%%%%%%%%%
 
-extern_nodes_string = '';
-extern_Stateflow_nodes_fun = [];
-extern_functions = {};
-
-cpt_extern_functions = 1;
-extern_matlab_functions = {};
-properties_nodes_string = '';
-property_node_names = {};
-
-nodes_string = '';
-cocospec = [];
-print_spec = false;
-is_SF = false;
-
-nb_subs = numel(subs_blks_list);
 c_code = '';
-for idx_subsys=nb_subs:-1:1
-    sub_struct = get_struct(ir_struct, subs_blks_list{idx_subsys});
-    if idx_subsys == 1 % model_diagram
-        fields = fieldnames(sub_struct.Content);
-        fields(cellfun('isempty', regexprep(fields, '^Annotation.*', ''))) = [];
-        sub_struct = sub_struct.Content.(fields{1});
-    end
-
-    msg = sprintf('Compiling %s:%s', sub_struct.Origin_path, sub_struct.BlockType);
-    display_msg(msg, Constants.DEBUG, 'cocoSim', '');
-    
-    %%%%%%% Matlab functions and CoCoSpec code generation %%%%%%%%%%%%%%%
-    is_matlab_function = false;
-    is_cocospec = false;
-    is_Chart = false;
-    if idx_subsys ~= 1 && ~strcmp(sub_struct.BlockType, 'ModelReference')
-        sf_sub = sub_struct.SFBlockType;
-        cocospec_name = sub_struct.Name;
-        if strcmp(cocospec_name, 'CoCoSpec')
-            is_cocospec = true;
-        elseif strcmp(sf_sub, 'MATLAB Function')
-            is_matlab_function = true;
-        elseif strcmp(sf_sub, 'Chart')
-            is_Chart = true;
-            is_SF = true;
-        end
-    elseif strcmp(sub_struct.BlockType, 'SubSystem')
-        sf_sub = sub_struct.SFBlockType;
-        if idx_subsys ~= 1 && strcmp(sf_sub, 'Chart')
-            is_Chart = true;
-            is_SF = true;
-        end
-    end
-    if is_cocospec
-        display_msg('CoCoSpec Found', Constants.INFO, 'cocoSim', '');
-        [contract_name, chart] = LusUtils.get_MATLAB_function_name(sub_struct.Origin_path);
-        spec_lines = regexp(chart.Script, sprintf('\n'), 'split');
-        blk_path_elems = regexp(sub_struct.Path, '/', 'split');
-        node_call_name = Utils.concat_delim(blk_path_elems, '_');
-        disp(node_call_name)
-        cocospec_file = fullfile(output_dir, strcat([contract_name], '_cocospec.lus'));
-        raw_spec = Utils.concat_delim(spec_lines, sprintf('\n'));
-        fid = fopen(cocospec_file, 'w');
-        fprintf(fid, '%s', raw_spec);
-        fclose(fid);
-        [cocospec] = CoCoSpec.get_cocospec(cocospec_file);
-        
-        if isempty(cocospec)
-            display_msg('NO CoCoSpec found', Constants.WARNING, 'cocoSim', '');
-        else
-            print_spec = true;
-        end
-        
-    elseif is_matlab_function
-        display_msg('Found Embedded Matlab', Constants.INFO, 'cocoSim', '');
-        try
-            [fun_name, chart] = LusUtils.get_MATLAB_function_name(sub_struct.Origin_path);
-            [mat_fun_node] = write_matlab_function_node(sub_struct, ir_struct, sub_struct.Content, fun_name, chart, xml_trace);
-            extern_nodes_string = [extern_nodes_string mat_fun_node];
-            blk_path_elems = regexp(sub_struct.Path, '/', 'split');
-            node_call_name = Utils.concat_delim(blk_path_elems, '_');
-            disp(node_call_name)
-            fun_file = fullfile(output_dir, strcat([node_call_name '_' fun_name], '.m'));
-            lines = regexp(chart.Script, sprintf('\n'), 'split');
-            lines{1} = regexprep(lines{1}, ['= ' fun_name '('], ['= ' node_call_name '_' fun_name '(']);
-            script = Utils.concat_delim(lines, sprintf('\n'));
-            fid = fopen(fun_file, 'w');
-            fprintf(fid, '%s', script);
-            fclose(fid);
-            display_msg('Successfully done processing Embedded Matlab', Constants.INFO, 'cocoSim', '');
-        catch ME
-            display_msg(ME.getReport(), Constants.DEBUG, 'cocoSim', '');
-            display_msg(['Unable to process Embedded Matlab :' ME.message], Constants.ERROR, 'cocoSim', '');
-        end
-     
-    elseif is_Chart
-       display_msg('Found Stateflow', Constants.INFO, 'cocoSim', '');
-        load_system(sub_struct.Origin_path);
-        rt = sfroot;
-        m = rt.find('-isa', 'Simulink.BlockDiagram', 'Name',file_name);
-        chart = m.find('-isa','Stateflow.Chart', 'Path', sub_struct.Origin_path);
-        %% Vérifier config
-        write_config;
-        if isKey(write_func_map, sub_struct.SFBlockType)
-            func_name = write_func_map(type);
-            func_handle = str2func(func_name);
-            % Add inputs if you need here
-            [block_string, external_nodes_i, var_out] = func_handle(chart,0, xml_trace, file_name);
-        else
-            [ block_string,external_nodes_i] = write_Chart( chart, 0, xml_trace,file_name );
-        end
-        if strcmp(SOLVER, 'K') && strcmp(SOLVER, 'J') 
-            msg = 'Currently only Zustre can be used to verify Stateflow models';
-            display_msg(msg, Constants.ERROR, 'cocoSim', '');
-            return
-        end
-        nodes_string = [nodes_string block_string];
-        extern_Stateflow_nodes_fun = [extern_Stateflow_nodes_fun, external_nodes_i];
-        %%%%% Standard Simulink blocks code generation %%%%%%%%%%%%%%%
-    elseif (idx_subsys == 1 || (isfield(sub_struct, 'MaskType') && ~BlockUtils.is_property(sub_struct.MaskType))) && sub_struct.Ports(2) ~= 0
-        [node_header, let_tel_code, extern_s_functions_string, extern_funs, properties_nodes, property_node_name, extern_matlab_funs, c_code, external_nodes_i] = ...
-            blocks2lustre(file_name, nom_lustre_file2, ir_struct, subs_blks_list, mat_files, idx_subsys, trace, xml_trace);
-        
-        extern_Stateflow_nodes_fun = [extern_Stateflow_nodes_fun, external_nodes_i];
-        extern_nodes_string = [extern_nodes_string extern_s_functions_string];
-        
-        for idx_extern=1:numel(extern_funs)
-            extern_functions{cpt_extern_functions} = extern_funs{idx_extern};
-            cpt_extern_functions = cpt_extern_functions + 1;
-        end
-        
-        for idx_ext_mat=1:numel(extern_matlab_funs)
-            extern_matlab_functions{numel(extern_matlab_functions)+1} = extern_matlab_funs{idx_ext_mat};
-        end
-        
-        properties_nodes_string = [properties_nodes_string properties_nodes];
-        if numel(property_node_name) > 0
-            for idx_prop_names=1:numel(property_node_name)
-                if idx_subsys == 1
-                    property_node_name{idx_prop_names}.parent_node_name = file_name;
-                    property_node_name{idx_prop_names}.parent_block_name = file_name;
-                else
-                    res = regexp(sub_blk.Path, filesep, 'split');
-                    property_node_name{idx_prop_names}.parent_node_name = Utils.concat_delim(res, '_');
-                    property_node_name{idx_prop_names}.parent_block_name = sub_blk.Origin_path;
-                end
-                property_node_names{numel(property_node_names) + 1} = property_node_name{idx_prop_names};
-            end
-        end
-        nodes_string = [nodes_string node_header];
-        nodes_string = [nodes_string let_tel_code];
-        nodes_string = [nodes_string 'tel\n\n'];
-    end
-end
-
+property_node_name = '';
+is_SF = false;
+%ToDo remove the following commented code
+% extern_nodes_string = '';
+% extern_Stateflow_nodes_fun = [];
+% extern_functions = {};
+% 
+% cpt_extern_functions = 1;
+% extern_matlab_functions = {};
+% properties_nodes_string = '';
+% property_node_names = {};
+% 
+% nodes_string = '';
+% cocospec = [];
+% print_spec = false;
+% is_SF = false;
+% 
+% nb_subs = numel(subs_blks_list);
+% c_code = '';
+% for idx_subsys=nb_subs:-1:1
+%     sub_struct = get_struct(ir_struct, subs_blks_list{idx_subsys});
+%     if idx_subsys == 1 % model_diagram
+%         fields = fieldnames(sub_struct.Content);
+%         fields(cellfun('isempty', regexprep(fields, '^Annotation.*', ''))) = [];
+%         sub_struct = sub_struct.Content.(fields{1});
+%     end
+% 
+%     msg = sprintf('Compiling %s:%s', sub_struct.Origin_path, sub_struct.BlockType);
+%     display_msg(msg, Constants.DEBUG, 'cocoSim', '');
+%     
+%     %%%%%%% Matlab functions and CoCoSpec code generation %%%%%%%%%%%%%%%
+%     is_matlab_function = false;
+%     is_cocospec = false;
+%     is_Chart = false;
+%     if idx_subsys ~= 1 && ~strcmp(sub_struct.BlockType, 'ModelReference')
+%         sf_sub = sub_struct.SFBlockType;
+%         cocospec_name = sub_struct.Name;
+%         if strcmp(cocospec_name, 'CoCoSpec')
+%             is_cocospec = true;
+%         elseif strcmp(sf_sub, 'MATLAB Function')
+%             is_matlab_function = true;
+%         elseif strcmp(sf_sub, 'Chart')
+%             is_Chart = true;
+%             is_SF = true;
+%         end
+%     elseif strcmp(sub_struct.BlockType, 'SubSystem')
+%         sf_sub = sub_struct.SFBlockType;
+%         if idx_subsys ~= 1 && strcmp(sf_sub, 'Chart')
+%             is_Chart = true;
+%             is_SF = true;
+%         end
+%     end
+%     if is_cocospec %ToDo: check with cocospec example
+%         display_msg('CoCoSpec Found', Constants.INFO, 'cocoSim', '');
+%         [contract_name, chart] = LusUtils.get_MATLAB_function_name(sub_struct.Origin_path);
+%         spec_lines = regexp(chart.Script, sprintf('\n'), 'split');
+%         blk_path_elems = regexp(sub_struct.Path, '/', 'split');
+%         node_call_name = Utils.concat_delim(blk_path_elems, '_');
+%         disp(node_call_name)
+%         cocospec_file = fullfile(output_dir, strcat([contract_name], '_cocospec.lus'));
+%         raw_spec = Utils.concat_delim(spec_lines, sprintf('\n'));
+%         fid = fopen(cocospec_file, 'w');
+%         fprintf(fid, '%s', raw_spec);
+%         fclose(fid);
+%         [cocospec] = CoCoSpec.get_cocospec(cocospec_file);
+%         
+%         if isempty(cocospec)
+%             display_msg('NO CoCoSpec found', Constants.WARNING, 'cocoSim', '');
+%         else
+%             print_spec = true;
+%         end
+%         
+%     elseif is_matlab_function
+%         display_msg('Found Embedded Matlab', Constants.INFO, 'cocoSim', '');
+%         try
+%             [fun_name, chart] = LusUtils.get_MATLAB_function_name(sub_struct.Origin_path);
+%             [mat_fun_node] = write_matlab_function_node(sub_struct, ir_struct, sub_struct.Content, fun_name, chart, xml_trace);
+%             extern_nodes_string = [extern_nodes_string mat_fun_node];
+%             blk_path_elems = regexp(sub_struct.Path, '/', 'split');
+%             node_call_name = Utils.concat_delim(blk_path_elems, '_');
+%             disp(node_call_name)
+%             fun_file = fullfile(output_dir, strcat([node_call_name '_' fun_name], '.m'));
+%             lines = regexp(chart.Script, sprintf('\n'), 'split');
+%             lines{1} = regexprep(lines{1}, ['= ' fun_name '('], ['= ' node_call_name '_' fun_name '(']);
+%             script = Utils.concat_delim(lines, sprintf('\n'));
+%             fid = fopen(fun_file, 'w');
+%             fprintf(fid, '%s', script);
+%             fclose(fid);
+%             display_msg('Successfully done processing Embedded Matlab', Constants.INFO, 'cocoSim', '');
+%         catch ME
+%             display_msg(ME.getReport(), Constants.DEBUG, 'cocoSim', '');
+%             display_msg(['Unable to process Embedded Matlab :' ME.message], Constants.ERROR, 'cocoSim', '');
+%         end
+%      
+%     elseif is_Chart
+%        display_msg('Found Stateflow', Constants.INFO, 'cocoSim', '');
+%         load_system(sub_struct.Origin_path);
+%         rt = sfroot;
+%         m = rt.find('-isa', 'Simulink.BlockDiagram', 'Name',file_name);
+%         chart = m.find('-isa','Stateflow.Chart', 'Path', sub_struct.Origin_path);
+%         %% Vérifier config
+%         write_config;
+%         if isKey(write_func_map, sub_struct.SFBlockType)
+%             func_name = write_func_map(type);
+%             func_handle = str2func(func_name);
+%             % Add inputs if you need here
+%             [block_string, external_nodes_i, var_out] = func_handle(chart,0, xml_trace, file_name);
+%         else
+%             [ block_string,external_nodes_i] = write_Chart( chart, 0, xml_trace,file_name );
+%         end
+%         if strcmp(SOLVER, 'K') && strcmp(SOLVER, 'J') 
+%             msg = 'Currently only Zustre can be used to verify Stateflow models';
+%             display_msg(msg, Constants.ERROR, 'cocoSim', '');
+%             return
+%         end
+%         nodes_string = [nodes_string block_string];
+%         extern_Stateflow_nodes_fun = [extern_Stateflow_nodes_fun, external_nodes_i];
+%         %%%%% Standard Simulink blocks code generation %%%%%%%%%%%%%%%
+%     elseif (idx_subsys == 1 || (isfield(sub_struct, 'MaskType') && ~BlockUtils.is_property(sub_struct.MaskType))) && sub_struct.Ports(2) ~= 0
+%         [node_header, let_tel_code, extern_s_functions_string, extern_funs, properties_nodes, property_node_name, extern_matlab_funs, c_code, external_nodes_i] = ...
+%             blocks2lustre(file_name, nom_lustre_file, ir_struct, subs_blks_list, mat_files, idx_subsys, trace, xml_trace);
+%         
+%         extern_Stateflow_nodes_fun = [extern_Stateflow_nodes_fun, external_nodes_i];
+%         extern_nodes_string = [extern_nodes_string extern_s_functions_string];
+%         
+%         for idx_extern=1:numel(extern_funs)
+%             extern_functions{cpt_extern_functions} = extern_funs{idx_extern};
+%             cpt_extern_functions = cpt_extern_functions + 1;
+%         end
+%         
+%         for idx_ext_mat=1:numel(extern_matlab_funs)
+%             extern_matlab_functions{numel(extern_matlab_functions)+1} = extern_matlab_funs{idx_ext_mat};
+%         end
+%         
+%         properties_nodes_string = [properties_nodes_string properties_nodes];
+%         if numel(property_node_name) > 0
+%             for idx_prop_names=1:numel(property_node_name)
+%                 if idx_subsys == 1
+%                     property_node_name{idx_prop_names}.parent_node_name = file_name;
+%                     property_node_name{idx_prop_names}.parent_block_name = file_name;
+%                 else
+%                     res = regexp(sub_blk.Path, filesep, 'split');
+%                     property_node_name{idx_prop_names}.parent_node_name = Utils.concat_delim(res, '_');
+%                     property_node_name{idx_prop_names}.parent_block_name = sub_blk.Origin_path;
+%                 end
+%                 property_node_names{numel(property_node_names) + 1} = property_node_name{idx_prop_names};
+%             end
+%         end
+%         nodes_string = [nodes_string node_header];
+%         nodes_string = [nodes_string let_tel_code];
+%         nodes_string = [nodes_string 'tel\n\n'];
+%     end
+% end
+% 
 
 %%%%%%%%%%%%%%%%% Lustre Code Printing %%%%%%%%%%%%%%%%%%%%%%
-
+%ToDo: delete the commented code
 % Open file for writing
-fid = fopen(nom_lustre_file2, 'a');
-
-% add external nodes called from action like min, max and matlab functions
-% or int_to_real and real_to_int
-extern_Stateflow_nodes_fun_string = '';
-n = numel(extern_Stateflow_nodes_fun);
-functions_names = cell(n,1);
-functions_names(:) = {''};
-j = 1;
-for i=1:n
-    fun = extern_Stateflow_nodes_fun(i);
-    if strcmp(fun.Name,'trigo')
-        extern_functions{cpt_extern_functions} = fun.Type;
-        cpt_extern_functions = cpt_extern_functions + 1;
-    elseif isempty(find(strcmp(functions_names,fun.Name),1))
-        functions_names{j} = fun.Name;
-        j=j+1;
-        if strcmp(fun.Name,'lustre_math_fun')
-            extern_Stateflow_nodes_fun_string = ['#open <math>\n', extern_Stateflow_nodes_fun_string];
-            
-        elseif strcmp(fun.Name,'lustre_conv_fun')
-            extern_Stateflow_nodes_fun_string = ['#open <conv>\n', extern_Stateflow_nodes_fun_string];
-            
-        elseif strcmp(fun.Name,'after')
-            extern_Stateflow_nodes_fun_string = [extern_Stateflow_nodes_fun_string temporal_operators(fun)];
-            
-        else
-            extern_Stateflow_nodes_fun_string = [extern_Stateflow_nodes_fun_string math_functions(fun)];
-        end
-    end
-end
-
-[str_include, extern_functions_string] = write_extern_functions(extern_functions, output_dir);
-% Write include for external functions
-if ~strcmp(str_include, '')
-    fprintf(fid, str_include);
-end
-
-if ~strcmp(extern_Stateflow_nodes_fun_string, '')
-    fprintf(fid, '-- External Stateflow functions\n');
-    fprintf(fid, extern_Stateflow_nodes_fun_string);
-end
-
-% Write in case we have cocospec
-if print_spec
-    fprintf(fid, '-- CoCoSpec Start\n');
-    for idx=1:numel(cocospec)
-        if ~isempty(cocospec{idx})
-            fprintf(fid, cocospec{idx});
-        end
-    end
-    fprintf(fid, '-- CoCoSpec End\n');
-end
-
-% Write complex struct declarations
-
-complex_structs = compute_complex_structs(ir_struct, file_name);
-
-if ~strcmp(complex_structs, '')
-    fprintf(fid, complex_structs);
-end
-
-% Write buses declarations
-if ~strcmp(bus_decl, '')
-    fprintf(fid, bus_decl);
-end
-
-% Write extern functions
-if ~strcmp(extern_functions_string, '')
-    fprintf(fid, '-- External functions\n');
-    fprintf(fid, extern_functions_string);
-end
-
-
-% Write conversion functions
-if exist('tmp_dt_conv.mat', 'file') == 2
-    load 'tmp_dt_conv'
-    open_conv = false;
-    if exist('int_to_real') == 1 || exist('real_to_int') == 1
-        fprintf(fid, print_int_to_real());
-        open_conv = true;
-    end
-    if exist('rounding') == 1
-        if ~open_conv
-            fprintf(fid, print_int_to_real());
-        end
-        fprintf(fid, print_dt_conversion_nodes(rounding));
-    end
-    path = which('tmp_dt_conv.mat');
-    delete(path);
-end
-
-% Write external nodes declarations
-if ~strcmp(extern_nodes_string, '')
-    fprintf(fid, '\n-- Extern nodes\n');
-    fprintf(fid, extern_nodes_string);
-end
-
-% Write property nodes content
-if ~strcmp(properties_nodes_string, '')
-    fprintf(fid, '\n-- Properties nodes\n');
-    fprintf(fid, properties_nodes_string);
-end
-
-% Write external matlab functions
-for idx=1:numel(extern_matlab_functions)
-    matlab_fle_name = fullfile(output_dir, extern_matlab_functions{idx}.name);
-    fid_mat = fopen(matlab_fle_name, 'w');
-    fprintf(fid_mat, extern_matlab_functions{idx}.body);
-    fclose(fid_mat);
-end
-
-% Write System nodes
-fprintf(fid, '\n-- System nodes\n');
-fprintf(fid, nodes_string);
-
-% Close file
-fclose(fid);
+% fid = fopen(nom_lustre_file2, 'a');
+% 
+% % add external nodes called from action like min, max and matlab functions
+% % or int_to_real and real_to_int
+% extern_Stateflow_nodes_fun_string = '';
+% n = numel(extern_Stateflow_nodes_fun);
+% functions_names = cell(n,1);
+% functions_names(:) = {''};
+% j = 1;
+% for i=1:n
+%     fun = extern_Stateflow_nodes_fun(i);
+%     if strcmp(fun.Name,'trigo')
+%         extern_functions{cpt_extern_functions} = fun.Type;
+%         cpt_extern_functions = cpt_extern_functions + 1;
+%     elseif isempty(find(strcmp(functions_names,fun.Name),1))
+%         functions_names{j} = fun.Name;
+%         j=j+1;
+%         if strcmp(fun.Name,'lustre_math_fun')
+%             extern_Stateflow_nodes_fun_string = ['#open <math>\n', extern_Stateflow_nodes_fun_string];
+%             
+%         elseif strcmp(fun.Name,'lustre_conv_fun')
+%             extern_Stateflow_nodes_fun_string = ['#open <conv>\n', extern_Stateflow_nodes_fun_string];
+%             
+%         elseif strcmp(fun.Name,'after')
+%             extern_Stateflow_nodes_fun_string = [extern_Stateflow_nodes_fun_string temporal_operators(fun)];
+%             
+%         else
+%             extern_Stateflow_nodes_fun_string = [extern_Stateflow_nodes_fun_string math_functions(fun)];
+%         end
+%     end
+% end
+% 
+% [str_include, extern_functions_string] = write_extern_functions(extern_functions, output_dir);
+% % Write include for external functions
+% if ~strcmp(str_include, '')
+%     fprintf(fid, str_include);
+% end
+% 
+% if ~strcmp(extern_Stateflow_nodes_fun_string, '')
+%     fprintf(fid, '-- External Stateflow functions\n');
+%     fprintf(fid, extern_Stateflow_nodes_fun_string);
+% end
+% 
+% % Write in case we have cocospec
+% if print_spec
+%     fprintf(fid, '-- CoCoSpec Start\n');
+%     for idx=1:numel(cocospec)
+%         if ~isempty(cocospec{idx})
+%             fprintf(fid, cocospec{idx});
+%         end
+%     end
+%     fprintf(fid, '-- CoCoSpec End\n');
+% end
+% 
+% % Write complex struct declarations
+% 
+% complex_structs = compute_complex_structs(ir_struct, file_name);
+% 
+% if ~strcmp(complex_structs, '')
+%     fprintf(fid, complex_structs);
+% end
+% 
+% % Write buses declarations
+% if ~strcmp(bus_decl, '')
+%     fprintf(fid, bus_decl);
+% end
+% 
+% % Write extern functions
+% if ~strcmp(extern_functions_string, '')
+%     fprintf(fid, '-- External functions\n');
+%     fprintf(fid, extern_functions_string);
+% end
+% 
+% 
+% % Write conversion functions
+% if exist('tmp_dt_conv.mat', 'file') == 2
+%     load 'tmp_dt_conv'
+%     open_conv = false;
+%     if exist('int_to_real') == 1 || exist('real_to_int') == 1
+%         fprintf(fid, print_int_to_real());
+%         open_conv = true;
+%     end
+%     if exist('rounding') == 1
+%         if ~open_conv
+%             fprintf(fid, print_int_to_real());
+%         end
+%         fprintf(fid, print_dt_conversion_nodes(rounding));
+%     end
+%     path = which('tmp_dt_conv.mat');
+%     delete(path);
+% end
+% 
+% % Write external nodes declarations
+% if ~strcmp(extern_nodes_string, '')
+%     fprintf(fid, '\n-- Extern nodes\n');
+%     fprintf(fid, extern_nodes_string);
+% end
+% 
+% % Write property nodes content
+% if ~strcmp(properties_nodes_string, '')
+%     fprintf(fid, '\n-- Properties nodes\n');
+%     fprintf(fid, properties_nodes_string);
+% end
+% 
+% % Write external matlab functions
+% for idx=1:numel(extern_matlab_functions)
+%     matlab_fle_name = fullfile(output_dir, extern_matlab_functions{idx}.name);
+%     fid_mat = fopen(matlab_fle_name, 'w');
+%     fprintf(fid_mat, extern_matlab_functions{idx}.body);
+%     fclose(fid_mat);
+% end
+% 
+% % Write System nodes
+% fprintf(fid, '\n-- System nodes\n');
+% fprintf(fid, nodes_string);
+% 
+% % Close file
+% fclose(fid);
 
 display_msg('End of code generation', Constants.INFO, 'cocoSim', '');
 
 % Write traceability informations
-xml_trace.write();
-msg = sprintf(' %s', trace_file_name);
-display_msg(msg, Constants.RESULT, 'Traceability', '');
+%ToDo: delete this line xml_trace.write();
+%ToDo: delete this line  msg = sprintf(' %s', trace_file_name);
+%ToDo: delete this line  display_msg(msg, Constants.RESULT, 'Traceability', '');
 
 % Generated files informations
 

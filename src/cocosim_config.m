@@ -43,8 +43,20 @@ KIND2 = fullfile(solvers_path,'kind2');
 SEAHORN = 'PATH';
 cocosim_version = 'v0.1';
 
+% select the middle end lustre compiler
+if evalin( 'base', '~exist(''JAVA_TO_LUSTRE_COMPILER'',''var'')' ) == 1 || ...
+        evalin( 'base', 'JAVA_TO_LUSTRE_COMPILER' )  == 1
+    LUSTRE_COMPILER_DIR = fullfile(cocosim_path, 'src', 'middleEnd', 'java_lustre_compiler');
+    javaaddpath(fullfile(cocosim_path,'tools','CocoSim_IR_Compiler-0.1-jar-with-dependencies.jar'));    
+    addpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'java_lustre_compiler')));    
+    rmpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'lustre_compiler')));    
+else
+    LUSTRE_COMPILER_DIR = fullfile(cocosim_path, 'src', 'middleEnd', 'lustre_compiler');    
+    addpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'lustre_compiler')));
+    rmpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'java_lustre_compiler')));    
+end
+%ToDo: Delete the following commented code
 %LUSTRE_COMPILER_DIR = fullfile(cocosim_path, 'src', 'middleEnd', 'lustre_compiler');
-
-LUSTRE_COMPILER_DIR = fullfile(cocosim_path, 'src', 'middleEnd', 'java_lustre_compiler');
-javaaddpath(fullfile(cocosim_path,'tools','CocoSim_IR_Compiler-0.1-jar-with-dependencies.jar'));
+%LUSTRE_COMPILER_DIR = fullfile(cocosim_path, 'src', 'middleEnd', 'java_lustre_compiler');
+%javaaddpath(fullfile(cocosim_path,'tools','CocoSim_IR_Compiler-0.1-jar-with-dependencies.jar'));
 

@@ -21,7 +21,7 @@ schema.autoDisableWhen = 'Busy';
 
 schema.childrenFcns = {@getVerify,@getValidate,...
     @getCheckBlocks, @viewContract, @getProps, ...
-    @getPP,  @getCompiler};
+    @getPP,  @getCompiler, @getMiddleEnd};
 end
 
 function schema = getCheckBlocks(callbackInfo)
@@ -296,4 +296,34 @@ end
 function fname = get_file_name(gcs)
 names = regexp(gcs,'/','split');
 fname = get_param(names{1},'FileName');
+end
+
+function schema = getMiddleEnd(callbackInfo)
+schema = sl_toggle_schema;
+schema.label = 'Use java to lustre Compiler';
+schema.callback = @javaToLustreCompilerCallback;
+
+if evalin( 'base', '~exist(''JAVA_TO_LUSTRE_COMPILER'',''var'')' ) == 1 || ...
+        evalin( 'base', 'JAVA_TO_LUSTRE_COMPILER' )  == 1
+    schema.checked = 'checked';
+else
+    schema.checked = 'unchecked';
+end
+end
+
+
+function javaToLustreCompilerCallback(callbackInfo)
+
+[cocosim_path, ~, ~] = fileparts(mfilename('fullpath'));
+
+if evalin( 'base', '~exist(''JAVA_TO_LUSTRE_COMPILER'',''var'')' ) == 1 || ...
+        evalin( 'base', 'JAVA_TO_LUSTRE_COMPILER' )  == 1
+    assignin('base', 'JAVA_TO_LUSTRE_COMPILER', 0);
+    addpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'lustre_compiler')));
+    rmpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'java_lustre_compiler')));    
+else
+    assignin('base', 'JAVA_TO_LUSTRE_COMPILER', 1);    
+    addpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'java_lustre_compiler')));    
+    rmpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'lustre_compiler')));    
+end
 end
