@@ -20,8 +20,16 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
     for idx_prop=1:numel(property_node_names)
         if exist(KIND2,'file') && exist(Z3,'file')
             date_value = datestr(now, 'ddmmyyyyHHMMSS');
-            command = sprintf('%s --z3_bin %s -xml --timeout %s %s --lus_main %s %s',...
+            [~,file_name,~] = fileparts(lustre_file_name);
+            if evalin( 'base', '~exist(''JAVA_TO_LUSTRE_COMPILER'',''var'')' ) == 1 || ...
+                evalin( 'base', 'JAVA_TO_LUSTRE_COMPILER' )  == 1
+            command = sprintf('%s --z3_bin %s -xml --timeout %s %s --lus_main %s_%s %s',...
+                KIND2, Z3, timeout, kind2_option, file_name,property_node_names{idx_prop}.prop_name, lustre_file_name);
+            else
+                command = sprintf('%s --z3_bin %s -xml --timeout %s %s --lus_main %s %s',...
                 KIND2, Z3, timeout, kind2_option, property_node_names{idx_prop}.prop_name, lustre_file_name);
+            end
+            
             display_msg(['KIND2_COMMAND ' command], Constants.DEBUG, 'write_code', '');
             [~, kind2_out] = system(command);
             display_msg(kind2_out, Constants.DEBUG, 'write_code', '');
