@@ -182,6 +182,10 @@ ppv=edu.uiowa.json2lus.lustreAst.LustrePrettyPrinter();
 %ToDo: delete this line ppv.printLustreProgramToFile(j2l_trans.execute(), nom_lustre_file2);
 ppv.printLustreProgramToFile(j2l_trans.execute(), nom_lustre_file);
 
+%output the mapping
+mapping_file = strrep(nom_lustre_file,'.lus','_mapping.json');
+j2l_trans.dumpMappingInfoToJsonFile(mapping_file);
+
 %%%%%%%%%%%%%%%%%%
 
 c_code = '';

@@ -4,7 +4,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-function kind2(lustre_file_name, property_node_names, property_file_base_name, ir_struct, xml_trace)
+function kind2(lustre_file_name, property_node_names, property_file_base_name, ir_struct, xml_trace, mapping_file)
      
     cocosim_config;
     try
@@ -17,58 +17,180 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
     catch
        timeout = '60.0';
     end
-    for idx_prop=1:numel(property_node_names)
-        if exist(KIND2,'file') && exist(Z3,'file')
+    if exist(KIND2,'file') && exist(Z3,'file')
+%         for idx_prop=1:numel(property_node_names)
+%         
+%             date_value = datestr(now, 'ddmmyyyyHHMMSS');
+%             [~,file_name,~] = fileparts(lustre_file_name);
+%             if evalin( 'base', '~exist(''JAVA_TO_LUSTRE_COMPILER'',''var'')' ) == 1 || ...
+%                 evalin( 'base', 'JAVA_TO_LUSTRE_COMPILER' )  == 1
+%             command = sprintf('%s --z3_bin %s -xml --timeout %s %s --lus_main %s_%s %s',...
+%                 KIND2, Z3, timeout, kind2_option, file_name,property_node_names{idx_prop}.prop_name, lustre_file_name);
+%             else
+%                 command = sprintf('%s --z3_bin %s -xml --timeout %s %s --lus_main %s %s',...
+%                 KIND2, Z3, timeout, kind2_option, property_node_names{idx_prop}.prop_name, lustre_file_name);
+%             end
+%             
+%             display_msg(['KIND2_COMMAND ' command], Constants.DEBUG, 'write_code', '');
+%             [~, kind2_out] = system(command);
+%             display_msg(kind2_out, Constants.DEBUG, 'write_code', '');
+%             [answer, cex] = solver_result('KIND2', kind2_out, property_node_names{idx_prop}.prop_name, property_file_base_name);
+%             % Change the observer block display according to answer
+%             display = sprintf('color(''black'')\n');
+%             display = [display sprintf('text(0.5, 0.5, [''Property: '''''' get_param(gcb,''name'') ''''''''], ''horizontalAlignment'', ''center'');\n')];
+%             display = [display 'text(0.99, 0.03, ''{\bf\fontsize{12}'];
+%             display = [display char(upper(answer))];
+%             display = [display '}'', ''hor'', ''right'', ''ver'', ''bottom'', ''texmode'', ''on'');'];
+%             obs_mask = Simulink.Mask.get(property_node_names{idx_prop}.annotation);
+%             obs_mask.Display = sprintf('%s',display);
+%             if strcmp(answer, 'SAFE')
+%                 set_param(property_node_names{idx_prop}.origin_block_name, 'BackgroundColor', 'green');
+%                 set_param(property_node_names{idx_prop}.origin_block_name, 'ForegroundColor', 'green');
+%             elseif strcmp(answer, 'TIMEOUT')
+%                 set_param(property_node_names{idx_prop}.origin_block_name, 'BackgroundColor', 'gray');
+%                 set_param(property_node_names{idx_prop}.origin_block_name, 'ForegroundColor', 'gray');
+%             elseif strcmp(answer, 'UNKNOWN')
+%                 set_param(property_node_names{idx_prop}.origin_block_name, 'BackgroundColor', 'yellow');
+%                 set_param(property_node_names{idx_prop}.origin_block_name, 'ForegroundColor', 'yellow');
+%             elseif strcmp(answer, 'CEX')
+%                 set_param(property_node_names{idx_prop}.origin_block_name, 'BackgroundColor', 'red');
+%                 set_param(property_node_names{idx_prop}.origin_block_name, 'ForegroundColor', 'red');
+%                 if ~strcmp(cex, '')
+%                    try
+%                      display_cex(cex, property_node_names{idx_prop}, ...
+%                                   ir_struct, date_value, ...
+%                                    lustre_file_name, idx_prop, xml_trace);
+%                     catch ME
+%                         display_msg(ME.message, Constants.ERROR, 'JKind', '');
+%                    end
+%                 end
+%             end        
+%         end
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % properties in the mapping file
+        
+        if exist(mapping_file) == 2
+        
             date_value = datestr(now, 'ddmmyyyyHHMMSS');
             [~,file_name,~] = fileparts(lustre_file_name);
-            if evalin( 'base', '~exist(''JAVA_TO_LUSTRE_COMPILER'',''var'')' ) == 1 || ...
-                evalin( 'base', 'JAVA_TO_LUSTRE_COMPILER' )  == 1
-            command = sprintf('%s --z3_bin %s -xml --timeout %s %s --lus_main %s_%s %s',...
-                KIND2, Z3, timeout, kind2_option, file_name,property_node_names{idx_prop}.prop_name, lustre_file_name);
-            else
-                command = sprintf('%s --z3_bin %s -xml --timeout %s %s --lus_main %s %s',...
-                KIND2, Z3, timeout, kind2_option, property_node_names{idx_prop}.prop_name, lustre_file_name);
-            end
+            
+            command = sprintf('%s --z3_bin %s -xml --timeout %s %s %s --modular true',...
+                KIND2, Z3, timeout, kind2_option, lustre_file_name);
             
             display_msg(['KIND2_COMMAND ' command], Constants.DEBUG, 'write_code', '');
             [~, kind2_out] = system(command);
             display_msg(kind2_out, Constants.DEBUG, 'write_code', '');
-            [answer, cex] = solver_result('KIND2', kind2_out, property_node_names{idx_prop}.prop_name, property_file_base_name);
-            % Change the observer block display according to answer
-            display = sprintf('color(''black'')\n');
-            display = [display sprintf('text(0.5, 0.5, [''Property: '''''' get_param(gcb,''name'') ''''''''], ''horizontalAlignment'', ''center'');\n')];
-            display = [display 'text(0.99, 0.03, ''{\bf\fontsize{12}'];
-            display = [display char(upper(answer))];
-            display = [display '}'', ''hor'', ''right'', ''ver'', ''bottom'', ''texmode'', ''on'');'];
-            obs_mask = Simulink.Mask.get(property_node_names{idx_prop}.annotation);
-            obs_mask.Display = sprintf('%s',display);
-            if strcmp(answer, 'SAFE')
-                set_param(property_node_names{idx_prop}.origin_block_name, 'BackgroundColor', 'green');
-                set_param(property_node_names{idx_prop}.origin_block_name, 'ForegroundColor', 'green');
-            elseif strcmp(answer, 'TIMEOUT')
-                set_param(property_node_names{idx_prop}.origin_block_name, 'BackgroundColor', 'gray');
-                set_param(property_node_names{idx_prop}.origin_block_name, 'ForegroundColor', 'gray');
-            elseif strcmp(answer, 'UNKNOWN')
-                set_param(property_node_names{idx_prop}.origin_block_name, 'BackgroundColor', 'yellow');
-                set_param(property_node_names{idx_prop}.origin_block_name, 'ForegroundColor', 'yellow');
-            elseif strcmp(answer, 'CEX')
-                set_param(property_node_names{idx_prop}.origin_block_name, 'BackgroundColor', 'red');
-                set_param(property_node_names{idx_prop}.origin_block_name, 'ForegroundColor', 'red');
-                if ~strcmp(cex, '')
-                   try
-                     display_cex(cex, property_node_names{idx_prop}, ...
-                                  ir_struct, date_value, ...
-                                   lustre_file_name, idx_prop, xml_trace);
-                    catch ME
-                        display_msg(ME.message, Constants.ERROR, 'JKind', '');
-                   end
+            
+            results_file_name = strrep(lustre_file_name,'.lus','.xml');
+            fid = fopen(results_file_name, 'w');
+            fprintf(fid, kind2_out);
+            fclose(fid);            
+            s = dir(results_file_name);
+            if s.bytes ~= 0                
+                xml_doc = xmlread(results_file_name);
+                xml_properties = xml_doc.getElementsByTagName('Property');
+                %read the mapping file 
+                fid = fopen(mapping_file);
+                raw = fread(fid, inf);                
+                str = char(raw');  
+                fclose(fid); 
+                json = jsondecode(str);
+                for index=0:(xml_properties.getLength-1)
+                    prop = xml_properties.item(index);
+                    % get the property name
+                    property_name = '';          
+                    
+                    if prop.hasAttributes
+                       theAttributes = prop.getAttributes;
+                       numAttributes = theAttributes.getLength;                    
+                                       
+                       for count = 1:numAttributes
+                          attribute = theAttributes.item(count-1);
+                          attributeName = char(attribute.getName);
+                          if strcmp(attributeName, 'name')
+                          	property_name = char(attribute.getValue);
+                          end
+                       end
+                    end
+                    
+                    answer = prop.getElementsByTagName('Answer').item(0).getTextContent;
+                    
+                    if strcmp(answer, 'valid')  
+                        answer = 'SAFE';
+                    elseif strcmp(answer, 'falsifiable')
+                        answer = 'CEX';
+                    else
+                    answer = 'UNKNOWN';
+                    end
+                
+                    msg = [' result for property node [' property_name ']: ' char(answer)];
+                    display_msg(msg, Constants.RESULT, 'Property checking', '');
+                    
+                    if strcmp(answer, 'CEX') || strcmp(answer, 'falsifiable')                        
+                        xml_cex = xml_doc.getElementsByTagName('CounterExample');                        
+                        if xml_cex.getLength > 0
+                                cex = xml_cex;
+                                %ToDo: display the counter example
+                        else
+                        msg = [solver ': FAILURE to get counter example: '];
+                        msg = [msg property_name '\n'];
+                        display_msg(msg, Constants.WARNING, 'Property Checking', '');
+                        end
+                    end
+                    
+                    % Change the block display according to answer
+%                     display = sprintf('color(''black'')\n');
+%                     display = [display sprintf('text(0.5, 0.5, [''Property: '''''' get_param(gcb,''name'') ''''''''], ''horizontalAlignment'', ''center'');\n')];
+%                     display = [display 'text(0.99, 0.03, ''{\bf\fontsize{12}'];
+%                     display = [display char(upper(answer))];
+%                     display = [display '}'', ''hor'', ''right'', ''ver'', ''bottom'', ''texmode'', ''on'');'];
+%                     obs_mask = Simulink.Mask.get(property_node_names{idx_prop}.annotation);
+%                     obs_mask.Display = sprintf('%s',display);
+
+                    % get the json mapping
+                    jsonName = regexprep(property_name,'\[\S*?\]',''); 
+                    for i = 1 : length(json)
+                        if isfield(json{i,1},'ContractName')
+                            propertyJsonName = json{i,1}.ContractName;
+                            if strcmp(json{i,1}.PropertyName, 'guarantee')
+                                propertyJsonName = strcat(propertyJsonName, '.guarantee');
+                            end
+                            if strcmp(json{i,1}.PropertyName, 'ensure')
+                                propertyJsonName = strcat(propertyJsonName,'.', json{i,1}.ModeName ,'.ensure');
+                            end
+                        else
+                            propertyJsonName = json{i,1}.PropertyName;
+                        end
+                        if strcmp(propertyJsonName, jsonName)                           
+                            if strcmp(answer, 'SAFE')
+                                set_param(json{i,1}.OriginPath, 'BackgroundColor', 'green');
+                                set_param(json{i,1}.OriginPath, 'ForegroundColor', 'green');
+                            elseif strcmp(answer, 'TIMEOUT')
+                                set_param(json{i,1}.OriginPath, 'BackgroundColor', 'gray');
+                                set_param(json{i,1}.OriginPath, 'ForegroundColor', 'gray');
+                            elseif strcmp(answer, 'UNKNOWN')
+                                set_param(json{i,1}.OriginPath, 'BackgroundColor', 'yellow');
+                                set_param(json{i,1}.OriginPath, 'ForegroundColor', 'yellow');
+                            elseif strcmp(answer, 'CEX')
+                                set_param(json{i,1}.OriginPath, 'BackgroundColor', 'red');
+                                set_param(json{i,1}.OriginPath, 'ForegroundColor', 'red');                
+                            end
+                        end
+                    end
                 end
             end
-        else
-            msg = 'Kind2: Impossible to find Kind2';
-            display_msg(msg, Constants.ERROR, 'Kind2', '');
+                        
+            
+                        
         end
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    else
+        msg = 'Kind2: Impossible to find Kind2';
+        display_msg(msg, Constants.ERROR, 'Kind2', '');
     end
+    
+    %% for modular execution
 end
 
 function [status] = display_cex(cex, prop, model, date_value, lustre_file_name, idx_prop,xml_trace)
