@@ -149,7 +149,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
 %                     obs_mask.Display = sprintf('%s',display);
 
                     % get the json mapping
-                    jsonName = regexprep(property_name,'\[\S*?\]',''); 
+                    jsonName = regexprep(property_name,'\[l\S*?\]',''); 
                     for i = 1 : length(json)
                         if isfield(json{i,1},'ContractName')
                             propertyJsonName = json{i,1}.ContractName;
@@ -158,6 +158,9 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                             end
                             if strcmp(json{i,1}.PropertyName, 'ensure')
                                 propertyJsonName = strcat(propertyJsonName,'.', json{i,1}.ModeName ,'.ensure');
+                            end
+                            if isfield(json{i,1},'Index')
+                                propertyJsonName = strcat(propertyJsonName,'[', json{i,1}.Index ,']');
                             end
                         else
                             propertyJsonName = json{i,1}.PropertyName;
