@@ -39,7 +39,7 @@ end
 
 % Check if the file already exists and delete it if it does
 if exist(new_file,'file') == 4
-    % If it does then check whether it's open
+    % If it does then check whether it is open
     if bdIsLoaded(new_model)
         % If it is then close it (without saving!)
         close_system(new_model,0)
