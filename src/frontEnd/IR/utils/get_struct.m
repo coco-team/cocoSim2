@@ -23,7 +23,6 @@ if isa(Object, 'char')
     end
 elseif isa(Object, 'double')
     if isKey(ir_handle_struct_map, Object)
-        display('I am using map')
         Object_struct = ir_handle_struct_map(Object);
     else
         if isfield(ir_struct, 'Handle') && (ir_struct.Handle == Object)
