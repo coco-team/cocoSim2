@@ -1,4 +1,4 @@
-function [ir_struct, all_blocks, subsyst_blocks, handle_struct_map] = cocosim_IR( simulink_model_path, df_export, output_dir )
+function [ir_struct, all_blocks, subsyst_blocks, ir_handle_struct_map] = cocosim_IR( simulink_model_path, df_export, output_dir )
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This file is part of CoCoSim.
 % Copyright (C) 2014-2016  Carnegie Mellon University
@@ -41,7 +41,7 @@ ir_struct.meta.date = datestr(datetime('today'));
 
 
 file_name_modif = IRUtils.name_format(file_name);
-[ir_struct.(file_name_modif).Content, all_blocks, subsyst_blocks, handle_struct_map] = subsystems_struct(file_name);
+[ir_struct.(file_name_modif).Content, all_blocks, subsyst_blocks, ir_handle_struct_map] = subsystems_struct(file_name);
 
 %% Stop the simulation
 try
