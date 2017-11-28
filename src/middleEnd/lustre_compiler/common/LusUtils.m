@@ -206,11 +206,11 @@ classdef LusUtils
                     blk_path_elems = regexp(inter_blk.Path, filesep, 'split');
                     node_name = Utils.concat_delim(blk_path_elems, '_');
                     if inter_blk.action_reset
-                        var_name = [node_name Constants.ACTION_RESET];
+                        var_name = [node_name BlockUtils.ACTION_RESET];
                     elseif inter_blk.enable_reset
-                        var_name = [node_name Constants.ENABLE_RESET];
+                        var_name = [node_name BlockUtils.ENABLE_RESET];
                     elseif inter_blk.foriter_reset
-                        var_name = [node_name Constants.FOR_ITER_RESET];
+                        var_name = [node_name BlockUtils.FOR_ITER_RESET];
                     end
                 end
             end
@@ -237,7 +237,7 @@ classdef LusUtils
                         dt = LusUtils.get_lustre_dt(blk.IterationVariableDataType);
                         blk_path_elems = regexp(inter_blk.Path, filesep, 'split');
                         node_name = Utils.concat_delim(blk_path_elems, '_');
-                        var_name = [node_name Constants.FOR_ITER];
+                        var_name = [node_name BlockUtils.FOR_ITER];
                         res = true;
                     end
                 end
