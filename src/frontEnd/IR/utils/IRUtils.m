@@ -16,6 +16,7 @@ classdef IRUtils
             str_out = strrep(str_out, ']', '_rsbrak_');
             str_out = strrep(str_out, '{', '_lbrak_');
             str_out = strrep(str_out, '}', '_rbrak_');
+            str_out = strrep(str_out, '''', '_prime_');
             %hamza modification
             str_out = strrep(str_out, ',', '_comma_');
             %             str_out = strrep(str_out, '/', '_slash_');
