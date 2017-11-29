@@ -225,7 +225,7 @@ classdef LusUtils
                 fields(cellfun('isempty', regexprep(fields, '^Annotation.*', ''))) = [];
                 blocks = {};
                 for i=1:numel(fields)
-                    blocks = [blocks, inter_blk.Content.(fields{i}).Path];
+                    blocks = [blocks, inter_blk.Content.(fields{i}).Handle];
                 end
                 block_types = cocoget_param(myblk, blocks, 'BlockType');
                 
