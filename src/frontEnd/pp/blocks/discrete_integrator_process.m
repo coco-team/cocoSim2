@@ -11,6 +11,7 @@ if not(isempty(discrete_intr_list))
     display_msg('Processing Discrete Integrator blocks...', Constants.INFO, 'discrete_integrator_process', ''); 
     for i=1:length(discrete_intr_list)
         display_msg(discrete_intr_list{i}, Constants.INFO, 'discrete_integrator_process', ''); 
+        gain = get_param(discrete_intr_list{i},'gainval'); 
         sample_tmp = get_param(discrete_intr_list{i},'SampleTime'); 
         if strcmp(sample_tmp,'-1')
             sample_tmp = num2str(model_smtp);
@@ -65,8 +66,13 @@ if not(isempty(discrete_intr_list))
                 'SampleTime',sample_tmp);
         end
         % Set the sample time of the Discrete integrator
+        % The Gain shall contain the product of samplel time and gain
+        sample_tmp
+        gain
+        [sample_tmp '*' gain]
+        global_gain = evalin('base',[sample_tmp '*' gain])
         set_param(strcat(discrete_intr_list{i},'/Sample'),...
-            'Gain',sample_tmp);
+            'Gain',num2str(global_gain));
         set_param(strcat(discrete_intr_list{i},'/UnitDelay'),...
             'SampleTime',sample_tmp);
     end
