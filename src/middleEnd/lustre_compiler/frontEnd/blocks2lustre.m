@@ -24,7 +24,7 @@ fields = fieldnames(subsys.Content);
 fields(cellfun('isempty', regexprep(fields, '^Annotation.*', ''))) = [];
 blks = {};
 for i=1:numel(fields)
-    blks = [blks, subsys.Content.(fields{i}).Path];
+    blks = [blks, subsys.Content.(fields{i}).Handle];
 end
 
 if idx_subsys == 1
