@@ -53,7 +53,12 @@
 %  condition{1} = (if Input_2_1 then 1/1.0 else 0/0.0) op tointeger/toreal(Threshold{1})
 %  condition{2} = (if Input_2_2 then 1/1.0 else 0/0.0) op tointeger/toreal(Threshold{2})
 %
-% If Threshold is integer or real
+% If Threshold is integer and Threshold is double: do this but complain! 
+%
+%  condition{1} = int_to_real(Input_2_1) op Threshold{1}
+%  condition{2} = int_to_real(Input_2_2) op Threshold{2}
+%
+% If Threshold is real/int but same type as condition input
 %
 %  condition{1} = Input_2_1 op Threshold{1}
 %  condition{2} = Input_2_2 op Threshold{2}
@@ -152,6 +157,29 @@ if ~strcmp(criteria, 'u2 ~= 0')
     end
 end
 
+% If type mismatch between numerical condition and numerical threshold: we add a cast
+if ~strcmp(criteria, 'u2 ~= 0') ... % Threshold involved
+        && strcmp(cond_dt, 'int')   % Integer condition
+    % Compute whether at least one threshold is non integet
+    has_noninteger_threshold = 0;
+    for i=1:numel(list_threshold)
+        t_i = str2num(list_threshold{i});
+        if ~has_noninteger_threshold
+            if floor(t_i) ~= t_i
+                has_noninteger_threshold = 1;
+            end
+        end
+    end
+    if has_noninteger_threshold
+        % We assume all conditions share the same type. We convert them all to
+        % reals
+        for i=1:numel(list_in_cond)
+            list_in_cond{i} =  sprintf('int_to_real(%s)', list_in_cond{i});
+        end
+    end
+end
+        
+       
 size_in = block.CompiledPortWidths.Outport;
 size_cond = numel(list_in_cond);
 
