@@ -1,6 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This file is part of CoCoSim.
 % Copyright (C) 2014-2016  Carnegie Mellon University
+%               2017       ONERA
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Write extern functions
@@ -35,7 +36,7 @@
 %
 %% Bitwise functions
 %
-% External nodes are generated for the following botwise operations. These
+% External nodes are generated for the following bitwise operations. These
 % operations only apply on real values of type real or int: AND, OR, NAND,
 % NOR, XOR
 %
@@ -61,7 +62,7 @@ for idx_fun=1:numel(functions)
     fun_split = regexp(fun, ' ', 'split');
     if strcmp(fun_kind, 'lustrec_math')
         if ~included_lustrec_math
-            str_include = [str_include '#open <math>\n'];
+            str_include = [str_include '#open <lustrec_math>\n'];
         end
         included_lustrec_math  = true;
     elseif strcmp(fun_kind, 'trigoh')
@@ -236,7 +237,8 @@ elseif numel(elems) == 1
 else
     fun_name = 'none';
 end
-if  strcmp(fun_name, 'pow') || strcmp(fun_name, 'sqrt') || strcmp(fun_name, 'rSqrt')
+if  strcmp(fun_name, 'pow') || strcmp(fun_name, 'sqrt') || strcmp(fun_name, 'rSqrt') || ...
+    strcmp(fun_name, 'floor') || strcmp(fun_name, 'ceil') || strcmp(fun_name, 'round') || strcmp(fun_name, 'trunc')
     res = 'lustrec_math';
 elseif strcmp(fun_name, 'sin') || strcmp(fun_name, 'cos') || strcmp(fun_name, 'asin') ...
         || strcmp(fun_name, 'acos') || strcmp(fun_name, 'atan') || strcmp(fun_name, 'atan2') ...
