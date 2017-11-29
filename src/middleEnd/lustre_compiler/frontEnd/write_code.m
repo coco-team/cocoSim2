@@ -102,6 +102,8 @@ for idx_block=1:nblk
             [block_string, var_out] = func_handle(sub_blk, ir_struct, xml_trace);
             
         else
+            msg= sprintf('No function specified for %s. Be sure to check the output for soundness', func_name);
+            display_msg(msg, Constants.WARNING, 'lustre-generator', '');
             block_string = '';
             var_out = {};
         end
