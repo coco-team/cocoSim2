@@ -223,7 +223,7 @@ classdef LusUtils
             if strcmp(inter_blk.BlockType, 'SubSystem')
                 fields = fieldnames(inter_blk.Content);
                 fields(cellfun('isempty', regexprep(fields, '^Annotation.*', ''))) = [];
-                blocks = {};
+                blocks = [];
                 for i=1:numel(fields)
                     blocks = [blocks, inter_blk.Content.(fields{i}).Handle];
                 end

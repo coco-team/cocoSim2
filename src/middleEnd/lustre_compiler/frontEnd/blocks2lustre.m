@@ -22,7 +22,7 @@ property_node_names = '';
 subsys = get_struct(myblk, main_blks{idx_subsys});
 fields = fieldnames(subsys.Content);
 fields(cellfun('isempty', regexprep(fields, '^Annotation.*', ''))) = [];
-blks = {};
+blks = [];
 for i=1:numel(fields)
     blks = [blks, subsys.Content.(fields{i}).Handle];
 end
@@ -172,7 +172,7 @@ for idx_block=newinit:nblk
 	list_output = '';
 	noutput = sub_blk.Ports(2);
 	% Only for the blocks that are not fby
-	if noutput ~= 0 && ~strcmp(sub_blk.BlockType, 'Inport')
+	if (noutput ~= 0 && ~strcmp(sub_blk.BlockType, 'Inport')) || (strcmp(sub_blk.BlockType, 'Goto'))
 		if ~(strcmp(sub_blk.BlockType, 'SubSystem') && BlockUtils.is_property(sub_blk.MaskType))
 			if cpt_var == 1
 				% Create the "Variables" traceability information element

@@ -4,7 +4,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function li_index = list_var_outport(block_outport)
-
+li_index = {};
 dim_outport= block_outport.srcport_size;
 block_full_name = regexp(block_outport.name, '/', 'split');
 block_name = Utils.concat_delim(block_full_name{1}(end - block_outport.name_level : end), '_');
