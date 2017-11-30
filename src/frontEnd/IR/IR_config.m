@@ -56,7 +56,7 @@ block_param_map('MultiPortSwitch') = {'DataPortOrder', 'DataPortIndices'...
 
 block_param_map('Scope') = {'Floating'};
 
-block_param_map('Outport') = {'Port', 'CompiledPortDimensions', 'CompiledPortDataTypes', 'UseBusObject', 'BusObject'};
+block_param_map('Outport') = {'Port', 'CompiledPortDimensions', 'CompiledPortDataTypes', 'UseBusObject', 'BusObject', 'OutputWhenDisabled', 'InitialOutput'};
 
 block_param_map('Inport') = {'Port', 'CompiledPortDimensions', 'CompiledPortDataTypes', 'UseBusObject', 'BusObject'};
 
