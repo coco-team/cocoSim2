@@ -134,8 +134,10 @@ save 'tmp_data' origin_path model_path cocoSim_path bus_struct
 % Pre-process model
 Utils.update_status('Pre-processing');
 display_msg('Pre-processing', Constants.INFO, 'cocoSim', '');
-new_file_name = cocosim_pp(model_full_path);
-
+[new_file_name, err] = cocosim_pp(model_full_path);
+if err
+    return;
+end
 if ~strcmp(new_file_name, '')
     model_full_path = new_file_name;
     [model_path, file_name, ~] = fileparts(model_full_path);
@@ -360,7 +362,7 @@ for i=1:n
     end
 end
 
-[str_include, extern_functions_string] = write_extern_functions(extern_functions, output_dir);
+[str_include, extern_functions_string] = write_extern_functions(extern_functions, output_dir, extern_Stateflow_nodes_fun_string);
 % Write include for external functions
 if ~strcmp(str_include, '')
     fprintf(fid, str_include);
@@ -479,6 +481,64 @@ elseif C_GEN
         display_msg(ME.message, Constants.ERROR, 'C Compilation', '');
         display_msg(ME.getReport(), Constants.DEBUG, 'C Compilation', '');
     end
+end
+
+%%%%%%%%%%%%% Verification %%%%%%%%%%%%%%%
+Utils.update_status('Verification');
+smt_file = '';
+Query_time = 0;
+if numel(property_node_names) > 0 && not (strcmp(SOLVER, 'NONE'))
+    if not (strcmp(SOLVER, 'Z') || strcmp(SOLVER,'K') || strcmp(SOLVER, 'J'))
+        display_msg('Available solvers are Z for Zustre and K for Kind2', Constants.WARNING, 'cocoSim', '');
+        return
+    end
+    if exist(c_code, 'file')
+        display_msg('Running SEAHORN', Constants.INFO, 'SEAHORN', '');
+        try
+            smt_file = seahorn(c_code);
+            if strcmp(SOLVER, 'K')
+                msg = 'Kind2 does not support S-Function. Switching to Zustre.';
+                display_msg(msg, Constants.WARNING, 'SEAHORN', '');
+                SOLVER = 'Z';
+            end
+        catch ME
+            display_msg(ME.message, Constants.ERROR, 'SEAHORN', '');
+            display_msg(ME.getReport(), Constants.DEBUG, 'SEAHORN', '');
+        end
+    end
+    open(models{end});
+    properties_summary = [];
+    if strcmp(SOLVER, 'Z')
+        display_msg('Running Zustre', Constants.INFO, 'Verification', '');
+        try
+            [Query_time, properties_summary] = zustre(nom_lustre_file, property_node_names, property_file_base_name, inter_blk, xml_trace, is_SF, smt_file);
+            
+        catch ME
+            display_msg(['Zustre has failed :' ME.message], Constants.ERROR, 'Verification', '');
+            display_msg(ME.getReport(), Constants.DEBUG, 'Verification', '');
+        end
+    elseif strcmp(SOLVER, 'K')
+        display_msg('Running Kind2', Constants.INFO, 'Verification', '');
+        try
+            [Query_time, properties_summary] = kind2(nom_lustre_file, property_node_names, property_file_base_name, inter_blk, xml_trace);
+        catch ME
+            display_msg(ME.message, Constants.ERROR, 'Verification', '');
+            display_msg(ME.getReport(), Constants.DEBUG, 'Verification', '');
+        end
+    elseif strcmp(SOLVER, 'J')
+        display_msg('Running JKind', Constants.INFO, 'Verification', '');
+        try
+            [Query_time, properties_summary] = jkind(nom_lustre_file, property_node_names, property_file_base_name, inter_blk, xml_trace);
+        catch ME
+            display_msg(ME.message, Constants.ERROR, 'Verification', '');
+            display_msg(ME.getReport(), Constants.DEBUG, 'Verification', '');
+        end
+    end
+    if ~isempty(properties_summary) 
+        update_properties_gui(properties_summary, model_full_path, output_dir);
+    end
+else
+    display_msg('No property to prove', Constants.RESULT, 'Verification', '');
 end
 
 %%%%%%%%%%%% Cleaning and end of operations %%%%%%%%%%
