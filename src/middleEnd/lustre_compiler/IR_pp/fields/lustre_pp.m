@@ -29,7 +29,7 @@ for i=1:numel(fields)
     % name_level
     ir_struct.Content.(fields{i}).name_level = 0;
     
-    % action, trigger and enable
+    % action, trigger, reset and enable
     indexes = find(arrayfun(@(x) strcmp(x.Type, 'ifaction'), sub_blk.PortConnectivity));
     if ~isempty(indexes)
         ir_struct.Content.(fields{i}).action = sub_blk.PortConnectivity(indexes).SrcBlock;
@@ -45,6 +45,14 @@ for i=1:numel(fields)
     else
         ir_struct.Content.(fields{i}).trigger = [];
         ir_struct.Content.(fields{i}).triggerport = [];
+    end
+    indexes = find(arrayfun(@(x) strcmp(x.Type, 'reset'), sub_blk.PortConnectivity));
+    if ~isempty(indexes)
+        ir_struct.Content.(fields{i}).reset = sub_blk.PortConnectivity(indexes).SrcBlock;
+        ir_struct.Content.(fields{i}).resetport = sub_blk.PortConnectivity(indexes).SrcPort;
+    else
+        ir_struct.Content.(fields{i}).reset = [];
+        ir_struct.Content.(fields{i}).resetport = [];
     end
     indexes = find(arrayfun(@(x) strcmp(x.Type, 'enable'), sub_blk.PortConnectivity));
     if ~isempty(indexes)
