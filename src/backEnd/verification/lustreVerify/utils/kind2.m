@@ -50,7 +50,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                    try
                      display_cex(cex, property_node_names{idx_prop}, ...
                                   ir_struct, date_value, ...
-                                   lustre_file_name, idx_prop, xml_trace);
+                                   lustre_file_name, idx_prop, xml_trace, ir_struct);
                     catch ME
                         display_msg(ME.message, Constants.ERROR, 'JKind', '');
                    end
@@ -63,7 +63,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
     end
 end
 
-function [status] = display_cex(cex, prop, model, date_value, lustre_file_name, idx_prop,xml_trace)
+function [status] = display_cex(cex, prop, model, date_value, lustre_file_name, idx_prop,xml_trace, ir_struct)
    status = 1;
   [path, lustre_file, ext] = fileparts(lustre_file_name);
    mat_file_name = ['config_' prop.prop_name '_' date_value '.mat'];
@@ -92,7 +92,7 @@ function [status] = display_cex(cex, prop, model, date_value, lustre_file_name, 
        if config_created
            try
                % Create the annotation with the links to setup and launch the simulation
-               createAnnotation(lustre_file_name, prop, IO_struct, mat_full_file, path);
+               createAnnotation(lustre_file_name, prop, IO_struct, mat_full_file, path, ir_struct);
            catch ERR
                msg = ['FAILURE to create the Simulink CEX replay annotation\n' getReport(ERR)];
                display_msg(msg, Constants.INFO, 'Kind2', '');
@@ -121,7 +121,14 @@ function IO_struct = mk_IO_struct(model_inter_blk, prop_node_name)
 	warning off;
 	code_compile = sprintf('%s([], [], [], ''compile'')', main_model_name);
 	eval(code_compile);
-
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Bug fix for sub_blk.Content which is null
+    sub_blk_fields = fieldnames(sub_blk);
+    % modify sub_blk to be its model which is the second field
+    sub_blk = getfield(sub_blk, char(sub_blk_fields(2)));
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
     fields = fieldnames(sub_blk.Content);
     fields(cellfun('isempty', regexprep(fields, '^Annotation.*', ''))) = [];
 	for idx_blk=1:numel(fields)
@@ -311,9 +318,13 @@ function IO_struct = create_configuration(IO_struct, file, prop_node_name, mat_f
 end
 
 % Add an annotation to display the Counter example replay/config
-function createAnnotation(lustre_file_name, property_node_names, IO_struct, config_mat_full_file, path)
+function createAnnotation(lustre_file_name, property_node_names, IO_struct, config_mat_full_file, path, ir_struct)
 	% Load cocoSim_path variable
-	load 'tmp_data'
+	%load 'tmp_data'   
+    pathParts = strsplit(mfilename('fullpath'),'/');
+    %set cocoSim_path to be ~/CoCoSim/src
+    cocoSim_path = strjoin(pathParts(1 :end - 5), '/');
+    
 
 	property_node_name = property_node_names.origin_block_name;
     
@@ -359,9 +370,11 @@ function createAnnotation(lustre_file_name, property_node_names, IO_struct, conf
 
 	% Find correct position for the annotation
 	blocks = find_system(file_name, 'SearchDepth', 1, 'FindAll', 'on', 'Type', 'Block');
-    for i=1:numel(blocks)
-        blocks(i) = Utils.name_format(blocks(i));
-    end
+    
+    % blocks is array of doubles, not strings
+    %for i=1:numel(blocks)
+    %   blocks(i) = Utils.name_format(blocks(i));
+    %end
 	positions = cocoget_param(ir_struct, blocks, 'Position');
 	max_x = 0;
 	min_x = 0;
