@@ -126,18 +126,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                 
                     msg = [' result for property node [' property_name ']: ' char(answer)];
                     display_msg(msg, Constants.RESULT, 'Property checking', '');
-                    
-                    if strcmp(answer, 'CEX') || strcmp(answer, 'falsifiable')                        
-                        xml_cex = xml_doc.getElementsByTagName('CounterExample');                        
-                        if xml_cex.getLength > 0
-                                cex = xml_cex;
-                                %ToDo: display the counter example
-                        else
-                        msg = [solver ': FAILURE to get counter example: '];
-                        msg = [msg property_name '\n'];
-                        display_msg(msg, Constants.WARNING, 'Property Checking', '');
-                        end
-                    end
+                                        
                     
                     % Change the block display according to answer
 %                     display = sprintf('color(''black'')\n');
@@ -177,7 +166,21 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                                 set_param(json{i,1}.OriginPath, 'ForegroundColor', 'yellow');
                             elseif strcmp(answer, 'CEX')
                                 set_param(json{i,1}.OriginPath, 'BackgroundColor', 'red');
-                                set_param(json{i,1}.OriginPath, 'ForegroundColor', 'red');                
+                                set_param(json{i,1}.OriginPath, 'ForegroundColor', 'red');   
+                                
+                                % display the counter example box                                              
+                                xml_cex = prop.getElementsByTagName('CounterExample');                        
+                                if xml_cex.getLength > 0
+                                    cex = xml_cex;
+                                    %ToDo: display the counter example
+                                    display_cex(cex, json{i,1}.OriginPath, ir_struct, date_value, ...
+                                       lustre_file_name, index, xml_trace, ir_struct);
+                                else
+                                    msg = [solver ': FAILURE to get counter example: '];
+                                    msg = [msg property_name '\n'];
+                                    display_msg(msg, Constants.WARNING, 'Property Checking', '');
+                                end
+                                
                             end
                         end
                     end
@@ -196,26 +199,29 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
     %% for modular execution
 end
 
-function [status] = display_cex(cex, prop, model, date_value, lustre_file_name, idx_prop,xml_trace)
+
+function [status] = display_cex(cex, origin_path, model, date_value, lustre_file_name, idx_prop,xml_trace, ir_struct)
    status = 1;
   [path, lustre_file, ext] = fileparts(lustre_file_name);
-   mat_file_name = ['config_' prop.prop_name '_' date_value '.mat'];
+   prop_name = Utils.name_format(origin_path);
+   prop_name = strrep(prop_name, '/','_');
+   mat_file_name = ['config_' prop_name '_' date_value '.mat'];
    mat_full_file = fullfile(path, mat_file_name);
 
    % Initialisation of the IO_struct
-   IO_struct = mk_IO_struct(model, prop);
+   IO_struct = mk_IO_struct(model, origin_path);
    try
        % Definition of the values and variable names
-       [IO_struct, found] = parseCEX(cex, IO_struct, prop, xml_trace);
+       [IO_struct, found] = parseCEX(cex, IO_struct, origin_path, xml_trace);
    catch ERR
        found = false;
-       msg = ['JKIND: FAILURE to parse the CEX : ' prop.prop_name '\n' getReport(ERR)];
+       msg = ['KIND2: FAILURE to parse the CEX : ' prop_name '\n' getReport(ERR)];
        display_msg(msg, Constants.INFO, 'Kind2', '');
    end
    if found
        try
            % Simulation configuration
-           IO_struct = create_configuration(IO_struct, lustre_file, prop, mat_full_file, idx_prop);
+           IO_struct = create_configuration(IO_struct, lustre_file, origin_path, mat_full_file, idx_prop);
            config_created = true;
        catch ERR
            msg = ['FAILURE to create the Simulink simulation configuration\n' getReport(ERR)];
@@ -225,7 +231,7 @@ function [status] = display_cex(cex, prop, model, date_value, lustre_file_name, 
        if config_created
            try
                % Create the annotation with the links to setup and launch the simulation
-               createAnnotation(lustre_file_name, prop, IO_struct, mat_full_file, path);
+               createAnnotation(lustre_file_name, origin_path, IO_struct, mat_full_file, path, ir_struct);
            catch ERR
                msg = ['FAILURE to create the Simulink CEX replay annotation\n' getReport(ERR)];
                display_msg(msg, Constants.INFO, 'Kind2', '');
@@ -235,12 +241,12 @@ function [status] = display_cex(cex, prop, model, date_value, lustre_file_name, 
 end
 
 % Builds the IO structure for the counter example:
-function IO_struct = mk_IO_struct(model_inter_blk, prop_node_name)
+function IO_struct = mk_IO_struct(model_inter_blk, origin_path)
 	IO_struct = '';
 	cpt_in = 1;
 	cpt_out = 1;
     
-	parent_block_name = prop_node_name.parent_block_name;
+	parent_block_name = fileparts(origin_path);
 	if numel(regexp(parent_block_name, filesep, 'split')) == 1
 		main_model_name = parent_block_name;
         sub_blk = model_inter_blk;
@@ -254,7 +260,7 @@ function IO_struct = mk_IO_struct(model_inter_blk, prop_node_name)
 	warning off;
 	code_compile = sprintf('%s([], [], [], ''compile'')', main_model_name);
 	eval(code_compile);
-
+            
     fields = fieldnames(sub_blk.Content);
     fields(cellfun('isempty', regexprep(fields, '^Annotation.*', ''))) = [];
 	for idx_blk=1:numel(fields)
@@ -291,11 +297,12 @@ function IO_struct = mk_IO_struct(model_inter_blk, prop_node_name)
 end
 
 
-function [IO_struct, found] = parseCEX(cex, IO_struct, prop_node_name, xml_trace)
+function [IO_struct, found] = parseCEX(cex, IO_struct, origin_path, xml_trace)
 	first_cex = cex.item(0); % Only one CounterExample for now, do we will need more ?
     nodes = first_cex.getElementsByTagName('Node');
-    prop_name = prop_node_name.prop_name;       
-	parent_block_name = prop_node_name.parent_block_name;
+    prop_name = Utils.name_format(origin_path);  
+    prop_name = strrep(prop_name, '/', '_');
+	parent_block_name = fileparts(origin_path);
     time_steps = 0;
 	found = false;
     
@@ -308,7 +315,8 @@ function [IO_struct, found] = parseCEX(cex, IO_struct, prop_node_name, xml_trace
             stream_name = stream.getAttribute('name');
             input_names = cellfun(@(x) x.origin_name, IO_struct.inputs, 'UniformOutput', 0);
 			output_names = cellfun(@(x) x.origin_name, IO_struct.outputs, 'UniformOutput', 0);
-			var_name = xml_trace.get_block_name_from_variable(parent_block_name, char(stream_name));
+			%var_name = xml_trace.get_block_name_from_variable(parent_block_name, char(stream_name));
+            var_name = strcat(parent_block_name,'/', char(stream_name));
             if numel(find(strcmp(input_names, var_name))) ~= 0
 				index = find(strcmp(input_names, var_name));
 				[IO_struct.inputs{index}, time_steps] = addValue_IO_struct(IO_struct.inputs{index}, stream, prop_name, time_steps);		
@@ -333,9 +341,9 @@ function [out, time_step] = addValue_IO_struct(struct, signal, prop_name, time_s
 	values = signal.getElementsByTagName('Value');
     for idx=0:(values.getLength-1)
 		val = char(values.item(idx).getTextContent);
-		if strcmp(val, 'False')
+		if strcmp(val, 'false')
 			out.value(idx+1) = false;
-		elseif strcmp(val, 'True')
+		elseif strcmp(val, 'true')
 			out.value(idx+1) = true;
 		else
 			out.value(idx+1) = str2num(val);
@@ -349,7 +357,7 @@ end
 % Create simulation configuration and attach it to the model
 % Saves the simulation input values to an external mat file to ease replay
 % TODO: This function structure should be improved
-function IO_struct = create_configuration(IO_struct, file, prop_node_name, mat_file, idx_prop)
+function IO_struct = create_configuration(IO_struct, file, origin_path, mat_file, idx_prop)
 	configSet = copy(getActiveConfigSet(file));
 	set_param(configSet, 'Solver', 'FixedStepDiscrete');
 	set_param(configSet, 'FixedStep', '1.0');
@@ -362,8 +370,9 @@ function IO_struct = create_configuration(IO_struct, file, prop_node_name, mat_f
 	set_param(configSet, 'SaveFormat', 'Structure');
 	set_param(configSet, 'SaveTime', 'on');
     
-	prop_name = regexp(prop_node_name.origin_block_name, '/', 'split');
+	prop_name = regexp(origin_path, '/', 'split');
 	prop_name = [prop_name{end} '_' num2str(idx_prop)];
+    prop_name = Utils.name_format(prop_name);
 	IO_struct.prop_name = prop_name;
 
 	IO_struct.prop_name = regexprep(IO_struct.prop_name, '[\s#{}[]&]', '_');
@@ -408,7 +417,13 @@ function IO_struct = create_configuration(IO_struct, file, prop_node_name, mat_f
     try
         for idx_out=1:numel(IO_struct.outputs)
             var_name = IO_struct.outputs{idx_out}.name;
-            value = IO_struct.outputs{idx_out}.value;
+            if contains(IO_struct.outputs{1, 1}.origin_name,'contract/valid')
+                value = ones(IO_struct.outputs{idx_out}.dim_r);
+                value(end) = 0; % valid is false in the last step
+                value = value';
+            else
+                value = IO_struct.outputs{idx_out}.value;
+            end            
             dim_r = IO_struct.outputs{idx_out}.dim_r;
             dim_c = IO_struct.outputs{idx_out}.dim_c;
             signals_values_set = sprintf('%s.signals(%s).values = %s'';', output_struct_name, num2str(idx_out), mat2str(value));
@@ -444,11 +459,15 @@ function IO_struct = create_configuration(IO_struct, file, prop_node_name, mat_f
 end
 
 % Add an annotation to display the Counter example replay/config
-function createAnnotation(lustre_file_name, property_node_names, IO_struct, config_mat_full_file, path)
+function createAnnotation(lustre_file_name, origin_path, IO_struct, config_mat_full_file, path, ir_struct)
 	% Load cocoSim_path variable
-	load 'tmp_data'
+	%load 'tmp_data'   
+    pathParts = strsplit(mfilename('fullpath'),'/');
+    %set cocoSim_path to be ~/CoCoSim/src
+    cocoSim_path = strjoin(pathParts(1 :end - 5), '/');
+    
 
-	property_node_name = property_node_names.origin_block_name;
+	property_node_name = origin_path;
     
 	[lus_dir, file_name, ~] = fileparts(lustre_file_name);
     %header
@@ -468,14 +487,16 @@ function createAnnotation(lustre_file_name, property_node_names, IO_struct, conf
 	list_title = strrep(list_title, '[Title]', 'Actions');
 	
 	% Define clear, load and replay actions
-	actions = createActions(lustre_file_name, property_node_names, config_mat_full_file, IO_struct, cocoSim_path);
+	actions = createActions(lustre_file_name, origin_path, config_mat_full_file, IO_struct, cocoSim_path);
 	list_title_html = strrep(list_title, '[List_Content]', actions);
     html_text = [html_text list_title_html];
     
     title = 'open Counter example actions';
     action = fileread([cocoSim_path filesep 'backEnd' filesep 'templates' filesep 'list_item_mat_code.html']);
     action = strrep(action, '[Item]', title);
-    html_output = fullfile(lus_dir, strcat(file_name,property_node_names.prop_name,'.html'));
+    prop_name = Utils.name_format(origin_path);
+    prop_name = strrep(prop_name, '/','_');
+    html_output = fullfile(lus_dir, strcat(file_name, prop_name,'.html'));
     content = sprintf('open(''%s'')\n;',html_output);
     action = strrep(action, '[Matlab_code]', content);
     list_title_ann = strrep(list_title, '[List_Content]', action);
@@ -492,9 +513,11 @@ function createAnnotation(lustre_file_name, property_node_names, IO_struct, conf
 
 	% Find correct position for the annotation
 	blocks = find_system(file_name, 'SearchDepth', 1, 'FindAll', 'on', 'Type', 'Block');
-    for i=1:numel(blocks)
-        blocks(i) = Utils.name_format(blocks(i));
-    end
+    
+    % blocks is array of doubles, not strings
+    %for i=1:numel(blocks)
+    %   blocks(i) = Utils.name_format(blocks(i));
+    %end
 	positions = cocoget_param(ir_struct, blocks, 'Position');
 	max_x = 0;
 	min_x = 0;
@@ -527,7 +550,7 @@ function createAnnotation(lustre_file_name, property_node_names, IO_struct, conf
 end
 
 %% Create actions to be added to the generated Annotation as the callback code executed when the hyperlinks are clicked.
-function actions = createActions(lustre_file_name, property_node_names, config_mat_full_file, IO_struct, cocoSim_path)
+function actions = createActions(lustre_file_name, origin_path, config_mat_full_file, IO_struct, cocoSim_path)
 	actions = '';
 	matlab_code = '';
 	[output_full_path, file_name, ext] = fileparts(lustre_file_name);
@@ -537,7 +560,7 @@ function actions = createActions(lustre_file_name, property_node_names, config_m
 		config_mat_full_file = fullfile(pwd, config_mat_full_file);
 	end
     
-	property_name = property_node_names.origin_block_name;
+	property_name = origin_path;
 	config_name = IO_struct.configSet_name;
     
 	% Display values action
@@ -574,7 +597,7 @@ function actions = createActions(lustre_file_name, property_node_names, config_m
 	actions = [actions action];
 
 	% Here we need to know if we are working on the complete system or on a subsystem
-	if numel(regexp(property_node_names.parent_block_name, '/', 'split')) == 1
+	if numel(regexp(origin_path, '/', 'split')) == 1
 		main_system_simu = true;
 	else
 		main_system_simu = false;
@@ -605,19 +628,20 @@ function actions = createActions(lustre_file_name, property_node_names, config_m
 		actions = [actions action];
 	else
 		% Create CEX Model
-		code_create_cex_model = sprintf('close_system(''%s'', 0);\n', property_node_names.parent_node_name);
-		code_create_cex_model = app_sprintf(code_create_cex_model, 'cex_model = new_system(''%s'');\n', property_node_names.parent_node_name);
-		code_create_cex_model = app_sprintf(code_create_cex_model, 'Simulink.SubSystem.copyContentsToBlockDiagram(''%s'', cex_model);\n', property_node_names.parent_block_name);
-		code_create_cex_model = app_sprintf(code_create_cex_model, 'open_system(''%s'');\n', property_node_names.parent_node_name);
-		code_create_cex_model = app_sprintf(code_create_cex_model, 'save_system(''%s.mdl'');\n', property_node_names.parent_node_name);
-		code_create_cex_model = app_sprintf(code_create_cex_model, 'clear cex_model;\n', property_node_names.parent_node_name);
+        parent_node_name = fileparts(origin_path);        
+		code_create_cex_model = sprintf('close_system(''%s'', 0);\n', parent_node_name);
+		code_create_cex_model = app_sprintf(code_create_cex_model, 'cex_model = new_system(''%s'');\n', parent_node_name);
+		code_create_cex_model = app_sprintf(code_create_cex_model, 'Simulink.SubSystem.copyContentsToBlockDiagram(''%s'', cex_model);\n', parent_node_name);
+		code_create_cex_model = app_sprintf(code_create_cex_model, 'open_system(''%s'');\n', parent_node_name);
+		code_create_cex_model = app_sprintf(code_create_cex_model, 'save_system(''%s.mdl'');\n', parent_node_name);
+		code_create_cex_model = app_sprintf(code_create_cex_model, 'clear cex_model;\n', parent_node_name);
 
 		action = createAction('Create CEX model for observed subsystem', code_create_cex_model, cocoSim_path);
 		actions = [actions action];
 
 		% Launch simulation action
-		code_launch = sprintf('cex_model = find_system(''%s'');\n', property_node_names.parent_node_name);
-        code_launch = app_sprintf(code_launch,'simOut = sim(''%s'',%s);\n',property_node_names.parent_node_name,config_name);
+		code_launch = sprintf('cex_model = find_system(''%s'');\n', parent_node_name);
+        code_launch = app_sprintf(code_launch,'simOut = sim(''%s'',%s);\n',parent_node_name,config_name);
         code_launch = app_sprintf(code_launch, 'yout = get(simOut,''yout'');\n', '');
 		code_launch = app_sprintf(code_launch, 'addpath(''%s'');\n', output_full_path);
 		code_launch = app_sprintf(code_launch, 'values = {Inputs_%s};\n', IO_struct.prop_name);
@@ -633,8 +657,8 @@ function actions = createActions(lustre_file_name, property_node_names, config_m
 		action = createAction('Launch simulation', code_launch, cocoSim_path);
 		actions = [actions action];
 
-		code_clean = sprintf('close_system(''%s'');\n', property_node_names.parent_node_name);
-		code_clean = app_sprintf(code_clean, 'delete ''%s.mdl'';\n', property_node_names.parent_node_name);
+		code_clean = sprintf('close_system(''%s'');\n', parent_node_name);
+		code_clean = app_sprintf(code_clean, 'delete ''%s.mdl'';\n', parent_node_name);
 		action = createAction('Delete CEX model', code_clean, cocoSim_path);
 		actions = [actions action];
 
@@ -654,4 +678,3 @@ function add_plotting_function(cocoSim_path, path)
 	src = [cocoSim_path filesep 'backEnd' filesep 'templates' filesep 'plotting.m'];
 	copyfile(src, path);
 end
-
