@@ -420,7 +420,7 @@ function IO_struct = create_configuration(IO_struct, file, origin_path, mat_file
             if contains(IO_struct.outputs{1, 1}.origin_name,'contract/valid')
                 value = ones(IO_struct.outputs{idx_out}.dim_r);
                 value(end) = 0; % valid is false in the last step
-                value = value';
+                %value = value';
             else
                 value = IO_struct.outputs{idx_out}.value;
             end            
@@ -608,6 +608,8 @@ function actions = createActions(lustre_file_name, origin_path, config_mat_full_
 		% Launch simulation action
 		code_launch = sprintf('simOut = sim(model{1},%s);\n',config_name);
         code_launch = app_sprintf(code_launch, 'yout = get(simOut,''yout'');\n', '');
+        % fix the dimensionality of yout
+        code_launch = app_sprintf(code_launch, 'yout.signals.values=squeeze(yout.signals.values);','');
 		code_launch = app_sprintf(code_launch, 'addpath(''%s'');\n', output_full_path);
 		code_launch = app_sprintf(code_launch, 'values = {Inputs_%s};\n', IO_struct.prop_name);
   
@@ -628,10 +630,12 @@ function actions = createActions(lustre_file_name, origin_path, config_mat_full_
 		actions = [actions action];
 	else
 		% Create CEX Model
-        parent_node_name = fileparts(origin_path);        
+        parent_node_name = Utils.name_format(origin_path);
+        parent_node_name = strrep(parent_node_name,'/','');
+        parent_block_name = fileparts(origin_path);
 		code_create_cex_model = sprintf('close_system(''%s'', 0);\n', parent_node_name);
 		code_create_cex_model = app_sprintf(code_create_cex_model, 'cex_model = new_system(''%s'');\n', parent_node_name);
-		code_create_cex_model = app_sprintf(code_create_cex_model, 'Simulink.SubSystem.copyContentsToBlockDiagram(''%s'', cex_model);\n', parent_node_name);
+		code_create_cex_model = app_sprintf(code_create_cex_model, 'Simulink.SubSystem.copyContentsToBlockDiagram(''%s'', cex_model);\n', parent_block_name);
 		code_create_cex_model = app_sprintf(code_create_cex_model, 'open_system(''%s'');\n', parent_node_name);
 		code_create_cex_model = app_sprintf(code_create_cex_model, 'save_system(''%s.mdl'');\n', parent_node_name);
 		code_create_cex_model = app_sprintf(code_create_cex_model, 'clear cex_model;\n', parent_node_name);
@@ -643,6 +647,8 @@ function actions = createActions(lustre_file_name, origin_path, config_mat_full_
 		code_launch = sprintf('cex_model = find_system(''%s'');\n', parent_node_name);
         code_launch = app_sprintf(code_launch,'simOut = sim(''%s'',%s);\n',parent_node_name,config_name);
         code_launch = app_sprintf(code_launch, 'yout = get(simOut,''yout'');\n', '');
+        % fix the dimensionality of yout
+        code_launch = app_sprintf(code_launch, 'yout.signals.values=squeeze(yout.signals.values);','');
 		code_launch = app_sprintf(code_launch, 'addpath(''%s'');\n', output_full_path);
 		code_launch = app_sprintf(code_launch, 'values = {Inputs_%s};\n', IO_struct.prop_name);
   

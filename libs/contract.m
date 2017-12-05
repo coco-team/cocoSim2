@@ -16,9 +16,11 @@ function setup(block)
     values = get_param(block.BlockHandle,'MaskValues');
     
     % disable the library link 
-    contractBlock = get_param(block.BlockHandle, 'Parent');    
-    set_param(contractBlock, 'LinkStatus', 'inactive');
-
+    contractBlock = get_param(block.BlockHandle, 'Parent');   
+    try
+        set_param(contractBlock, 'LinkStatus', 'inactive');
+    catch
+    end
     % get the size of input ports
     assumePorts = str2num(char(values(1)));
     guaranteePorts = str2num(char(values(2)));
