@@ -56,6 +56,12 @@ schema.label = 'CoCoSim';
 schema.statustip = 'Automated Analysis Framework';
 schema.autoDisableWhen = 'Busy';
 
+modelWorkspace = get_param(callbackInfo.studio.App.blockDiagramHandle,'modelworkspace');
+if modelWorkspace.hasVariable('cocomSimMenuDisabled') && ...
+        modelWorkspace.getVariable('cocomSimMenuDisabled') == 1
+    schema.state = 'Disabled';
+end
+
 schema.childrenFcns = {@verify, @getVerify,@getValidate,...
     @getCheckBlocks, @viewContract, @getProps, ...
     @getPP,  @getCompiler, @getMiddleEnd};
