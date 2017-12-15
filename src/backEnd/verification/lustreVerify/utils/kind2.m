@@ -75,7 +75,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
             date_value = datestr(now, 'ddmmyyyyHHMMSS');
             [~,file_name,~] = fileparts(lustre_file_name);
             
-            command = sprintf('%s --z3_bin %s -xml --timeout %s %s %s --modular true',...
+            command = sprintf('%s --z3_bin %s -xml --timeout %s %s %s',...
                 KIND2, Z3, timeout, kind2_option, lustre_file_name);
             
             display_msg(['KIND2_COMMAND ' command], Constants.DEBUG, 'write_code', '');
@@ -154,7 +154,8 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                         else
                             propertyJsonName = json{i,1}.PropertyName;
                         end
-                        if strcmp(propertyJsonName, jsonName)                           
+                        %if strcmp(propertyJsonName, jsonName)                           
+                        if contains(jsonName, propertyJsonName)                           
                             if strcmp(answer, 'SAFE')
                                 set_param(json{i,1}.OriginPath, 'BackgroundColor', 'green');
                                 set_param(json{i,1}.OriginPath, 'ForegroundColor', 'green');
@@ -250,6 +251,13 @@ function IO_struct = mk_IO_struct(model_inter_blk, origin_path)
 	if numel(regexp(parent_block_name, filesep, 'split')) == 1
 		main_model_name = parent_block_name;
         sub_blk = model_inter_blk;
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Bug fix for sub_blk.Content which is null
+        sub_blk_fields = fieldnames(sub_blk);
+        % modify sub_blk to be its model which is the second field
+        sub_blk = getfield(sub_blk, char(sub_blk_fields(2)));
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
 	else
 		par_name_comp = regexp(parent_block_name, filesep, 'split');
 		main_model_name = par_name_comp{1};
@@ -597,7 +605,7 @@ function actions = createActions(lustre_file_name, origin_path, config_mat_full_
 	actions = [actions action];
 
 	% Here we need to know if we are working on the complete system or on a subsystem
-	if numel(regexp(origin_path, '/', 'split')) == 1
+	if numel(regexp(origin_path, '/', 'split')) == 2
 		main_system_simu = true;
 	else
 		main_system_simu = false;
@@ -630,7 +638,8 @@ function actions = createActions(lustre_file_name, origin_path, config_mat_full_
 		actions = [actions action];
 	else
 		% Create CEX Model
-        parent_node_name = Utils.name_format(origin_path);
+        parent_node_name = fileparts(origin_path);
+        parent_node_name = Utils.name_format(parent_node_name);
         parent_node_name = strrep(parent_node_name,'/','');
         parent_block_name = fileparts(origin_path);
 		code_create_cex_model = sprintf('close_system(''%s'', 0);\n', parent_node_name);
