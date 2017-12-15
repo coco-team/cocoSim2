@@ -570,7 +570,7 @@ function [annot_text] = createAnnotation(lustre_file_name, origin_path, IO_struc
 			min_y = min(min_y, positions{idx_pos}(2));
 		end
 	end
-	annot.position = [(max_x + abs(min_x) + 150) min_y];
+	annot.position = [(max_x + abs(min_x) - 200) min_y];
 	annot.name = annot_text;
 	annot.DropShadow = 'on';
 	annot.ForegroundColor = 'white' ;

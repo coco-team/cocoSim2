@@ -6,7 +6,44 @@
 function sl_customization(cm)
 %% Register custom menu function.
 cm.addCustomMenuFcn('Simulink:ToolsMenu', @getMyMenuItems);
+cm.addCustomMenuFcn('Simulink:PreContextMenu', @getPreContextMenu);
 end
+
+function schemaFcns = getPreContextMenu
+schemaFcns = {@counterExample};
+end
+
+%% Define the custom menu function.
+function schema = counterExample(callbackInfo)
+schema = sl_container_schema;
+schema.label = 'Counter example';
+schema.statustip = 'Display counter example';
+schema.autoDisableWhen = 'Busy';
+
+schema.childrenFcns = {@displayVerificationResults};
+end
+
+
+function schema = displayVerificationResults(callbackInfo)
+schema = sl_action_schema;
+schema.label = 'Display Verification results';
+schema.callback = @showVerificationResults;
+end
+
+function showVerificationResults(callbackInfo)
+
+
+cexMatFile = '/mnt/nfs/clasnetappvm/grad/mahgoubyahia/CoCoSim/libs/examples/lustre_files/src_StopwatchSpec_PP/config_StopwatchSpec_PP_contract_guaranteecount__equal_3_14122017182321.mat';
+modelPath = '/mnt/nfs/clasnetappvm/grad/mahgoubyahia/CoCoSim/libs/examples/lustre_files/src_StopwatchSpec_PP';
+valuesCommand = 'values = {Inputs_guaranteecount__equal_3_3};';
+
+load(cexMatFile);
+eval(valuesCommand);
+addpath(modelPath);
+plotting('CEX values for StopwatchSpec_PP/contract/guarantee count <= 3', values);
+disp('[CEX annotation] (Display counter example Input values) action done');
+end
+
 %% Define the custom menu function.
 function schemaFcns = getMyMenuItems
 schemaFcns = {@getcocoSim};
@@ -19,9 +56,15 @@ schema.label = 'CoCoSim';
 schema.statustip = 'Automated Analysis Framework';
 schema.autoDisableWhen = 'Busy';
 
-schema.childrenFcns = {@getVerify,@getValidate,...
+schema.childrenFcns = {@verify, @getVerify,@getValidate,...
     @getCheckBlocks, @viewContract, @getProps, ...
     @getPP,  @getCompiler, @getMiddleEnd};
+end
+
+function schema = verify(callbackInfo)
+schema = sl_action_schema;
+schema.label = 'Verify';
+schema.callback = @kindCallback;
 end
 
 function schema = getCheckBlocks(callbackInfo)
