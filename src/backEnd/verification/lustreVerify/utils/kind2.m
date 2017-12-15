@@ -89,6 +89,18 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
             fprintf(fid, kind2_out);
             fclose(fid);            
             s = dir(results_file_name);
+            
+            %ToDo: enhance this code to execute only when there is counter
+            %examples
+            
+            % support multiple counter examples
+            pathParts = strsplit(mfilename('fullpath'),'/');
+            %set cocoSim_path to be ~/CoCoSim/src
+            cocoSim_path = strjoin(pathParts(1 :end - 5), '/');            
+            annot_text = fileread([cocoSim_path filesep 'backEnd' filesep 'templates' filesep 'header.html']);
+            css_source = fullfile(cocoSim_path,'backEnd' , 'templates' , 'materialize.css');
+            annot_text = strrep(annot_text, '[css_source]', css_source);
+            
             if s.bytes ~= 0                
                 xml_doc = xmlread(results_file_name);
                 xml_properties = xml_doc.getElementsByTagName('Property');
@@ -191,8 +203,8 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                                 if xml_cex.getLength > 0
                                     cex = xml_cex;
                                     %ToDo: display the counter example
-                                    display_cex(cex, json{i,1}.OriginPath, ir_struct, date_value, ...
-                                       lustre_file_name, index, xml_trace, ir_struct);
+                                    [~,annot_text] = display_cex(cex, json{i,1}.OriginPath, ir_struct, date_value, ...
+                                       lustre_file_name, index, xml_trace, ir_struct, annot_text);
                                 else
                                     msg = [solver ': FAILURE to get counter example: '];
                                     msg = [msg property_name '\n'];
@@ -206,6 +218,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
             end
                         
             
+            annot_text = [annot_text '</body></html>'];
                         
         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -218,7 +231,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
 end
 
 
-function [status] = display_cex(cex, origin_path, model, date_value, lustre_file_name, idx_prop,xml_trace, ir_struct)
+function [status,annot_text] = display_cex(cex, origin_path, model, date_value, lustre_file_name, idx_prop,xml_trace, ir_struct, annot_text)
    status = 1;
   [path, lustre_file, ext] = fileparts(lustre_file_name);
    prop_name = Utils.name_format(origin_path);
@@ -249,7 +262,7 @@ function [status] = display_cex(cex, origin_path, model, date_value, lustre_file
        if config_created
            try
                % Create the annotation with the links to setup and launch the simulation
-               createAnnotation(lustre_file_name, origin_path, IO_struct, mat_full_file, path, ir_struct);
+               [annot_text] = createAnnotation(lustre_file_name, origin_path, IO_struct, mat_full_file, path, ir_struct, annot_text);
            catch ERR
                msg = ['FAILURE to create the Simulink CEX replay annotation\n' getReport(ERR)];
                display_msg(msg, Constants.INFO, 'Kind2', '');
@@ -484,7 +497,7 @@ function IO_struct = create_configuration(IO_struct, file, origin_path, mat_file
 end
 
 % Add an annotation to display the Counter example replay/config
-function createAnnotation(lustre_file_name, origin_path, IO_struct, config_mat_full_file, path, ir_struct)
+function [annot_text] = createAnnotation(lustre_file_name, origin_path, IO_struct, config_mat_full_file, path, ir_struct, annot_text)
 	% Load cocoSim_path variable
 	%load 'tmp_data'   
     pathParts = strsplit(mfilename('fullpath'),'/');
@@ -499,8 +512,8 @@ function createAnnotation(lustre_file_name, origin_path, IO_struct, config_mat_f
     css_source = fullfile(cocoSim_path,'backEnd' , 'templates' , 'materialize.css');
 	html_text = fileread([cocoSim_path filesep 'backEnd' filesep 'templates' filesep 'header.html']);
     html_text = strrep(html_text, '[css_source]', css_source);
-	annot_text = fileread([cocoSim_path filesep 'backEnd' filesep 'templates' filesep 'header.html']);
-    annot_text = strrep(annot_text, '[css_source]', css_source);
+	
+   
     
     %title
 	title = fileread([cocoSim_path filesep 'backEnd' filesep 'templates' filesep 'title.html']);
@@ -525,10 +538,10 @@ function createAnnotation(lustre_file_name, origin_path, IO_struct, config_mat_f
     content = sprintf('open(''%s'')\n;',html_output);
     action = strrep(action, '[Matlab_code]', content);
     list_title_ann = strrep(list_title, '[List_Content]', action);
-	annot_text = [annot_text list_title_ann];
+	annot_text = [annot_text list_title_ann '<br/>'];
     
 	footer = fileread([cocoSim_path filesep 'backEnd' filesep 'templates' filesep 'footer.html']);
-	annot_text = [annot_text '</body></html>'];
+	
     html_text = [html_text footer];
     %Delete the previous CEX annotations. So the user can run the model many
     %times
