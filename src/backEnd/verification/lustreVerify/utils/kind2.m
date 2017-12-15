@@ -140,7 +140,6 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                 
                     msg = [' result for property node [' property_name ']: ' char(answer)];
                     display_msg(msg, Constants.RESULT, 'Property checking', '');
-                                        
                     
                     % Change the block display according to answer
 %                     display = sprintf('color(''black'')\n');
@@ -153,6 +152,38 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
 
                     % get the json mapping
                     jsonName = regexprep(property_name,'\[l\S*?\]',''); 
+                    originPath = '';
+                    if contains(jsonName,  '._one_mode_active')
+                        % get the validator block
+                        for i = 1 : length(json)
+                            if isfield(json{i,1},'ContractName')
+                                path = json{i,1}.OriginPath;
+                                contractPath = fileparts(path);
+                                originPath = strcat(contractPath, '/validator');
+                                
+                                if strcmp(answer, 'CEX')
+                                    set_param(originPath, 'BackgroundColor', 'red');
+                                    % set the color of the contract
+                                    set_param(contractPath, 'BackgroundColor', 'red');                                   
+                                    % display the counter example box                                              
+                                    xml_cex = prop.getElementsByTagName('CounterExample');                        
+                                    if xml_cex.getLength > 0
+                                        cex = xml_cex;
+                                        %ToDo: display the counter example
+                                        [~,annot_text] = display_cex(cex, originPath, ir_struct, date_value, ...
+                                           lustre_file_name, index, xml_trace, ir_struct, annot_text);
+                                    else
+                                        msg = [solver ': FAILURE to get counter example: '];
+                                        msg = [msg property_name '\n'];
+                                        display_msg(msg, Constants.WARNING, 'Property Checking', '');
+                                    end                                
+                                    break;
+                                end
+                            end
+                        end
+                        % check other properties
+                        break;
+                    end
                     for i = 1 : length(json)
                         if isfield(json{i,1},'ContractName')
                             propertyJsonName = json{i,1}.ContractName;
@@ -169,27 +200,30 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                             propertyJsonName = json{i,1}.PropertyName;
                         end
                         %if strcmp(propertyJsonName, jsonName)                           
-                        if contains(jsonName, propertyJsonName)                           
+                        if contains(jsonName, propertyJsonName)   
+                            
+                            originPath = json{i,1}.OriginPath;                            
+                            
                             if strcmp(answer, 'SAFE')
-                                set_param(json{i,1}.OriginPath, 'BackgroundColor', 'green');
-                                set_param(json{i,1}.OriginPath, 'ForegroundColor', 'green');                                
+                                set_param(originPath, 'BackgroundColor', 'green');
+                                set_param(originPath, 'ForegroundColor', 'green');                                
                             elseif strcmp(answer, 'TIMEOUT')
-                                set_param(json{i,1}.OriginPath, 'BackgroundColor', 'gray');
-                                set_param(json{i,1}.OriginPath, 'ForegroundColor', 'gray');
+                                set_param(originPath, 'BackgroundColor', 'gray');
+                                set_param(originPath, 'ForegroundColor', 'gray');
                                 % set the color of the contract
                                 if isfield(json{i,1},'ContractName') && strcmp(contractColor, 'green')
                                     contractColor = 'yellow';
                                 end
                             elseif strcmp(answer, 'UNKNOWN')
-                                set_param(json{i,1}.OriginPath, 'BackgroundColor', 'yellow');
-                                set_param(json{i,1}.OriginPath, 'ForegroundColor', 'yellow');
+                                set_param(originPath, 'BackgroundColor', 'yellow');
+                                set_param(originPath, 'ForegroundColor', 'yellow');
                                  % set the color of the contract
                                 if isfield(json{i,1},'ContractName') && strcmp(contractColor, 'green')
                                     contractColor = 'yellow';
                                 end
                             elseif strcmp(answer, 'CEX')
-                                set_param(json{i,1}.OriginPath, 'BackgroundColor', 'red');
-                                set_param(json{i,1}.OriginPath, 'ForegroundColor', 'red');   
+                                set_param(originPath, 'BackgroundColor', 'red');
+                                set_param(originPath, 'ForegroundColor', 'red');   
                                 
                                  % set the color of the contract
                                 if isfield(json{i,1},'ContractName')
@@ -203,7 +237,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                                 if xml_cex.getLength > 0
                                     cex = xml_cex;
                                     %ToDo: display the counter example
-                                    [~,annot_text] = display_cex(cex, json{i,1}.OriginPath, ir_struct, date_value, ...
+                                    [~,annot_text] = display_cex(cex, originPath, ir_struct, date_value, ...
                                        lustre_file_name, index, xml_trace, ir_struct, annot_text);
                                 else
                                     msg = [solver ': FAILURE to get counter example: '];
