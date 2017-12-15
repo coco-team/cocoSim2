@@ -70,6 +70,8 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % properties in the mapping file
         
+        contractColor = 'green';
+        
         if exist(mapping_file) == 2
         
             date_value = datestr(now, 'ddmmyyyyHHMMSS');
@@ -158,16 +160,31 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                         if contains(jsonName, propertyJsonName)                           
                             if strcmp(answer, 'SAFE')
                                 set_param(json{i,1}.OriginPath, 'BackgroundColor', 'green');
-                                set_param(json{i,1}.OriginPath, 'ForegroundColor', 'green');
+                                set_param(json{i,1}.OriginPath, 'ForegroundColor', 'green');                                
                             elseif strcmp(answer, 'TIMEOUT')
                                 set_param(json{i,1}.OriginPath, 'BackgroundColor', 'gray');
                                 set_param(json{i,1}.OriginPath, 'ForegroundColor', 'gray');
+                                % set the color of the contract
+                                if isfield(json{i,1},'ContractName') && strcmp(contractColor, 'green')
+                                    contractColor = 'yellow';
+                                end
                             elseif strcmp(answer, 'UNKNOWN')
                                 set_param(json{i,1}.OriginPath, 'BackgroundColor', 'yellow');
                                 set_param(json{i,1}.OriginPath, 'ForegroundColor', 'yellow');
+                                 % set the color of the contract
+                                if isfield(json{i,1},'ContractName') && strcmp(contractColor, 'green')
+                                    contractColor = 'yellow';
+                                end
                             elseif strcmp(answer, 'CEX')
                                 set_param(json{i,1}.OriginPath, 'BackgroundColor', 'red');
                                 set_param(json{i,1}.OriginPath, 'ForegroundColor', 'red');   
+                                
+                                 % set the color of the contract
+                                if isfield(json{i,1},'ContractName')
+                                    contractColor = 'red';
+                                    contractBlock = fileparts(json{i,1}.OriginPath);
+                                    set_param(contractBlock, 'BackgroundColor', 'red');                                   
+                                end
                                 
                                 % display the counter example box                                              
                                 xml_cex = prop.getElementsByTagName('CounterExample');                        
