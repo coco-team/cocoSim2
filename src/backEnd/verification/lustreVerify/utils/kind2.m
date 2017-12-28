@@ -646,7 +646,7 @@ function actions = createActions(lustre_file_name, origin_path, config_mat_full_
     end
     code_display = app_sprintf(code_display, 'addpath(''%s'');\n', output_full_path);
     code_display = app_sprintf(code_display, 'plotting(''CEX values for %s'', values);\n', property_name);
-    createMaskParameter(title, code_display, origin_path);
+    createMaskAction(title, code_display, origin_path);
     action = createAction(title, code_display, cocoSim_path);
     actions = [actions action];
     add_plotting_function(cocoSim_path, output_full_path);
@@ -655,6 +655,7 @@ function actions = createActions(lustre_file_name, origin_path, config_mat_full_
 	code_clear = sprintf('%s;\n', 'clear');
 	matlab_code = [matlab_code code_clear];
 
+    createMaskAction('Clear workspace', code_clear, origin_path);
 	action = createAction('Clear workspace', code_clear, cocoSim_path);
 	actions = [actions action];
 
@@ -666,6 +667,7 @@ function actions = createActions(lustre_file_name, origin_path, config_mat_full_
 	code_load = sprintf('load(''%s'');\n', config_mat_full_file);
 	matlab_code = [matlab_code code_load];
 
+    createMaskAction('Load counter example input values and sim configuration', code_load, origin_path);
 	action = createAction('Load counter example input values and sim configuration', code_load, cocoSim_path);
 	actions = [actions action];
 
@@ -695,10 +697,12 @@ function actions = createActions(lustre_file_name, origin_path, config_mat_full_
 
 		action_code = [code_find_system code_launch];
 		matlab_code = [matlab_code code_launch];
+        createMaskAction('Launch simulation', action_code, origin_path);
 		action = createAction('Launch simulation', action_code, cocoSim_path);
 		actions = [actions action];
 
 		% Launch all action
+        createMaskAction('All', matlab_code, origin_path);
 		action = createAction('All', matlab_code, cocoSim_path);
 		actions = [actions action];
 	else
@@ -714,6 +718,7 @@ function actions = createActions(lustre_file_name, origin_path, config_mat_full_
 		code_create_cex_model = app_sprintf(code_create_cex_model, 'save_system(''%s.mdl'');\n', parent_node_name);
 		code_create_cex_model = app_sprintf(code_create_cex_model, 'clear cex_model;\n', parent_node_name);
 
+        createMaskAction('Create CEX model for observed subsystem', code_create_cex_model, origin_path);
 		action = createAction('Create CEX model for observed subsystem', code_create_cex_model, cocoSim_path);
 		actions = [actions action];
 
@@ -734,11 +739,13 @@ function actions = createActions(lustre_file_name, origin_path, config_mat_full_
 		code_launch = app_sprintf(code_launch, 'plotting(''CEX values for %s'', values);\n', property_name);
 		code_launch = app_sprintf(code_launch, 'clear cex_model;\n');
 
+        createMaskAction('Launch simulation', code_launch, origin_path);
 		action = createAction('Launch simulation', code_launch, cocoSim_path);
 		actions = [actions action];
 
 		code_clean = sprintf('close_system(''%s'');\n', parent_node_name);
 		code_clean = app_sprintf(code_clean, 'delete ''%s.mdl'';\n', parent_node_name);
+        createMaskAction('Delete CEX model', code_clean, origin_path);
 		action = createAction('Delete CEX model', code_clean, cocoSim_path);
 		actions = [actions action];
 
@@ -759,7 +766,7 @@ function add_plotting_function(cocoSim_path, path)
 	copyfile(src, path);
 end
 
-function createMaskParameter(title, content, origin_path)
+function createMaskAction(title, content, origin_path)
     mask = Simulink.Mask.get(origin_path);
     name = strrep(title, ' ','_');
     button = mask.addDialogControl('pushbutton', name);
