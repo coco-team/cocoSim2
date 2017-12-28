@@ -646,6 +646,7 @@ function actions = createActions(lustre_file_name, origin_path, config_mat_full_
     end
     code_display = app_sprintf(code_display, 'addpath(''%s'');\n', output_full_path);
     code_display = app_sprintf(code_display, 'plotting(''CEX values for %s'', values);\n', property_name);
+    createMaskParameter(title, code_display, origin_path);
     action = createAction(title, code_display, cocoSim_path);
     actions = [actions action];
     add_plotting_function(cocoSim_path, output_full_path);
@@ -756,4 +757,12 @@ end
 function add_plotting_function(cocoSim_path, path)
 	src = [cocoSim_path filesep 'backEnd' filesep 'templates' filesep 'plotting.m'];
 	copyfile(src, path);
+end
+
+function createMaskParameter(title, content, origin_path)
+    mask = Simulink.Mask.get(origin_path);
+    name = strrep(title, ' ','_');
+    button = mask.addDialogControl('pushbutton', name);
+    button.Prompt = title;
+    button.Callback = content;    
 end
