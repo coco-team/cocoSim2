@@ -742,7 +742,14 @@ function actions = createActions(lustre_file_name, origin_path, config_mat_full_
         createMaskAction('Launch simulation', code_launch, origin_path);
 		action = createAction('Launch simulation', code_launch, cocoSim_path);
 		actions = [actions action];
-
+        
+        inputs_matfile_name = strrep(config_name,'Config','Inputs');
+        code_signalBuilder = fileread([cocoSim_path filesep 'backEnd' filesep 'templates' filesep 'signalBuilder.m']);
+        code_signalBuilder = strrep(code_signalBuilder, '[(model_name)]', parent_node_name);
+        code_signalBuilder = strrep(code_signalBuilder, '[(inputs_matfile_name)]', inputs_matfile_name);       
+        createMaskAction('Replace inports with signal builders', code_signalBuilder, origin_path);
+        
+        
 		code_clean = sprintf('close_system(''%s'');\n', parent_node_name);
 		code_clean = app_sprintf(code_clean, 'delete ''%s.mdl'';\n', parent_node_name);
         createMaskAction('Delete CEX model', code_clean, origin_path);
