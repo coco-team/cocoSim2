@@ -767,8 +767,7 @@ function add_plotting_function(cocoSim_path, path)
 end
 
 function createMaskAction(title, content, origin_path)
-    mask = Simulink.Mask.get(origin_path);
-    mask.removeAllParameters();
+    mask = Simulink.Mask.get(origin_path);    
     name = regexprep(title,'[/\s'']','_');    
     button = mask.addDialogControl('pushbutton', name);
     button.Prompt = title;
