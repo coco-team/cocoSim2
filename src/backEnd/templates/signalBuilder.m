@@ -20,11 +20,35 @@ for i = 1 : length(blocks)
 
     [path name] = fileparts(char(blocks(i)));
 
-
-    delete_block(blocks(i));
-    builderBlock = signalbuilder(char(blocks(i)), 'create', time, {inputs(1,i).values'},name, name,1,position,{0 0});
-
-    portHandle = get_param(builderBlock,'PortHandles');
+    signalType = 'double';
+    if islogical(inputs(1,i).values)
+        signalType = 'boolean';
+    else
+        if isinteger(inputs(1,i).values)
+            signalType = 'int32';
+        end
+    end
+    
+    % remove the inport block
+    delete_block(blocks(i)); 
+    
+    % add Data type conversion block if the signal type is not double
+    if ~strcmp(signalType, 'double')
+        convertBlockName = strcat('[(model_name)]/', name, '_convert_to_', signalType);
+        convertBlock = add_block('Simulink/Signal Attributes/Data Type Conversion',convertBlockName);        
+        set_param(convertBlock, 'Position', position);
+        set_param(convertBlock, 'OutDataTypeStr', signalType);
+        portHandle = get_param(convertBlock,'PortHandles');
+        x_shift = 100;
+        position = [position(1)-x_shift position(2) position(3)-x_shift position(4)];
+        signalBuilderBlock = signalbuilder(char(blocks(i)), 'create', time, {inputs(1,i).values'},name, name,1,position,{0 0});
+        signalBuilderPorts = get_param(signalBuilderBlock,'PortHandles');
+        add_line('[(model_name)]', signalBuilderPorts.Outport, portHandle.Inport,'autorouting','on');               
+    else
+        signalBuilderBlock = signalbuilder(char(blocks(i)), 'create', time, {inputs(1,i).values'},name, name,1,position,{0 0});
+        portHandle = get_param(signalBuilderBlock,'PortHandles');
+    end
+    
     portHandle = portHandle.Outport;
     
     % add new lines
