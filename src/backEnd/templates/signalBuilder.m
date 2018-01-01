@@ -4,6 +4,15 @@ blocks = find_system('[(model_name)]', 'SearchDepth',1,'BlockType','Inport');
 inputs = [(inputs_matfile_name)].signals;
 time = [(inputs_matfile_name)].time;
 
+% signal builder requires time to be a vector
+if length(time) == 1
+    time = [0 1];
+    % increase the dimensionality of the values by repeating the values
+    for i = 1: length(blocks)
+        inputs(1,i).values = [inputs(1,i).values inputs(1,i).values];
+    end
+end
+
 for i = 1 : length(blocks)
     portHandle = get_param(blocks(i),'PortHandles');
     portHandle = portHandle{1,1}.Outport;
@@ -40,7 +49,7 @@ for i = 1 : length(blocks)
         set_param(convertBlock, 'OutDataTypeStr', signalType);
         portHandle = get_param(convertBlock,'PortHandles');
         x_shift = 100;
-        position = [position(1)-x_shift position(2) position(3)-x_shift position(4)];
+        position = [position(1)-x_shift position(2) position(3)-x_shift position(4)];        
         signalBuilderBlock = signalbuilder(char(blocks(i)), 'create', time, {inputs(1,i).values'},name, name,1,position,{0 0});
         signalBuilderPorts = get_param(signalBuilderBlock,'PortHandles');
         add_line('[(model_name)]', signalBuilderPorts.Outport, portHandle.Inport,'autorouting','on');               
