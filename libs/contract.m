@@ -136,7 +136,7 @@ function Outputs(block)
 
     % aggregate the logical AND of all mode ports
     mode = 1;
-    for i = 1 : mode
+    for i = 1 : modePorts
         index = index + 1;
         mode = mode & block.InputPort(index).Data;
     end
