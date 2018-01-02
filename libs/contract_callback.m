@@ -266,10 +266,14 @@ function createInports(blockModel, validatorBlock, assumePorts,...
 
                     % get the target block name
                     targetBlockName = get_param(portConnectivity(j).SrcBlock, 'Name');
+                    
+                    inportPosition = get_param(blockPaths(i), 'Position');
 
                     destinationPath = strcat(blockModel,'/',targetBlockName,'/',inportBlockName);
                     % add new port inside that block
-                    add_block('built-in/Inport', char(destinationPath),'MakeNameUnique','on');
+                    inportBlock = add_block('built-in/Inport', char(destinationPath),'MakeNameUnique','on');
+                    
+                    set_param(inportBlock, 'Position', inportPosition{1,1});
 
                     targetBlockPorts = get_param(portConnectivity(j).SrcBlock, 'PortHandles');
                     %connect the inport with the block
