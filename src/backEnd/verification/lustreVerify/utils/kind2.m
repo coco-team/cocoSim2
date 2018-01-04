@@ -235,6 +235,8 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                                 % display the counter example box                                              
                                 xml_cex = prop.getElementsByTagName('CounterExample');                        
                                 if xml_cex.getLength > 0
+                                    %ToDo: what the value of using a new
+                                    %variable cex instead of xml_cex
                                     cex = xml_cex;
                                     %ToDo: display the counter example
                                     [~,annot_text] = display_cex(cex, originPath, ir_struct, date_value, ...
@@ -250,9 +252,6 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                     end
                 end
             end
-                        
-            
-            annot_text = [annot_text '</body></html>'];
                         
         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -650,6 +649,12 @@ function actions = createActions(lustre_file_name, origin_path, config_mat_full_
     action = createAction(title, code_display, cocoSim_path);
     actions = [actions action];
     add_plotting_function(cocoSim_path, output_full_path);
+    
+    %Display table action    
+    cex_table = fileread([cocoSim_path filesep 'backEnd' filesep 'templates' filesep 'display_cex_table.m']);
+    cex_table = strrep(cex_table, '[(matFile)]', config_mat_full_file);
+    cex_table = strrep(cex_table, '[(propertyName)]', IO_struct.prop_name);       
+    createMaskAction('Display counter example as a table', cex_table, origin_path);
     
 	% Clear action
 	code_clear = sprintf('%s;\n', 'clear');
