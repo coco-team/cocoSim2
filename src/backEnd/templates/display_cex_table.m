@@ -1,3 +1,4 @@
+clear;
 load('[(matFile)]');
 values = {Inputs_[(propertyName)] , Outputs_[(propertyName)]};
 f = figure;
@@ -32,5 +33,5 @@ if [(displayOutput)]
 end
 t.Data = data;
 t.RowName = rowNames;
-
+set(t,'ColumnWidth',{30})
 
