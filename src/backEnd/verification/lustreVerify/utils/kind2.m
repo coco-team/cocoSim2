@@ -488,6 +488,8 @@ function IO_struct = create_configuration(IO_struct, file, origin_path, mat_file
     try
         for idx_out=1:numel(IO_struct.outputs)
             var_name = IO_struct.outputs{idx_out}.name;
+            %ToDo: avoid using the name 'contract/valid', use the parameter
+            %ContractBlockType instead
             if contains(IO_struct.outputs{1, 1}.origin_name,'contract/valid')
                 value = ones(IO_struct.outputs{idx_out}.dim_r);
                 value(end) = 0; % valid is false in the last step
@@ -650,10 +652,12 @@ function actions = createActions(lustre_file_name, origin_path, config_mat_full_
     actions = [actions action];
     add_plotting_function(cocoSim_path, output_full_path);
     
-    %Display table action    
+    %Display table action        
     cex_table = fileread([cocoSim_path filesep 'backEnd' filesep 'templates' filesep 'display_cex_table.m']);
     cex_table = strrep(cex_table, '[(matFile)]', config_mat_full_file);
     cex_table = strrep(cex_table, '[(propertyName)]', IO_struct.prop_name);       
+    displayOutput = isfield(IO_struct.outputs{1},'value');
+    cex_table = strrep(cex_table, '[(displayOutput)]', num2str(displayOutput));       
     createMaskAction('Display counter example as a table', cex_table, origin_path);
     
 	% Clear action

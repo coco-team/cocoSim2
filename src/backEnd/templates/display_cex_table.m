@@ -20,12 +20,14 @@ for i = 1: inputVariables
 end
 %output variables
 
-outputVariables = length(values{2}.signals);
-for i = 1: outputVariables
-    name = strcat(values{2}.signals(i).var_name, ' (output)');
-    data{i + inputVariables,1}  = name;
-    for j=1 : length(values{2}.time)
-        data{i +inputVariables, j+1} = values{2}.signals(i).values(j);
+if [(displayOutput)]
+    outputVariables = length(values{2}.signals);
+    for i = 1: outputVariables
+        name = strcat(values{2}.signals(i).var_name, ' (output)');
+        data{i + inputVariables,1}  = name;
+        for j=1 : length(values{2}.time)
+            data{i +inputVariables, j+1} = values{2}.signals(i).values(j);
+        end
     end
 end
 t.Data = data;
