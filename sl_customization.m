@@ -20,11 +20,11 @@ schema.label = 'CoCoSim';
 schema.statustip = 'CoCoSim';
 schema.autoDisableWhen = 'Busy';
 
-schema.childrenFcns = {@displayVerificationResults};
+schema.childrenFcns = {@signalBuilders};
 end
 
 
-function schema = displayVerificationResults(callbackInfo)
+function schema = signalBuilders(callbackInfo)
 schema = sl_action_schema;
 schema.label = 'Replace inports with signal builders';
 schema.callback = @replaceInportsWithSignalBuilders;
@@ -112,7 +112,7 @@ end
 
 schema.childrenFcns = {@verify, @getVerify,@getValidate,...
     @getCheckBlocks, @viewContract, @getProps, ...
-    @getPP,  @getCompiler, @getMiddleEnd};
+    @getPP,  @getCompiler, @getPreferences};
 end
 
 function schema = verify(callbackInfo)
@@ -393,6 +393,15 @@ end
 function fname = get_file_name(gcs)
 names = regexp(gcs,'/','split');
 fname = get_param(names{1},'FileName');
+end
+
+
+function schema = getPreferences(callbackInfo)
+    schema = sl_container_schema;
+    schema.label = 'Preferences';
+    schema.statustip = 'Preferences';
+    schema.autoDisableWhen = 'Busy';
+    schema.childrenFcns = {@getMiddleEnd};
 end
 
 function schema = getMiddleEnd(callbackInfo)
