@@ -10,14 +10,14 @@ cm.addCustomMenuFcn('Simulink:PreContextMenu', @getPreContextMenu);
 end
 
 function schemaFcns = getPreContextMenu
-schemaFcns = {@counterExample};
+schemaFcns = {@cocoSimActions};
 end
 
 %% Define the custom menu function.
-function schema = counterExample(callbackInfo)
+function schema = cocoSimActions(callbackInfo)
 schema = sl_container_schema;
-schema.label = 'Counter example';
-schema.statustip = 'Display counter example';
+schema.label = 'CoCoSim';
+schema.statustip = 'CoCoSim';
 schema.autoDisableWhen = 'Busy';
 
 schema.childrenFcns = {@displayVerificationResults};
@@ -26,22 +26,70 @@ end
 
 function schema = displayVerificationResults(callbackInfo)
 schema = sl_action_schema;
-schema.label = 'Display Verification results';
-schema.callback = @showVerificationResults;
+schema.label = 'Replace inports with signal builders';
+schema.callback = @replaceInportsWithSignalBuilders;
 end
 
-function showVerificationResults(callbackInfo)
+function replaceInportsWithSignalBuilders(callbackInfo)
+    modelName = get_param(gcs, 'Name');
+       
+    blocks = find_system(gcs, 'SearchDepth',1,'BlockType','Inport');
+    time = [0:10];
+    values  = zeros(1, 11);
+    
+    % get the signal types of inports
+    compileCommand = strcat(modelName, '([],[],[],''compile'')');
+    eval (compileCommand);     
+    for i = 1 : length(blocks)
+        compiledPortDataTypes = get_param(blocks(i),'CompiledPortDataTypes');
+        signalTypes(i) = compiledPortDataTypes{1}.Outport;  
+    end        
+    terminateCommand = strcat(modelName, '([],[],[],''term'')');
+    eval (terminateCommand);   
+    
+    for i = 1 : length(blocks)
+        portHandle = get_param(blocks(i),'PortHandles');
+        portHandle = portHandle{1,1}.Outport;       
+        line = get_param(portHandle,'Line');
+        destinationPorts = get_param(line, 'Dstporthandle');
 
+        % delete old lines
+        for j=1: length(destinationPorts)
+            delete_line(gcs, portHandle, destinationPorts(j));        
+        end
 
-cexMatFile = '/mnt/nfs/clasnetappvm/grad/mahgoubyahia/CoCoSim/libs/examples/lustre_files/src_StopwatchSpec_PP/config_StopwatchSpec_PP_contract_guaranteecount__equal_3_14122017182321.mat';
-modelPath = '/mnt/nfs/clasnetappvm/grad/mahgoubyahia/CoCoSim/libs/examples/lustre_files/src_StopwatchSpec_PP';
-valuesCommand = 'values = {Inputs_guaranteecount__equal_3_3};';
+        position = get_param(blocks(i),'Position');
+        position = position{1,1};
 
-load(cexMatFile);
-eval(valuesCommand);
-addpath(modelPath);
-plotting('CEX values for StopwatchSpec_PP/contract/guarantee count <= 3', values);
-disp('[CEX annotation] (Display counter example Input values) action done');
+        [path name] = fileparts(char(blocks(i)));
+
+        % remove the inport block
+        delete_block(blocks(i));
+
+        % add Data type conversion block if the signal type is not double
+        if ~strcmp(signalTypes(i), 'double')
+            convertBlockName = strcat(modelName, '/', name, '_convert_to_', signalTypes(i));
+            convertBlock = add_block('Simulink/Signal Attributes/Data Type Conversion',char(convertBlockName));        
+            set_param(convertBlock, 'Position', position);
+            set_param(convertBlock, 'OutDataTypeStr', char(signalTypes(i)));
+            portHandle = get_param(convertBlock,'PortHandles');
+            x_shift = 100;
+            position = [position(1)-x_shift position(2) position(3)-x_shift position(4)];        
+            signalBuilderBlock = signalbuilder(char(blocks(i)), 'create', time, {values},name, name,1,position,{0 0});
+            signalBuilderPorts = get_param(signalBuilderBlock,'PortHandles');
+            add_line(modelName, signalBuilderPorts.Outport, portHandle.Inport,'autorouting','on');               
+        else
+            signalBuilderBlock = signalbuilder(char(blocks(i)), 'create', time, {inputs(1,i).values'},name, name,1,position,{0 0});
+            portHandle = get_param(signalBuilderBlock,'PortHandles');
+        end
+
+        portHandle = portHandle.Outport;
+
+        % add new lines
+        for j=1: length(destinationPorts)
+            add_line(modelName, portHandle, destinationPorts(j),'autorouting','on');
+        end    
+    end
 end
 
 %% Define the custom menu function.
