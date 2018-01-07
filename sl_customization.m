@@ -116,9 +116,16 @@ schema.childrenFcns = {@verify, @getVerify,@getValidate,...
 end
 
 function schema = verify(callbackInfo)
-schema = sl_action_schema;
-schema.label = 'Verify';
-schema.callback = @kindCallback;
+    schema = sl_action_schema;
+    schema.label = 'Verify';
+    if evalin( 'base', '~exist(''MODEL_CHECKER'',''var'')' ) == 1 || ...
+                strcmp(evalin( 'base', 'MODEL_CHECKER' ) ,'Kind2')
+        schema.callback = @kindCallback;
+    else
+        if strcmp(evalin( 'base', 'MODEL_CHECKER' ) ,'JKind')
+            schema.callback = @jkindCallback;
+        end
+    end
 end
 
 function schema = getCheckBlocks(callbackInfo)
@@ -401,20 +408,61 @@ function schema = getPreferences(callbackInfo)
     schema.label = 'Preferences';
     schema.statustip = 'Preferences';
     schema.autoDisableWhen = 'Busy';
-    schema.childrenFcns = {@getMiddleEnd};
+    schema.childrenFcns = {@getModelChecker, @getMiddleEnd};
 end
+
+function schema = getModelChecker(callbackInfo)
+    schema = sl_container_schema;
+    schema.label = 'Model checker';
+    schema.statustip = 'Model checker';
+    schema.autoDisableWhen = 'Busy';
+    schema.childrenFcns = {@getKindOption, @getJKindOption};
+end
+
+function schema = getKindOption(callbackInfo)
+    schema = sl_toggle_schema;
+    schema.label = 'Kind2';    
+    schema.callback = @setKindOption;
+    if evalin( 'base', '~exist(''MODEL_CHECKER'',''var'')' ) == 1 || ...
+            strcmp(evalin( 'base', 'MODEL_CHECKER' ), 'Kind2')
+        schema.checked = 'checked';
+    else
+        schema.checked = 'unchecked';
+    end
+end
+
+function setKindOption(value)
+    assignin('base', 'MODEL_CHECKER', 'Kind2');
+end
+
+function schema = getJKindOption(callbackInfo)
+    schema = sl_toggle_schema;
+    schema.label = 'JKind';    
+    schema.callback = @setJKindOption;
+    if evalin( 'base', 'exist(''MODEL_CHECKER'',''var'')' ) == 1 && ...
+            strcmp(evalin( 'base', 'MODEL_CHECKER' ) ,'JKind')
+        schema.checked = 'checked';
+    else
+        schema.checked = 'unchecked';
+    end
+end
+
+function setJKindOption(value)
+    assignin('base', 'MODEL_CHECKER', 'JKind');
+end
+
 
 function schema = getMiddleEnd(callbackInfo)
-schema = sl_toggle_schema;
-schema.label = 'Use java to lustre Compiler';
-schema.callback = @javaToLustreCompilerCallback;
+    schema = sl_toggle_schema;
+    schema.label = 'Use java to lustre Compiler';
+    schema.callback = @javaToLustreCompilerCallback;
 
-if evalin( 'base', '~exist(''JAVA_TO_LUSTRE_COMPILER'',''var'')' ) == 1 || ...
-        evalin( 'base', 'JAVA_TO_LUSTRE_COMPILER' )  == 1
-    schema.checked = 'checked';
-else
-    schema.checked = 'unchecked';
-end
+    if evalin( 'base', '~exist(''JAVA_TO_LUSTRE_COMPILER'',''var'')' ) == 1 || ...
+            evalin( 'base', 'JAVA_TO_LUSTRE_COMPILER' )  == 1
+        schema.checked = 'checked';
+    else
+        schema.checked = 'unchecked';
+    end
 end
 
 
