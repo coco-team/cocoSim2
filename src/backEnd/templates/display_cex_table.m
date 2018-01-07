@@ -1,7 +1,7 @@
 clear;
 load('[(matFile)]');
 values = {Inputs_[(propertyName)] , Outputs_[(propertyName)]};
-f = figure;
+f = figure('Name','[(originPath)]','NumberTitle','off');
 t = uitable(f);
 for j= 1 : length(values{1}.time)
     columnNames{j} = values{1}.time(j);

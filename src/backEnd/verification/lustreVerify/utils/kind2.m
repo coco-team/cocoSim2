@@ -656,6 +656,7 @@ function actions = createActions(lustre_file_name, origin_path, config_mat_full_
     cex_table = fileread([cocoSim_path filesep 'backEnd' filesep 'templates' filesep 'display_cex_table.m']);
     cex_table = strrep(cex_table, '[(matFile)]', config_mat_full_file);
     cex_table = strrep(cex_table, '[(propertyName)]', IO_struct.prop_name);       
+    cex_table = strrep(cex_table, '[(originPath)]', origin_path);    
     displayOutput = isfield(IO_struct.outputs{1},'value');
     cex_table = strrep(cex_table, '[(displayOutput)]', num2str(displayOutput));       
     createMaskAction('Display counter example as a table', cex_table, origin_path);
