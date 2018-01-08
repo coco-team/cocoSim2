@@ -191,6 +191,8 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                     for i = 1 : length(json)
                         if isfield(json{i,1},'ContractName')
                             propertyJsonName = json{i,1}.ContractName;
+                            contractBlock = fileparts(json{i,1}.OriginPath);
+                                    
                             if strcmp(json{i,1}.PropertyName, 'guarantee')
                                 propertyJsonName = strcat(propertyJsonName, '.guarantee');
                             end
@@ -252,6 +254,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                                 end
                                 
                             end
+                            set_param(contractBlock, 'BackgroundColor', contractColor);
                         end
                     end
                 end
