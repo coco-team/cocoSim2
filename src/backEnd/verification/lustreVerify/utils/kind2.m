@@ -77,7 +77,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
             date_value = datestr(now, 'ddmmyyyyHHMMSS');
             [~,file_name,~] = fileparts(lustre_file_name);
             
-            command = sprintf('%s --z3_bin %s -xml --timeout %s %s %s',...
+            command = sprintf('%s --z3_bin %s -xml --timeout %s %s %s --modular true',...
                 KIND2, Z3, timeout, kind2_option, lustre_file_name);
             
             display_msg(['KIND2_COMMAND ' command], Constants.DEBUG, 'write_code', '');
@@ -110,6 +110,10 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                 str = char(raw');  
                 fclose(fid); 
                 json = jsondecode(str);
+                %convert to cell if it json is struct 
+                if isstruct(json)
+                    json = num2cell(json)
+                end
                 for index=0:(xml_properties.getLength-1)
                     prop = xml_properties.item(index);
                     % get the property name
