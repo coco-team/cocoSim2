@@ -186,7 +186,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                             end
                         end
                         % check other properties
-                        break;
+                        continue;
                     end
                     for i = 1 : length(json)
                         if isfield(json{i,1},'ContractName')
