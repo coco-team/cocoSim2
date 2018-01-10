@@ -246,6 +246,7 @@ function createInports(blockModel, validatorBlock, assumePorts,...
 
             %get the name of the inport block
             inportBlockName = get_param(blockPaths(i), 'Name');
+            inportPosition = get_param(blockPaths(i), 'Position');
 
             % get the inport outport
             input = get_param(blockPaths(i), 'PortHandles');
@@ -266,8 +267,6 @@ function createInports(blockModel, validatorBlock, assumePorts,...
 
                     % get the target block name
                     targetBlockName = get_param(portConnectivity(j).SrcBlock, 'Name');
-                    
-                    inportPosition = get_param(blockPaths(i), 'Position');
 
                     destinationPath = strcat(blockModel,'/',targetBlockName,'/',inportBlockName);
                     % add new port inside that block
@@ -307,7 +306,8 @@ function createInports(blockModel, validatorBlock, assumePorts,...
 
                         destinationPath = strcat(blockModel,'/',targetBlockName,'/',inportBlockName);
                         % add new port inside that block
-                        add_block('built-in/Inport', char(destinationPath),'MakeNameUnique','on');
+                        inportBlock = add_block('built-in/Inport', char(destinationPath),'MakeNameUnique','on');
+                        set_param(inportBlock, 'Position', inportPosition{1,1});
 
                         targetBlockPorts = get_param(requireBlockHandle, 'PortHandles');
                         %connect the inport with the block
@@ -327,7 +327,8 @@ function createInports(blockModel, validatorBlock, assumePorts,...
                         targetBlockName = get_param(ensureBlockHandle, 'Name');
                         destinationPath = strcat(blockModel,'/',targetBlockName,'/',inportBlockName);
                         % add new port inside that block
-                        add_block('built-in/Inport', char(destinationPath),'MakeNameUnique','on');
+                        inportBlock = add_block('built-in/Inport', char(destinationPath),'MakeNameUnique','on');
+                        set_param(inportBlock, 'Position', inportPosition{1,1});
 
                         targetBlockPorts = get_param(ensureBlockHandle, 'PortHandles');
                         %connect the inport with the block
