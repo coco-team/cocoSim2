@@ -33,5 +33,6 @@ if [(displayOutput)]
 end
 t.Data = data;
 t.RowName = rowNames;
-set(t,'ColumnWidth',{30})
+set(t,'ColumnWidth',{50});
+set(t,'Position',[10 200 500 500]);
 

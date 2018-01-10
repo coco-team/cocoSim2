@@ -167,6 +167,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                                 
                                 if strcmp(answer, 'CEX')
                                     set_param(originPath, 'BackgroundColor', 'red');
+                                    contractColor = 'red';
                                     % set the color of the contract
                                     set_param(contractPath, 'BackgroundColor', 'red');                                   
                                     % display the counter example box                                              
