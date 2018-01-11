@@ -168,8 +168,15 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                                 if strcmp(answer, 'CEX')
                                     set_param(originPath, 'BackgroundColor', 'red');
                                     contractColor = 'red';
+                                    oneModeActiveAnnotation = strcat(contractPath, '/contract has non-exhaustive modes');                                    
+                                    note = Simulink.Annotation(oneModeActiveAnnotation);
+                                    validatorPosition = get_param(originPath, 'Position');
+                                    validatorPosition(2) = validatorPosition(2) + 20;                                    
+                                    note.position = [validatorPosition(1) validatorPosition(4) + 20]; 
+                                    note.ForegroundColor = 'red';
                                     % set the color of the contract
-                                    set_param(contractPath, 'BackgroundColor', 'red');                                   
+                                    set_param(contractPath, 'BackgroundColor', 'red');     
+                                    
                                     % display the counter example box                                              
                                     xml_cex = prop.getElementsByTagName('CounterExample');                        
                                     if xml_cex.getLength > 0
