@@ -590,37 +590,37 @@ function [annot_text] = createAnnotation(lustre_file_name, origin_path, IO_struc
     %times
 	delete(find_system(file_name, 'FindAll', 'on', 'type', 'annotation',...
             'Description', 'CEX'));
-	annot = Simulink.Annotation([file_name '/Counter example annotation']);
-
-	% Find correct position for the annotation
-	blocks = find_system(file_name, 'SearchDepth', 1, 'FindAll', 'on', 'Type', 'Block');
-    
-    % blocks is array of doubles, not strings
-    %for i=1:numel(blocks)
-    %   blocks(i) = Utils.name_format(blocks(i));
-    %end
-	positions = cocoget_param(ir_struct, blocks, 'Position');
-	max_x = 0;
-	min_x = 0;
-	min_y = 0;
-	for idx_pos=1:numel(positions)
-		max_x = max(max_x, positions{idx_pos}(3));
-		if idx_pos == 1
-			min_x = positions{idx_pos}(3);
-			min_y = positions{idx_pos}(2);
-		else
-			min_x = min(min_x, positions{idx_pos}(3));
-			min_y = min(min_y, positions{idx_pos}(2));
-		end
-	end
-	annot.position = [(max_x + abs(min_x) - 200) min_y];
-	annot.name = annot_text;
-	annot.DropShadow = 'on';
-	annot.ForegroundColor = 'white' ;
-    annot.Description = 'CEX';
-	annot.BackgroundColor = 'red';
-	annot.InternalMargins = [5, 5, 5, 5];
-	annot.Interpreter = 'rich';
+% 	annot = Simulink.Annotation([file_name '/Counter example annotation']);
+% 
+% 	% Find correct position for the annotation
+% 	blocks = find_system(file_name, 'SearchDepth', 1, 'FindAll', 'on', 'Type', 'Block');
+%     
+%     % blocks is array of doubles, not strings
+%     %for i=1:numel(blocks)
+%     %   blocks(i) = Utils.name_format(blocks(i));
+%     %end
+% 	positions = cocoget_param(ir_struct, blocks, 'Position');
+% 	max_x = 0;
+% 	min_x = 0;
+% 	min_y = 0;
+% 	for idx_pos=1:numel(positions)
+% 		max_x = max(max_x, positions{idx_pos}(3));
+% 		if idx_pos == 1
+% 			min_x = positions{idx_pos}(3);
+% 			min_y = positions{idx_pos}(2);
+% 		else
+% 			min_x = min(min_x, positions{idx_pos}(3));
+% 			min_y = min(min_y, positions{idx_pos}(2));
+% 		end
+% 	end
+% 	annot.position = [(max_x + abs(min_x) - 200) min_y];
+% 	annot.name = annot_text;
+% 	annot.DropShadow = 'on';
+% 	annot.ForegroundColor = 'white' ;
+%     annot.Description = 'CEX';
+% 	annot.BackgroundColor = 'red';
+% 	annot.InternalMargins = [5, 5, 5, 5];
+% 	annot.Interpreter = 'rich';
     
     %save the annotation as an html file, it is more clear for the user
     % Open file for writing

@@ -34,5 +34,5 @@ end
 t.Data = data;
 t.RowName = rowNames;
 set(t,'ColumnWidth',{50});
-set(t,'Position',[10 200 500 500]);
+set(t,'Position',[10 200 500 200]);
 
