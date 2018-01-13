@@ -34,8 +34,12 @@ if ~exist('solvers_path', 'var')
     end
 end
 if ~ispc
-LUSTREC = fullfile(solvers_path,'lustrec');
-LUCTREC_INCLUDE_DIR = include_dir;
+    LUSTREC = fullfile(solvers_path,'lustrec');
+    LUCTREC_INCLUDE_DIR = include_dir;
+else
+    %ToDo: review in windows
+    LUSTREC = '';
+    LUCTREC_INCLUDE_DIR = '';
 end
 ZUSTRE = fullfile(solvers_path,'zustre');
 Z3 = fullfile(solvers_path,'z3');

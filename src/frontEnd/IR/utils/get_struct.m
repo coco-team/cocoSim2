@@ -2,7 +2,7 @@ function [Object_struct] = get_struct(ir_struct, Object, handle_struct_map)
 
 Object_struct = [];
 if isa(Object, 'char')
-    path = strsplit(Object, filesep);
+    path = strsplit(Object, '/');
     Object_search = ir_struct;
     for i=1:numel(path)-1
         try
