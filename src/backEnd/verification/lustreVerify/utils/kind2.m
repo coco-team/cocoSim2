@@ -285,7 +285,17 @@ function handleAnalysis(json, xml_analysis_start, ir_struct, date_value, ...
                     end
                     if isfield(json{i,1},'ContractName')                            
                             contractBlock = fileparts(json{i,1}.OriginPath);
-                            set_param(contractBlock, 'BackgroundColor', contractColor);                                  
+                            set_param(contractBlock, 'BackgroundColor', contractColor);
+                            ancestorBlock = fileparts(contractBlock);
+                            while contains(ancestorBlock, '/')
+                                ancestorBlockColor = get_param(ancestorBlock, 'BackgroundColor');
+                                if strcmp(ancestorBlockColor, 'white') || ...
+                                        (strcmp(ancestorBlockColor, 'green') && strcmp(ancestorBlockColor, 'yellow')) || ...
+                                        strcmp(contractColor, 'red')
+                                set_param(ancestorBlock, 'BackgroundColor', contractColor);
+                                end
+                                ancestorBlock = fileparts(ancestorBlock);
+                            end
                     end                    
                 end
             end
@@ -356,7 +366,7 @@ function IO_struct = mk_IO_struct(model_inter_blk, origin_path)
         sub_blk = get_struct(model_inter_blk, Utils.name_format(parent_block_name));
 	end
 
-	% TODO: remove compilation here
+	
 	warning off;
 	code_compile = sprintf('%s([], [], [], ''compile'')', main_model_name);
 	eval(code_compile);
