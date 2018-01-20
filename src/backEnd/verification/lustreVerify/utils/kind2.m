@@ -224,8 +224,6 @@ function handleAnalysis(json, xml_analysis_start, ir_struct, date_value, ...
             for i = 1 : length(json)
                 if isfield(json{i,1},'ContractName')
                     propertyJsonName = json{i,1}.ContractName;
-                    contractBlock = fileparts(json{i,1}.OriginPath);
-
                     if strcmp(json{i,1}.PropertyName, 'guarantee')
                         propertyJsonName = strcat(propertyJsonName, '.guarantee');
                     end
@@ -266,9 +264,7 @@ function handleAnalysis(json, xml_analysis_start, ir_struct, date_value, ...
 
                          % set the color of the contract
                         if isfield(json{i,1},'ContractName')
-                            contractColor = 'red';
-                            contractBlock = fileparts(json{i,1}.OriginPath);
-                            set_param(contractBlock, 'BackgroundColor', 'red');                                   
+                            contractColor = 'red';                                                            
                         end
 
                         % display the counter example box                                              
@@ -287,7 +283,10 @@ function handleAnalysis(json, xml_analysis_start, ir_struct, date_value, ...
                         end
 
                     end
-                    set_param(contractBlock, 'BackgroundColor', contractColor);
+                    if isfield(json{i,1},'ContractName')                            
+                            contractBlock = fileparts(json{i,1}.OriginPath);
+                            set_param(contractBlock, 'BackgroundColor', contractColor);                                  
+                    end                    
                 end
             end
         end
