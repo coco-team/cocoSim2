@@ -69,9 +69,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % properties in the mapping file
-        
-        contractColor = 'green';
-        
+                        
         if exist(mapping_file) == 2
         
             date_value = datestr(now, 'ddmmyyyyHHMMSS');
@@ -101,170 +99,23 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
             css_source = fullfile(cocoSim_path,'backEnd' , 'templates' , 'materialize.css');
             annot_text = strrep(annot_text, '[css_source]', css_source);
             
+            % read the mapping file
+            fid = fopen(mapping_file);
+            raw = fread(fid, inf);                
+            str = char(raw');  
+            fclose(fid); 
+            json = jsondecode(str);
+            %convert to cell if it json is struct 
+            if isstruct(json)
+                json = num2cell(json);
+            end
+            
             if s.bytes ~= 0                
                 xml_doc = xmlread(results_file_name);
-                xml_properties = xml_doc.getElementsByTagName('Property');
-                %read the mapping file 
-                fid = fopen(mapping_file);
-                raw = fread(fid, inf);                
-                str = char(raw');  
-                fclose(fid); 
-                json = jsondecode(str);
-                %convert to cell if it json is struct 
-                if isstruct(json)
-                    json = num2cell(json)
-                end
-                for index=0:(xml_properties.getLength-1)
-                    prop = xml_properties.item(index);
-                    % get the property name
-                    property_name = '';          
-                    
-                    if prop.hasAttributes
-                       theAttributes = prop.getAttributes;
-                       numAttributes = theAttributes.getLength;                    
-                                       
-                       for count = 1:numAttributes
-                          attribute = theAttributes.item(count-1);
-                          attributeName = char(attribute.getName);
-                          if strcmp(attributeName, 'name')
-                          	property_name = char(attribute.getValue);
-                          end
-                       end
-                    end
-                    
-                    answer = prop.getElementsByTagName('Answer').item(0).getTextContent;
-                    
-                    if strcmp(answer, 'valid')  
-                        answer = 'SAFE';
-                    elseif strcmp(answer, 'falsifiable')
-                        answer = 'CEX';
-                    else
-                    answer = 'UNKNOWN';
-                    end
-                
-                    msg = [' result for property node [' property_name ']: ' char(answer)];
-                    display_msg(msg, Constants.RESULT, 'Property checking', '');
-                    
-                    % Change the block display according to answer
-%                     display = sprintf('color(''black'')\n');
-%                     display = [display sprintf('text(0.5, 0.5, [''Property: '''''' get_param(gcb,''name'') ''''''''], ''horizontalAlignment'', ''center'');\n')];
-%                     display = [display 'text(0.99, 0.03, ''{\bf\fontsize{12}'];
-%                     display = [display char(upper(answer))];
-%                     display = [display '}'', ''hor'', ''right'', ''ver'', ''bottom'', ''texmode'', ''on'');'];
-%                     obs_mask = Simulink.Mask.get(property_node_names{idx_prop}.annotation);
-%                     obs_mask.Display = sprintf('%s',display);
-
-                    % get the json mapping
-                    jsonName = regexprep(property_name,'\[l\S*?\]',''); 
-                    originPath = '';
-                    if contains(jsonName,  '._one_mode_active')
-                        % get the validator block
-                        for i = 1 : length(json)
-                            if isfield(json{i,1},'ContractName')
-                                path = json{i,1}.OriginPath;
-                                contractPath = fileparts(path);
-                                originPath = strcat(contractPath, '/validator');
-                                
-                                if strcmp(answer, 'CEX')
-                                    set_param(originPath, 'BackgroundColor', 'red');
-                                    contractColor = 'red';
-                                    oneModeActiveAnnotation = strcat(contractPath, '/contract has non-exhaustive modes');                                    
-                                    note = Simulink.Annotation(oneModeActiveAnnotation);
-                                    validatorPosition = get_param(originPath, 'Position');
-                                    validatorPosition(2) = validatorPosition(2) + 20;                                    
-                                    note.position = [validatorPosition(1) validatorPosition(4) + 20]; 
-                                    note.ForegroundColor = 'red';
-                                    % set the color of the contract
-                                    set_param(contractPath, 'BackgroundColor', 'red');     
-                                    
-                                    % display the counter example box                                              
-                                    xml_cex = prop.getElementsByTagName('CounterExample');                        
-                                    if xml_cex.getLength > 0
-                                        cex = xml_cex;
-                                        %ToDo: display the counter example
-                                        [~,annot_text] = display_cex(cex, originPath, ir_struct, date_value, ...
-                                           lustre_file_name, index, xml_trace, ir_struct, annot_text);
-                                    else
-                                        msg = [solver ': FAILURE to get counter example: '];
-                                        msg = [msg property_name '\n'];
-                                        display_msg(msg, Constants.WARNING, 'Property Checking', '');
-                                    end                                
-                                    break;
-                                end
-                            end
-                        end
-                        % check other properties
-                        continue;
-                    end
-                    for i = 1 : length(json)
-                        if isfield(json{i,1},'ContractName')
-                            propertyJsonName = json{i,1}.ContractName;
-                            contractBlock = fileparts(json{i,1}.OriginPath);
-                                    
-                            if strcmp(json{i,1}.PropertyName, 'guarantee')
-                                propertyJsonName = strcat(propertyJsonName, '.guarantee');
-                            end
-                            if strcmp(json{i,1}.PropertyName, 'ensure')
-                                propertyJsonName = strcat(propertyJsonName,'.', json{i,1}.ModeName ,'.ensure');
-                            end
-                            if isfield(json{i,1},'Index')
-                                propertyJsonName = strcat(propertyJsonName,'[', json{i,1}.Index ,']');
-                            end
-                        else
-                            propertyJsonName = json{i,1}.PropertyName;
-                        end
-                        %if strcmp(propertyJsonName, jsonName)                           
-                        if contains(jsonName, propertyJsonName)   
-                            
-                            originPath = json{i,1}.OriginPath;                            
-                            
-                            if strcmp(answer, 'SAFE')
-                                set_param(originPath, 'BackgroundColor', 'green');
-                                set_param(originPath, 'ForegroundColor', 'green');                                
-                            elseif strcmp(answer, 'TIMEOUT')
-                                set_param(originPath, 'BackgroundColor', 'gray');
-                                set_param(originPath, 'ForegroundColor', 'gray');
-                                % set the color of the contract
-                                if isfield(json{i,1},'ContractName') && strcmp(contractColor, 'green')
-                                    contractColor = 'yellow';
-                                end
-                            elseif strcmp(answer, 'UNKNOWN')
-                                set_param(originPath, 'BackgroundColor', 'yellow');
-                                set_param(originPath, 'ForegroundColor', 'yellow');
-                                 % set the color of the contract
-                                if isfield(json{i,1},'ContractName') && strcmp(contractColor, 'green')
-                                    contractColor = 'yellow';
-                                end
-                            elseif strcmp(answer, 'CEX')
-                                set_param(originPath, 'BackgroundColor', 'red');
-                                set_param(originPath, 'ForegroundColor', 'red');   
-                                
-                                 % set the color of the contract
-                                if isfield(json{i,1},'ContractName')
-                                    contractColor = 'red';
-                                    contractBlock = fileparts(json{i,1}.OriginPath);
-                                    set_param(contractBlock, 'BackgroundColor', 'red');                                   
-                                end
-                                
-                                % display the counter example box                                              
-                                xml_cex = prop.getElementsByTagName('CounterExample');                        
-                                if xml_cex.getLength > 0
-                                    %ToDo: what the value of using a new
-                                    %variable cex instead of xml_cex
-                                    cex = xml_cex;
-                                    %ToDo: display the counter example
-                                    [~,annot_text] = display_cex(cex, originPath, ir_struct, date_value, ...
-                                       lustre_file_name, index, xml_trace, ir_struct, annot_text);
-                                else
-                                    msg = [solver ': FAILURE to get counter example: '];
-                                    msg = [msg property_name '\n'];
-                                    display_msg(msg, Constants.WARNING, 'Property Checking', '');
-                                end
-                                
-                            end
-                            set_param(contractBlock, 'BackgroundColor', contractColor);
-                        end
-                    end
+                xml_analysis_elements = xml_doc.getElementsByTagName('AnalysisStart');     
+                for i = 0:(xml_analysis_elements.getLength-1)
+                    handleAnalysis(json, xml_analysis_elements.item(i), ir_struct, date_value, ...
+                               lustre_file_name, xml_trace, annot_text);
                 end
             end
                         
@@ -278,6 +129,170 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
     %% for modular execution
 end
 
+function handleAnalysis(json, xml_analysis_start, ir_struct, date_value, ...
+                               lustre_file_name, xml_trace, annot_text)
+    xml_element = xml_analysis_start;
+    contractColor = 'green';
+    index = 0;
+    %ToDo: make sure the loop terminates when there are parsing errors
+    while ~strcmp(xml_element.getNodeName,'AnalysisStop')
+        
+        xml_element = xml_element.getNextSibling;
+        if strcmp(xml_element.getNodeName,'Property')
+            prop = xml_element;
+            index = index + 1;
+            % get the property name
+            property_name = '';          
+
+            if prop.hasAttributes
+               theAttributes = prop.getAttributes;
+               numAttributes = theAttributes.getLength;                    
+
+               for count = 1:numAttributes
+                  attribute = theAttributes.item(count-1);
+                  attributeName = char(attribute.getName);
+                  if strcmp(attributeName, 'name')
+                    property_name = char(attribute.getValue);
+                  end
+               end
+            end
+
+            answer = prop.getElementsByTagName('Answer').item(0).getTextContent;
+
+            if strcmp(answer, 'valid')  
+                answer = 'SAFE';
+            elseif strcmp(answer, 'falsifiable')
+                answer = 'CEX';
+            else
+            answer = 'UNKNOWN';
+            end
+
+            msg = [' result for property node [' property_name ']: ' char(answer)];
+            display_msg(msg, Constants.RESULT, 'Property checking', '');
+
+            % Change the block display according to answer
+        %                     display = sprintf('color(''black'')\n');
+        %                     display = [display sprintf('text(0.5, 0.5, [''Property: '''''' get_param(gcb,''name'') ''''''''], ''horizontalAlignment'', ''center'');\n')];
+        %                     display = [display 'text(0.99, 0.03, ''{\bf\fontsize{12}'];
+        %                     display = [display char(upper(answer))];
+        %                     display = [display '}'', ''hor'', ''right'', ''ver'', ''bottom'', ''texmode'', ''on'');'];
+        %                     obs_mask = Simulink.Mask.get(property_node_names{idx_prop}.annotation);
+        %                     obs_mask.Display = sprintf('%s',display);
+
+            % get the json mapping
+            jsonName = regexprep(property_name,'\[l\S*?\]',''); 
+            originPath = '';
+            if contains(jsonName,  '._one_mode_active')
+                % get the validator block
+                for i = 1 : length(json)
+                    if isfield(json{i,1},'ContractName')
+                        path = json{i,1}.OriginPath;
+                        contractPath = fileparts(path);
+                        originPath = strcat(contractPath, '/validator');
+
+                        if strcmp(answer, 'CEX')
+                            set_param(originPath, 'BackgroundColor', 'red');
+                            contractColor = 'red';
+                            oneModeActiveAnnotation = strcat(contractPath, '/contract has non-exhaustive modes');                                    
+                            note = Simulink.Annotation(oneModeActiveAnnotation);
+                            validatorPosition = get_param(originPath, 'Position');
+                            validatorPosition(2) = validatorPosition(2) + 20;                                    
+                            note.position = [validatorPosition(1) validatorPosition(4) + 20]; 
+                            note.ForegroundColor = 'red';
+                            % set the color of the contract
+                            set_param(contractPath, 'BackgroundColor', 'red');     
+
+                            % display the counter example box                                              
+                            xml_cex = prop.getElementsByTagName('CounterExample');                        
+                            if xml_cex.getLength > 0
+                                cex = xml_cex;
+                                %ToDo: display the counter example
+                                [~,annot_text] = display_cex(cex, originPath, ir_struct, date_value, ...
+                                   lustre_file_name, index, xml_trace, ir_struct, annot_text);
+                            else
+                                msg = [solver ': FAILURE to get counter example: '];
+                                msg = [msg property_name '\n'];
+                                display_msg(msg, Constants.WARNING, 'Property Checking', '');
+                            end                                
+                            break;
+                        end
+                    end
+                end
+                % check other properties
+                continue;
+            end
+            for i = 1 : length(json)
+                if isfield(json{i,1},'ContractName')
+                    propertyJsonName = json{i,1}.ContractName;
+                    contractBlock = fileparts(json{i,1}.OriginPath);
+
+                    if strcmp(json{i,1}.PropertyName, 'guarantee')
+                        propertyJsonName = strcat(propertyJsonName, '.guarantee');
+                    end
+                    if strcmp(json{i,1}.PropertyName, 'ensure')
+                        propertyJsonName = strcat(propertyJsonName,'.', json{i,1}.ModeName ,'.ensure');
+                    end
+                    if isfield(json{i,1},'Index')
+                        propertyJsonName = strcat(propertyJsonName,'[', json{i,1}.Index ,']');
+                    end
+                else
+                    propertyJsonName = json{i,1}.PropertyName;
+                end
+                %if strcmp(propertyJsonName, jsonName)                           
+                if contains(jsonName, propertyJsonName)   
+
+                    originPath = json{i,1}.OriginPath;                            
+
+                    if strcmp(answer, 'SAFE')
+                        set_param(originPath, 'BackgroundColor', 'green');
+                        set_param(originPath, 'ForegroundColor', 'green');                                
+                    elseif strcmp(answer, 'TIMEOUT')
+                        set_param(originPath, 'BackgroundColor', 'gray');
+                        set_param(originPath, 'ForegroundColor', 'gray');
+                        % set the color of the contract
+                        if isfield(json{i,1},'ContractName') && strcmp(contractColor, 'green')
+                            contractColor = 'yellow';
+                        end
+                    elseif strcmp(answer, 'UNKNOWN')
+                        set_param(originPath, 'BackgroundColor', 'yellow');
+                        set_param(originPath, 'ForegroundColor', 'yellow');
+                         % set the color of the contract
+                        if isfield(json{i,1},'ContractName') && strcmp(contractColor, 'green')
+                            contractColor = 'yellow';
+                        end
+                    elseif strcmp(answer, 'CEX')
+                        set_param(originPath, 'BackgroundColor', 'red');
+                        set_param(originPath, 'ForegroundColor', 'red');   
+
+                         % set the color of the contract
+                        if isfield(json{i,1},'ContractName')
+                            contractColor = 'red';
+                            contractBlock = fileparts(json{i,1}.OriginPath);
+                            set_param(contractBlock, 'BackgroundColor', 'red');                                   
+                        end
+
+                        % display the counter example box                                              
+                        xml_cex = prop.getElementsByTagName('CounterExample');                        
+                        if xml_cex.getLength > 0
+                            %ToDo: what the value of using a new
+                            %variable cex instead of xml_cex
+                            cex = xml_cex;
+                            %ToDo: display the counter example
+                            [~,annot_text] = display_cex(cex, originPath, ir_struct, date_value, ...
+                               lustre_file_name, index, xml_trace, ir_struct, annot_text);
+                        else
+                            msg = [solver ': FAILURE to get counter example: '];
+                            msg = [msg property_name '\n'];
+                            display_msg(msg, Constants.WARNING, 'Property Checking', '');
+                        end
+
+                    end
+                    set_param(contractBlock, 'BackgroundColor', contractColor);
+                end
+            end
+        end
+    end
+end
 
 function [status,annot_text] = display_cex(cex, origin_path, model, date_value, lustre_file_name, idx_prop,xml_trace, ir_struct, annot_text)
    status = 1;

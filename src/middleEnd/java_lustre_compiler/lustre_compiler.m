@@ -208,13 +208,13 @@ property_node_names = {};
 % 
 nb_subs = numel(subs_blks_list);
 c_code = '';
- for idx_subsys=nb_subs:-1:1
-     sub_struct = get_struct(ir_struct, subs_blks_list{idx_subsys});
-     if idx_subsys == 1 % model_diagram
-         fields = fieldnames(sub_struct.Content);
-         fields(cellfun('isempty', regexprep(fields, '^Annotation.*', ''))) = [];
-         sub_struct = sub_struct.Content.(fields{1});
-     end
+%  for idx_subsys=nb_subs:-1:1
+%      sub_struct = get_struct(ir_struct, subs_blks_list{idx_subsys});
+%      if idx_subsys == 1 % model_diagram
+%          fields = fieldnames(sub_struct.Content);
+%          fields(cellfun('isempty', regexprep(fields, '^Annotation.*', ''))) = [];
+%          sub_struct = sub_struct.Content.(fields{1});
+%      end
 % 
 %     msg = sprintf('Compiling %s:%s', sub_struct.Origin_path, sub_struct.BlockType);
 %     display_msg(msg, Constants.DEBUG, 'cocoSim', '');
@@ -308,8 +308,8 @@ c_code = '';
 %         extern_Stateflow_nodes_fun = [extern_Stateflow_nodes_fun, external_nodes_i];
 %         %%%%% Standard Simulink blocks code generation %%%%%%%%%%%%%%%
 %     elseif (idx_subsys == 1 || (isfield(sub_struct, 'MaskType') && ~BlockUtils.is_property(sub_struct.MaskType))) && sub_struct.Ports(2) ~= 0
-         [node_header, let_tel_code, extern_s_functions_string, extern_funs, properties_nodes, property_node_name, extern_matlab_funs, c_code, external_nodes_i] = ...
-             blocks2lustre(file_name, nom_lustre_file, ir_struct, subs_blks_list, mat_files, idx_subsys, trace, xml_trace);
+%          [node_header, let_tel_code, extern_s_functions_string, extern_funs, properties_nodes, property_node_name, extern_matlab_funs, c_code, external_nodes_i] = ...
+%              blocks2lustre(file_name, nom_lustre_file, ir_struct, subs_blks_list, mat_files, idx_subsys, trace, xml_trace);
 %         
 %         extern_Stateflow_nodes_fun = [extern_Stateflow_nodes_fun, external_nodes_i];
 %         extern_nodes_string = [extern_nodes_string extern_s_functions_string];
@@ -323,25 +323,25 @@ c_code = '';
 %             extern_matlab_functions{numel(extern_matlab_functions)+1} = extern_matlab_funs{idx_ext_mat};
 %         end
 %         
-         properties_nodes_string = [properties_nodes_string properties_nodes];
-         if numel(property_node_name) > 0
-             for idx_prop_names=1:numel(property_node_name)
-                 if idx_subsys == 1
-                     property_node_name{idx_prop_names}.parent_node_name = file_name;
-                     property_node_name{idx_prop_names}.parent_block_name = file_name;
-                 else
-                     res = regexp(sub_blk.Path, filesep, 'split');
-                     property_node_name{idx_prop_names}.parent_node_name = Utils.concat_delim(res, '_');
-                     property_node_name{idx_prop_names}.parent_block_name = sub_blk.Origin_path;
-                 end
-                 property_node_names{numel(property_node_names) + 1} = property_node_name{idx_prop_names};
-             end
-         end
+%          properties_nodes_string = [properties_nodes_string properties_nodes];
+%          if numel(property_node_name) > 0
+%              for idx_prop_names=1:numel(property_node_name)
+%                  if idx_subsys == 1
+%                      property_node_name{idx_prop_names}.parent_node_name = file_name;
+%                      property_node_name{idx_prop_names}.parent_block_name = file_name;
+%                  else
+%                      res = regexp(sub_blk.Path, filesep, 'split');
+%                      property_node_name{idx_prop_names}.parent_node_name = Utils.concat_delim(res, '_');
+%                      property_node_name{idx_prop_names}.parent_block_name = sub_blk.Origin_path;
+%                  end
+%                  property_node_names{numel(property_node_names) + 1} = property_node_name{idx_prop_names};
+%              end
+%          end
 %         nodes_string = [nodes_string node_header];
 %         nodes_string = [nodes_string let_tel_code];
 %         nodes_string = [nodes_string 'tel\n\n'];
 %     end
- end
+%  end
 % 
 
 %%%%%%%%%%%%%%%%% Lustre Code Printing %%%%%%%%%%%%%%%%%%%%%%
