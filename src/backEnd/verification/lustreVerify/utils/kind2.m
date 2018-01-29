@@ -110,12 +110,20 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                 json = num2cell(json);
             end
             
+            verificationResults = {};
+            
             if s.bytes ~= 0                
                 xml_doc = xmlread(results_file_name);
                 xml_analysis_elements = xml_doc.getElementsByTagName('AnalysisStart');     
                 for i = 0:(xml_analysis_elements.getLength-1)
-                    handleAnalysis(json, xml_analysis_elements.item(i), ir_struct, date_value, ...
-                               lustre_file_name, xml_trace, annot_text);
+                    xmlAnalysis = xml_analysis_elements.item(i);
+                    analysisStruct.top = xmlAnalysis.getAttribute('top');
+                    analysisStruct.abstract = xmlAnalysis.getAttribute('abstract');
+                    analysisStruct.concrete= xmlAnalysis.getAttribute('concrete');
+                    analysisStruct.assumptions = xmlAnalysis.getAttribute('assumptions');                    
+                    analysisStruct = handleAnalysis(json, xmlAnalysis, ir_struct, date_value, ...
+                               lustre_file_name, xml_trace, annot_text, analysisStruct);
+                    verificationResults.analysisResults{i+1} = analysisStruct;
                 end
             end
                         
@@ -129,45 +137,31 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
     %% for modular execution
 end
 
-function handleAnalysis(json, xml_analysis_start, ir_struct, date_value, ...
-                               lustre_file_name, xml_trace, annot_text)
+function [analysisStruct] = handleAnalysis(json, xml_analysis_start, ir_struct, date_value, ...
+                               lustre_file_name, xml_trace, annot_text, analysisStruct)
     xml_element = xml_analysis_start;
+    analysisStruct.properties ={};
     contractColor = 'green';
     index = 0;
     %ToDo: make sure the loop terminates when there are parsing errors
     while ~strcmp(xml_element.getNodeName,'AnalysisStop')
         
         xml_element = xml_element.getNextSibling;
-        if strcmp(xml_element.getNodeName,'Property')
-            prop = xml_element;
+        if strcmp(xml_element.getNodeName,'Property')            
+            propertyStruct = {};
             index = index + 1;
             % get the property name
-            property_name = '';          
-
-            if prop.hasAttributes
-               theAttributes = prop.getAttributes;
-               numAttributes = theAttributes.getLength;                    
-
-               for count = 1:numAttributes
-                  attribute = theAttributes.item(count-1);
-                  attributeName = char(attribute.getName);
-                  if strcmp(attributeName, 'name')
-                    property_name = char(attribute.getValue);
-                  end
-               end
-            end
-
-            answer = prop.getElementsByTagName('Answer').item(0).getTextContent;
-
-            if strcmp(answer, 'valid')  
-                answer = 'SAFE';
-            elseif strcmp(answer, 'falsifiable')
-                answer = 'CEX';
+            propertyStruct.property_name = char(xml_element.getAttribute('name'));
+            propertyStruct.answer = xml_element.getElementsByTagName('Answer').item(0).getTextContent;
+            if strcmp(propertyStruct.answer, 'valid')  
+                propertyStruct.answer = 'SAFE';
+            elseif strcmp(propertyStruct.answer, 'falsifiable')
+                propertyStruct.answer = 'CEX';
             else
-            answer = 'UNKNOWN';
+                propertyStruct.answer = 'UNKNOWN';
             end
 
-            msg = [' result for property node [' property_name ']: ' char(answer)];
+            msg = [' result for property node [' propertyStruct.property_name ']: ' propertyStruct.answer];
             display_msg(msg, Constants.RESULT, 'Property checking', '');
 
             % Change the block display according to answer
@@ -180,7 +174,7 @@ function handleAnalysis(json, xml_analysis_start, ir_struct, date_value, ...
         %                     obs_mask.Display = sprintf('%s',display);
 
             % get the json mapping
-            jsonName = regexprep(property_name,'\[l\S*?\]',''); 
+            jsonName = regexprep(propertyStruct.property_name,'\[l\S*?\]',''); 
             originPath = '';
             if contains(jsonName,  '._one_mode_active')
                 % get the validator block
@@ -239,43 +233,42 @@ function handleAnalysis(json, xml_analysis_start, ir_struct, date_value, ...
                 %if strcmp(propertyJsonName, jsonName)                           
                 if contains(jsonName, propertyJsonName)   
 
-                    originPath = json{i,1}.OriginPath;                            
+                    propertyStruct.originPath = json{i,1}.OriginPath;                            
 
-                    if strcmp(answer, 'SAFE')
-                        set_param(originPath, 'BackgroundColor', 'green');
-                        set_param(originPath, 'ForegroundColor', 'green');                                
-                    elseif strcmp(answer, 'TIMEOUT')
-                        set_param(originPath, 'BackgroundColor', 'gray');
-                        set_param(originPath, 'ForegroundColor', 'gray');
+                    if strcmp(propertyStruct.answer, 'SAFE')
+                        set_param(propertyStruct.originPath, 'BackgroundColor', 'green');
+                        set_param(propertyStruct.originPath, 'ForegroundColor', 'green');                                
+                    elseif strcmp(propertyStruct.answer, 'TIMEOUT')
+                        set_param(propertyStruct.originPath, 'BackgroundColor', 'gray');
+                        set_param(propertyStruct.originPath, 'ForegroundColor', 'gray');
                         % set the color of the contract
                         if isfield(json{i,1},'ContractName') && strcmp(contractColor, 'green')
                             contractColor = 'yellow';
                         end
-                    elseif strcmp(answer, 'UNKNOWN')
-                        set_param(originPath, 'BackgroundColor', 'yellow');
-                        set_param(originPath, 'ForegroundColor', 'yellow');
+                    elseif strcmp(propertyStruct.answer, 'UNKNOWN')
+                        set_param(propertyStruct.originPath, 'BackgroundColor', 'yellow');
+                        set_param(propertyStruct.originPath, 'ForegroundColor', 'yellow');
                          % set the color of the contract
                         if isfield(json{i,1},'ContractName') && strcmp(contractColor, 'green')
                             contractColor = 'yellow';
                         end
-                    elseif strcmp(answer, 'CEX')
-                        set_param(originPath, 'BackgroundColor', 'red');
-                        set_param(originPath, 'ForegroundColor', 'red');   
+                    elseif strcmp(propertyStruct.answer, 'CEX')
+                        set_param(propertyStruct.originPath, 'BackgroundColor', 'red');
+                        set_param(propertyStruct.originPath, 'ForegroundColor', 'red');   
 
                          % set the color of the contract
                         if isfield(json{i,1},'ContractName')
                             contractColor = 'red';                                                            
                         end
 
-                        % display the counter example box                                              
-                        xml_cex = prop.getElementsByTagName('CounterExample');                        
-                        if xml_cex.getLength > 0
-                            %ToDo: what the value of using a new
-                            %variable cex instead of xml_cex
-                            cex = xml_cex;
-                            %ToDo: display the counter example
-                            [~,annot_text] = display_cex(cex, originPath, ir_struct, date_value, ...
-                               lustre_file_name, index, xml_trace, ir_struct, annot_text);
+                        % get the counter example                                        
+                        counterExampleElement = xml_element.getElementsByTagName('CounterExample');                        
+                        if counterExampleElement.getLength > 0                            
+                            
+                            propertyStruct.counterExample = parseCounterExample(counterExampleElement.item(0));
+                            
+                            [~,annot_text] = display_cex(counterExampleElement, propertyStruct.originPath, ir_struct, date_value, ...
+                               lustre_file_name, index, xml_trace, ir_struct, annot_text);                            
                         else
                             msg = [solver ': FAILURE to get counter example: '];
                             msg = [msg property_name '\n'];
@@ -283,6 +276,7 @@ function handleAnalysis(json, xml_analysis_start, ir_struct, date_value, ...
                         end
 
                     end
+                    analysisStruct.properties{index} = propertyStruct;
                     if isfield(json{i,1},'ContractName')                            
                             contractBlock = fileparts(json{i,1}.OriginPath);
                             set_param(contractBlock, 'BackgroundColor', contractColor);
@@ -302,6 +296,54 @@ function handleAnalysis(json, xml_analysis_start, ir_struct, date_value, ...
         end
     end
 end
+
+function [counterExampleStruct] = parseCounterExample(counterExampleElement)
+    counterExampleStruct = {};    
+    nodeElement = counterExampleElement.getElementsByTagName('Node').item(0); 
+    counterExampleStruct.node = parseCounterExampleNode(nodeElement);        
+end
+
+function [nodeStruct] = parseCounterExampleNode(nodeElement)
+    nodeStruct = {};
+    nodeStruct.name = char(nodeElement.getAttribute('name'));  
+    children = nodeElement.getChildNodes;        
+    streamIndex = 0;
+    nodeIndex = 0;
+    
+    for childIndex = 0 : (children.getLength - 1)
+    
+        xmlElement = children.item(childIndex);
+        
+        if strcmp(xmlElement.getNodeName,'Stream')                                              
+            streamStruct = {};                     
+            streamStruct.name = char(xmlElement.getAttribute('name'));
+            streamStruct.type = char(xmlElement.getAttribute('type'));
+            streamStruct.class = char(xmlElement.getAttribute('class'));             
+            valueElements = xmlElement.getElementsByTagName('Value');
+            streamStruct.values = [];
+            nodeStruct.timeSteps = valueElements.getLength;
+            for valueIndex=0:(valueElements.getLength-1)
+                value = char(valueElements.item(valueIndex).getTextContent);
+                if strcmp(value, 'false')
+                    streamStruct.values(valueIndex + 1) = false;
+                elseif strcmp(value, 'true')
+                    streamStruct.values(valueIndex + 1) = true;
+                else
+                    streamStruct.values(valueIndex + 1) = str2num(value);
+                end
+            end
+            streamIndex = streamIndex + 1;
+            nodeStruct.streams{streamIndex} = streamStruct;    
+        elseif strcmp(xmlElement.getNodeName,'Node')   
+            % for parsing nested nodes and their streams inside
+            % the counter example            
+            nestedNodeStruct = parseCounterExampleNode(xmlElement);
+            nodeIndex = nodeIndex + 1;
+            nodeStruct.nodes{nodeIndex} = nestedNodeStruct;   
+        end            
+    end        
+end 
+
 
 function [status,annot_text] = display_cex(cex, origin_path, model, date_value, lustre_file_name, idx_prop,xml_trace, ir_struct, annot_text)
    status = 1;
@@ -520,7 +562,7 @@ function IO_struct = create_configuration(IO_struct, file, origin_path, mat_file
         end
         
         a.(input_struct_name) = evalin('base', input_struct_name);
-    catch
+    catch Me
         display_msg('No Input Signal in CEX', Constants.WARNING, 'CEX', '');
     end
     
