@@ -184,7 +184,7 @@ function [analysisStruct] = handleAnalysis(json, xml_analysis_start, ir_struct, 
                         contractPath = fileparts(path);
                         originPath = strcat(contractPath, '/validator');
 
-                        if strcmp(answer, 'CEX')
+                        if strcmp(propertyStruct.answer, 'CEX')
                             set_param(originPath, 'BackgroundColor', 'red');
                             contractColor = 'red';
                             oneModeActiveAnnotation = strcat(contractPath, '/contract has non-exhaustive modes');                                    
