@@ -117,14 +117,16 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                 xml_analysis_elements = xml_doc.getElementsByTagName('AnalysisStart');     
                 for i = 0:(xml_analysis_elements.getLength-1)
                     xmlAnalysis = xml_analysis_elements.item(i);
-                    analysisStruct.top = xmlAnalysis.getAttribute('top');
-                    analysisStruct.abstract = xmlAnalysis.getAttribute('abstract');
-                    analysisStruct.concrete= xmlAnalysis.getAttribute('concrete');
-                    analysisStruct.assumptions = xmlAnalysis.getAttribute('assumptions');                    
+                    analysisStruct.top = char(xmlAnalysis.getAttribute('top'));
+                    analysisStruct.abstract = char(xmlAnalysis.getAttribute('abstract'));
+                    analysisStruct.concrete= char(xmlAnalysis.getAttribute('concrete'));
+                    analysisStruct.assumptions = char(xmlAnalysis.getAttribute('assumptions'));                    
                     analysisStruct = handleAnalysis(json, xmlAnalysis, ir_struct, date_value, ...
                                lustre_file_name, xml_trace, annot_text, analysisStruct);
                     verificationResults.analysisResults{i+1} = analysisStruct;
                 end
+                resultsMatFile = strrep(lustre_file_name,'.lus','.mat');
+                save(resultsMatFile, 'verificationResults');
             end
                         
         end
@@ -197,12 +199,12 @@ function [analysisStruct] = handleAnalysis(json, xml_analysis_start, ir_struct, 
                             set_param(contractPath, 'BackgroundColor', 'red');     
 
                             % display the counter example box                                              
-                            xml_cex = prop.getElementsByTagName('CounterExample');                        
-                            if xml_cex.getLength > 0
-                                cex = xml_cex;
-                                %ToDo: display the counter example
-                                [~,annot_text] = display_cex(cex, originPath, ir_struct, date_value, ...
-                                   lustre_file_name, index, xml_trace, ir_struct, annot_text);
+                            counterExampleElement = xml_element.getElementsByTagName('CounterExample');                        
+                            if counterExampleElement.getLength > 0                                
+                                propertyStruct.counterExample = parseCounterExample(counterExampleElement.item(0));
+                                [~,annot_text] = display_cex(counterExampleElement, originPath, ir_struct, date_value, ...
+                                   lustre_file_name, index, xml_trace, ir_struct, annot_text);                               
+                               analysisStruct.properties{index} = propertyStruct;
                             else
                                 msg = [solver ': FAILURE to get counter example: '];
                                 msg = [msg property_name '\n'];
