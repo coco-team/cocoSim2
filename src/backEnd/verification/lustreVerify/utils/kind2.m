@@ -75,7 +75,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
             date_value = datestr(now, 'ddmmyyyyHHMMSS');
             [~,file_name,~] = fileparts(lustre_file_name);
             
-            command = sprintf('%s --z3_bin %s -xml --timeout %s %s %s --modular true',...
+            command = sprintf('%s --z3_bin %s -xml --timeout %s %s %s --modular true --compositional true',...
                 KIND2, Z3, timeout, kind2_option, lustre_file_name);
             
             display_msg(['KIND2_COMMAND ' command], Constants.DEBUG, 'write_code', '');
@@ -126,7 +126,8 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                     verificationResults.analysisResults{i+1} = analysisStruct;
                 end
                 resultsMatFile = strrep(lustre_file_name,'.lus','.mat');
-                save(resultsMatFile, 'verificationResults');
+                save(resultsMatFile, 'verificationResults');           
+                displayVerificationResults(verificationResults);
             end
                         
         end
@@ -137,6 +138,26 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
     end
     
     %% for modular execution
+end
+
+function displayVerificationResults(verificationResults)
+    % extract the top field from each analysis result      
+    analysisNames = cellfun(@(x) x.top, verificationResults.analysisResults,'UniformOutput', 0);
+    % group the analysis results by top field
+    groups = findgroups(analysisNames);
+    % get the frequency of analysis attempts
+    attempts = splitapply(@numel, analysisNames,groups);
+    % get the name of each group
+    distinctAnalysisNames = splitapply(@(x) x(1),analysisNames,groups);    
+    % map each name with the number of attempts
+    analysisMap = containers.Map(distinctAnalysisNames,attempts);
+    % display the options for compositional analysis
+    for i = 1: length(verificationResults.analysisResults)
+        analysisAttempts = analysisMap(verificationResults.analysisResults{i}.top);
+        if analysisAttempts > 1
+            verificationResults.analysisResults{i}.abstract
+        end
+    end    
 end
 
 function [analysisStruct] = handleAnalysis(json, xml_analysis_start, ir_struct, date_value, ...
