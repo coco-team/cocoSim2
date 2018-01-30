@@ -151,13 +151,22 @@ function displayVerificationResults(verificationResults)
     distinctAnalysisNames = splitapply(@(x) x(1),analysisNames,groups);    
     % map each name with the number of attempts
     analysisMap = containers.Map(distinctAnalysisNames,attempts);
-    % display the options for compositional analysis
+    
+    % get the options for compositional analysis    
+    compositionalOptions = {};
+    index = 1;
     for i = 1: length(verificationResults.analysisResults)
         analysisAttempts = analysisMap(verificationResults.analysisResults{i}.top);
         if analysisAttempts > 1
-            verificationResults.analysisResults{i}.abstract
+            compositionalOptions{index} = verificationResults.analysisResults{i}.abstract;          
+            index = index + 1;
         end
     end    
+    
+    %store the options in the model workspace
+    modelWorkspace = get_param(gcs,'ModelWorkspace');
+    assignin(modelWorkspace,'compositionalOptions',compositionalOptions);    
+    
 end
 
 function [analysisStruct] = handleAnalysis(json, xml_analysis_start, ir_struct, date_value, ...

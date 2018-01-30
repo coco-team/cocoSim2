@@ -20,9 +20,35 @@ schema.label = 'CoCoSim';
 schema.statustip = 'CoCoSim';
 schema.autoDisableWhen = 'Busy';
 
-schema.childrenFcns = {@signalBuilders};
+schema.childrenFcns = {@compositionalOptions, @signalBuilders};
 end
 
+function schema = compositionalOptions(callbackInfo)
+    schema = sl_container_schema;
+    schema.label = 'Compositional Abstract';
+    schema.statustip = 'Compositional Abstract';
+    schema.autoDisableWhen = 'Busy';
+    % get the compositional options from the model workspace
+    modelWorkspace = get_param(callbackInfo.studio.App.blockDiagramHandle,'modelworkspace');
+    data.options = modelWorkspace.getVariable('compositionalOptions');
+    data.options = modelWorkspace.getVariable('compositionalOptions');
+    % add a menu item for each option
+    for i = 1: length(data.options)
+        data.index = i;
+        schema.childrenFcns{i} = {@compositionalOption, data};
+    end    
+end
+
+function schema = compositionalOption(callbackInfo)
+    schema = sl_toggle_schema;
+    label = callbackInfo.userdata.options{callbackInfo.userdata.index};
+    if length(label) == 0
+        schema.label = 'No abstract';
+    else
+        schema.label = label;
+    end           
+    schema.checked = 'checked';    
+end
 
 function schema = signalBuilders(callbackInfo)
 schema = sl_action_schema;
