@@ -29,19 +29,35 @@ function schema = compositionalOptions(callbackInfo)
     schema.statustip = 'Compositional Abstract';
     schema.autoDisableWhen = 'Busy';
     % get the compositional options from the model workspace
-    modelWorkspace = get_param(callbackInfo.studio.App.blockDiagramHandle,'modelworkspace');
-    data.options = modelWorkspace.getVariable('compositionalOptions');
-    data.options = modelWorkspace.getVariable('compositionalOptions');
+    modelWorkspace = get_param(callbackInfo.studio.App.blockDiagramHandle,'modelworkspace');   
+    compositionalMap = modelWorkspace.getVariable('compositionalMap');
+    keySet = keys(compositionalMap);
+    valueSet = values(compositionalMap);
+    
     % add a menu item for each option
-    for i = 1: length(data.options)
-        data.index = i;
-        schema.childrenFcns{i} = {@compositionalOption, data};
+    index = 1;
+    for i = 1: length(keySet)        
+        schema.childrenFcns{index} = {@compositionalKey, keySet{i}};
+        index = index + 1;
+        for j=1: length(valueSet{i})
+            schema.childrenFcns{index} = {@compositionalOption, valueSet{i}{j}};
+            index = index + 1;
+        end
+        schema.childrenFcns{index} = 'separator';
+        index = index + 1;
     end    
+end
+
+function schema = compositionalKey(callbackInfo)
+    schema = sl_action_schema;
+    label = callbackInfo.userdata;    
+    schema.label = label;      
+    schema.state = 'Disabled';    
 end
 
 function schema = compositionalOption(callbackInfo)
     schema = sl_toggle_schema;
-    label = callbackInfo.userdata.options{callbackInfo.userdata.index};
+    label = callbackInfo.userdata;
     if length(label) == 0
         schema.label = 'No abstract';
     else

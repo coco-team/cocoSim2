@@ -144,28 +144,24 @@ function displayVerificationResults(verificationResults)
     % extract the top field from each analysis result      
     analysisNames = cellfun(@(x) x.top, verificationResults.analysisResults,'UniformOutput', 0);
     % group the analysis results by top field
-    groups = findgroups(analysisNames);
-    % get the frequency of analysis attempts
-    attempts = splitapply(@numel, analysisNames,groups);
+    groups = findgroups(analysisNames);    
     % get the name of each group
-    distinctAnalysisNames = splitapply(@(x) x(1),analysisNames,groups);    
-    % map each name with the number of attempts
-    analysisMap = containers.Map(distinctAnalysisNames,attempts);
+    distinctAnalysisNames = splitapply(@(x) x(1),analysisNames,groups); 
     
     % get the options for compositional analysis    
-    compositionalOptions = {};
-    index = 1;
-    for i = 1: length(verificationResults.analysisResults)
-        analysisAttempts = analysisMap(verificationResults.analysisResults{i}.top);
-        if analysisAttempts > 1
-            compositionalOptions{index} = verificationResults.analysisResults{i}.abstract;          
-            index = index + 1;
-        end
+    compositionalOptions = cell(1, length(distinctAnalysisNames));    
+    for i = 1: length(verificationResults.analysisResults)        
+        index = find(strcmp(distinctAnalysisNames,verificationResults.analysisResults{i}.top));
+        optionIndex = length(compositionalOptions{index}) + 1;
+        compositionalOptions{index}{optionIndex} = verificationResults.analysisResults{i}.abstract;        
     end    
+    
+    %map the options with each distinct name
+    compositionalMap = containers.Map(distinctAnalysisNames, compositionalOptions);
     
     %store the options in the model workspace
     modelWorkspace = get_param(gcs,'ModelWorkspace');
-    assignin(modelWorkspace,'compositionalOptions',compositionalOptions);    
+    assignin(modelWorkspace,'compositionalMap',compositionalMap);    
     
 end
 
