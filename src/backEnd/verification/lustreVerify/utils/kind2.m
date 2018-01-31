@@ -125,8 +125,10 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                                lustre_file_name, xml_trace, annot_text, analysisStruct);
                     verificationResults.analysisResults{i+1} = analysisStruct;
                 end
-                resultsMatFile = strrep(lustre_file_name,'.lus','.mat');
-                save(resultsMatFile, 'verificationResults');           
+                
+                %store the verification results in the model workspace
+                modelWorkspace = get_param(gcs,'ModelWorkspace');
+                assignin(modelWorkspace,'verificationResults',verificationResults);                    
                 displayVerificationResults(verificationResults);
             end
                         
@@ -156,7 +158,7 @@ function displayVerificationResults(verificationResults)
         compositionalOptions{index}{optionIndex} = verificationResults.analysisResults{i}.abstract;        
     end    
     
-    % by default, the selected option for each group is the last analysis
+    % by default, display the last analysis for each group
     selectedOptions = cellfun(@(x) length(x), compositionalOptions)
     
     %map options and selected options with each distinct name
@@ -166,7 +168,38 @@ function displayVerificationResults(verificationResults)
     
     %store the options in the model workspace
     modelWorkspace = get_param(gcs,'ModelWorkspace');
-    assignin(modelWorkspace,'compositionalMap',compositionalMap);        
+    assignin(modelWorkspace,'compositionalMap',compositionalMap);      
+    
+    % display the verification result of each group
+    for analysisIndex = 1 : length(compositionalMap.analysisNames)
+        displayVerificationResult(analysisIndex);
+    end
+end
+
+function displayVerificationResult(analysisIndex)
+
+    %load variables
+    modelWorkspace = get_param(gcs,'ModelWorkspace');
+    verificationResults = modelWorkspace.getVariable('verificationResults');   
+    compositionalMap = modelWorkspace.getVariable('compositionalMap');  
+    analysisName = compositionalMap.analysisNames{analysisIndex};
+    selectedOption = compositionalMap.selectedOptions(analysisIndex);
+    selectedAbstract = compositionalMap.compositionalOptions{analysisIndex}{selectedOption};
+    
+    % find the analysis whose top = analysisName and 
+    % abstrct = selectedAbstract
+    resultIndex = find(cellfun(@(x) strcmp(x.abstract, selectedAbstract) && ...
+        strcmp(x.top, analysisName),verificationResults.analysisResults));
+    verificationResult = verificationResults.analysisResults{resultIndex};
+    
+    topMostColor = 'green';
+    for i = 1 : length(verificationResult.properties)        
+        topMostColor = displayPropertyResult(verificationResult.properties{i},topMostColor);
+    end    
+end
+
+function [topMostcolor] = displayPropertyResult(propertyResult, topMostcolor)
+    
 end
 
 function [analysisStruct] = handleAnalysis(json, xml_analysis_start, ir_struct, date_value, ...
