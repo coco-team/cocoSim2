@@ -156,13 +156,17 @@ function displayVerificationResults(verificationResults)
         compositionalOptions{index}{optionIndex} = verificationResults.analysisResults{i}.abstract;        
     end    
     
-    %map the options with each distinct name
-    compositionalMap = containers.Map(distinctAnalysisNames, compositionalOptions);
+    % by default, the selected option for each group is the last analysis
+    selectedOptions = cellfun(@(x) length(x), compositionalOptions)
+    
+    %map options and selected options with each distinct name
+    compositionalMap.analysisNames = distinctAnalysisNames;
+    compositionalMap.compositionalOptions = compositionalOptions;
+    compositionalMap.selectedOptions = selectedOptions;
     
     %store the options in the model workspace
     modelWorkspace = get_param(gcs,'ModelWorkspace');
-    assignin(modelWorkspace,'compositionalMap',compositionalMap);    
-    
+    assignin(modelWorkspace,'compositionalMap',compositionalMap);        
 end
 
 function [analysisStruct] = handleAnalysis(json, xml_analysis_start, ir_struct, date_value, ...

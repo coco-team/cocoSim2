@@ -30,17 +30,18 @@ function schema = compositionalOptions(callbackInfo)
     schema.autoDisableWhen = 'Busy';
     % get the compositional options from the model workspace
     modelWorkspace = get_param(callbackInfo.studio.App.blockDiagramHandle,'modelworkspace');   
-    compositionalMap = modelWorkspace.getVariable('compositionalMap');
-    keySet = keys(compositionalMap);
-    valueSet = values(compositionalMap);
+    compositionalMap = modelWorkspace.getVariable('compositionalMap');    
     
     % add a menu item for each option
     index = 1;
-    for i = 1: length(keySet)        
-        schema.childrenFcns{index} = {@compositionalKey, keySet{i}};
+    for i = 1: length(compositionalMap.analysisNames)        
+        schema.childrenFcns{index} = {@compositionalKey, compositionalMap.analysisNames{i}};
         index = index + 1;
-        for j=1: length(valueSet{i})
-            schema.childrenFcns{index} = {@compositionalOption, valueSet{i}{j}};
+        for j=1: length(compositionalMap.compositionalOptions{i})
+            data.label = compositionalMap.compositionalOptions{i}{j};
+            data.selectedOption = compositionalMap.selectedOptions(i);
+            data.currentOption = j;
+            schema.childrenFcns{index} = {@compositionalOption, data};
             index = index + 1;
         end
         schema.childrenFcns{index} = 'separator';
@@ -57,13 +58,17 @@ end
 
 function schema = compositionalOption(callbackInfo)
     schema = sl_toggle_schema;
-    label = callbackInfo.userdata;
-    if length(label) == 0
+    data = callbackInfo.userdata;    
+    if length(data.label) == 0
         schema.label = 'No abstract';
     else
-        schema.label = label;
-    end           
-    schema.checked = 'checked';    
+        schema.label = data.label;
+    end          
+    if data.selectedOption == data.currentOption
+        schema.checked = 'checked';    
+    else
+        schema.checked = 'unchecked';    
+    end
 end
 
 function schema = signalBuilders(callbackInfo)
