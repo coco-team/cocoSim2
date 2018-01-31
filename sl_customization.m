@@ -41,6 +41,7 @@ function schema = compositionalOptions(callbackInfo)
             data.label = compositionalMap.compositionalOptions{i}{j};
             data.selectedOption = compositionalMap.selectedOptions(i);
             data.currentOption = j;
+            data.currentAnalysis = i;
             schema.childrenFcns{index} = {@compositionalOption, data};
             index = index + 1;
         end
@@ -69,6 +70,18 @@ function schema = compositionalOption(callbackInfo)
     else
         schema.checked = 'unchecked';    
     end
+    
+    schema.callback = @compositionalOptionCallback;
+    schema.userdata = data;
+    
+end
+
+function compositionalOptionCallback(callbackInfo)    
+    data = callbackInfo.userdata;    
+    modelWorkspace = get_param(callbackInfo.studio.App.blockDiagramHandle,'modelworkspace');   
+    compositionalMap = modelWorkspace.getVariable('compositionalMap');    
+    compositionalMap.selectedOptions(data.currentAnalysis) = data.currentOption; 
+    assignin(modelWorkspace,'compositionalMap',compositionalMap);
 end
 
 function schema = signalBuilders(callbackInfo)
@@ -478,7 +491,7 @@ function schema = getKindOption(callbackInfo)
     end
 end
 
-function setKindOption(value)
+function setKindOption(callbackInfo)
     assignin('base', 'MODEL_CHECKER', 'Kind2');
 end
 
@@ -494,7 +507,7 @@ function schema = getJKindOption(callbackInfo)
     end
 end
 
-function setJKindOption(value)
+function setJKindOption(callbackInfo)
     assignin('base', 'MODEL_CHECKER', 'JKind');
 end
 
