@@ -1,10 +1,4 @@
-function displayVerificationResults()
-   
-    %load variables
-    modelWorkspace = get_param(gcs,'ModelWorkspace');
-    verificationResults = modelWorkspace.getVariable('verificationResults');
-    compositionalMap = modelWorkspace.getVariable('compositionalMap');  
-    
+function displayVerificationResults(verificationResults, compositionalMap)    
     % display the verification result of each group
     initializeVerificationVisualization(verificationResults);
     for analysisIndex = 1 : length(compositionalMap.analysisNames)

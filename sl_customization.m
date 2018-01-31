@@ -79,10 +79,11 @@ end
 function compositionalOptionCallback(callbackInfo)    
     data = callbackInfo.userdata;    
     modelWorkspace = get_param(callbackInfo.studio.App.blockDiagramHandle,'modelworkspace');   
+    verificationResults = modelWorkspace.getVariable('verificationResults');
     compositionalMap = modelWorkspace.getVariable('compositionalMap');    
     compositionalMap.selectedOptions(data.currentAnalysis) = data.currentOption; 
     assignin(modelWorkspace,'compositionalMap',compositionalMap);
-    displayVerificationResults();
+    displayVerificationResults(verificationResults, compositionalMap);
 end
 
 function schema = signalBuilders(callbackInfo)

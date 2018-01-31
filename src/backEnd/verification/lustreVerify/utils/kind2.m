@@ -127,8 +127,8 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                 end
                 
                 %store the verification results in the model workspace
-                saveVerificationResults(verificationResults);
-                displayVerificationResults();
+                [verificationResults, compositionalMap] = saveVerificationResults(verificationResults);
+                displayVerificationResults(verificationResults, compositionalMap);
             end
                         
         end
@@ -141,7 +141,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
     %% for modular execution
 end
 
-function saveVerificationResults(verificationResults)
+function [verificationResults, compositionalMap] = saveVerificationResults(verificationResults)
     
     modelWorkspace = get_param(gcs,'ModelWorkspace');
     assignin(modelWorkspace,'verificationResults',verificationResults);                    
