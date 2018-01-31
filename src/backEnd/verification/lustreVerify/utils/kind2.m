@@ -159,7 +159,7 @@ function displayVerificationResults(verificationResults)
     end    
     
     % by default, display the last analysis for each group
-    selectedOptions = cellfun(@(x) length(x), compositionalOptions)
+    selectedOptions = cellfun(@(x) length(x), compositionalOptions);
     
     %map options and selected options with each distinct name
     compositionalMap.analysisNames = distinctAnalysisNames;
@@ -171,6 +171,7 @@ function displayVerificationResults(verificationResults)
     assignin(modelWorkspace,'compositionalMap',compositionalMap);      
     
     % display the verification result of each group
+    initializeVerificationVisualization(verificationResults);
     for analysisIndex = 1 : length(compositionalMap.analysisNames)
         displayVerificationResult(analysisIndex);
     end
@@ -181,6 +182,7 @@ function displayVerificationResult(analysisIndex)
     %load variables
     modelWorkspace = get_param(gcs,'ModelWorkspace');
     verificationResults = modelWorkspace.getVariable('verificationResults');   
+    
     compositionalMap = modelWorkspace.getVariable('compositionalMap');  
     analysisName = compositionalMap.analysisNames{analysisIndex};
     selectedOption = compositionalMap.selectedOptions(analysisIndex);
@@ -192,14 +194,67 @@ function displayVerificationResult(analysisIndex)
         strcmp(x.top, analysisName),verificationResults.analysisResults));
     verificationResult = verificationResults.analysisResults{resultIndex};
     
-    topMostColor = 'green';
+    ancestorColor = 'green';
     for i = 1 : length(verificationResult.properties)        
-        topMostColor = displayPropertyResult(verificationResult.properties{i},topMostColor);
-    end    
+        ancestorColor = displayPropertyResult(verificationResult.properties{i},ancestorColor);
+        
+        % color ancestor blocks
+        ancestorBlock = fileparts(verificationResult.properties{i}.originPath);            
+        while contains(ancestorBlock, '/')
+            currentColor = get_param(ancestorBlock, 'BackgroundColor');
+            if strcmp(currentColor, 'white') || ...
+                    (strcmp(currentColor, 'green') && strcmp(ancestorColor, 'yellow')) || ...
+                    strcmp(ancestorColor, 'red')
+            set_param(ancestorBlock, 'BackgroundColor', ancestorColor);
+            end
+            ancestorBlock = fileparts(ancestorBlock);
+        end          
+    end           
 end
 
-function [topMostcolor] = displayPropertyResult(propertyResult, topMostcolor)
-    
+
+function initializeVerificationVisualization(verificationResults)
+    for i = 1 : length(verificationResults.analysisResults)        
+        
+        % clear the colors of properties
+        for j = 1 : length(verificationResults.analysisResults{i}.properties)
+            propertyStruct = verificationResults.analysisResults{i}.properties{j};
+            set_param(propertyStruct.originPath, 'BackgroundColor', 'white');
+            set_param(propertyStruct.originPath, 'ForegroundColor', 'black');
+            
+            % clear the colors of ancestor blocks 
+            ancestorBlock = fileparts(verificationResults.analysisResults{i}.properties{j}.originPath);            
+            while contains(ancestorBlock, '/')        
+                set_param(ancestorBlock, 'BackgroundColor', 'white');
+                set_param(propertyStruct.originPath, 'ForegroundColor', 'black');
+                ancestorBlock = fileparts(ancestorBlock);
+            end   
+
+        end
+    end  
+end
+
+function [ancestorColor] = displayPropertyResult(propertyStruct, ancestorColor)
+     if strcmp(propertyStruct.answer, 'SAFE')
+        set_param(propertyStruct.originPath, 'BackgroundColor', 'green');
+        set_param(propertyStruct.originPath, 'ForegroundColor', 'green');                                
+    elseif strcmp(propertyStruct.answer, 'TIMEOUT')
+        set_param(propertyStruct.originPath, 'BackgroundColor', 'gray');
+        set_param(propertyStruct.originPath, 'ForegroundColor', 'gray');        
+        if strcmp(ancestorColor, 'green')
+            ancestorColor = 'yellow';
+        end
+    elseif strcmp(propertyStruct.answer, 'UNKNOWN')
+        set_param(propertyStruct.originPath, 'BackgroundColor', 'yellow');
+        set_param(propertyStruct.originPath, 'ForegroundColor', 'yellow');         
+        if strcmp(ancestorColor, 'green')
+            ancestorColor = 'yellow';
+        end
+    elseif strcmp(propertyStruct.answer, 'CEX')
+        set_param(propertyStruct.originPath, 'BackgroundColor', 'red');
+        set_param(propertyStruct.originPath, 'ForegroundColor', 'red');   
+        ancestorColor = 'red';
+     end                        
 end
 
 function [analysisStruct] = handleAnalysis(json, xml_analysis_start, ir_struct, date_value, ...
@@ -217,6 +272,14 @@ function [analysisStruct] = handleAnalysis(json, xml_analysis_start, ir_struct, 
             index = index + 1;
             % get the property name
             propertyStruct.property_name = char(xml_element.getAttribute('name'));
+            %ToDo: fix the naming difference between kind2 xml file and
+            %translator mapping file for compositional assume blocks
+            if contains (propertyStruct.property_name,'.assume')
+                propertyStruct.property_name 
+                %ToDo delete this line
+                index = index - 1;
+                continue
+            end
             propertyStruct.answer = xml_element.getElementsByTagName('Answer').item(0).getTextContent;
             if strcmp(propertyStruct.answer, 'valid')  
                 propertyStruct.answer = 'SAFE';
@@ -288,6 +351,9 @@ function [analysisStruct] = handleAnalysis(json, xml_analysis_start, ir_struct, 
                     end
                     if strcmp(json{i,1}.PropertyName, 'ensure')
                         propertyJsonName = strcat(propertyJsonName,'.', json{i,1}.ModeName ,'.ensure');
+                    end
+                    if strcmp(json{i,1}.PropertyName, 'assume')
+                        propertyJsonName = strcat(propertyJsonName, '.assume');
                     end
                     if isfield(json{i,1},'Index')
                         propertyJsonName = strcat(propertyJsonName,'[', json{i,1}.Index ,']');
