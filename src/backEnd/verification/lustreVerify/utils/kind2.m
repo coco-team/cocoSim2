@@ -127,9 +127,8 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                 end
                 
                 %store the verification results in the model workspace
-                modelWorkspace = get_param(gcs,'ModelWorkspace');
-                assignin(modelWorkspace,'verificationResults',verificationResults);                    
-                displayVerificationResults(verificationResults);
+                saveVerificationResults(verificationResults);
+                displayVerificationResults();
             end
                         
         end
@@ -142,14 +141,17 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
     %% for modular execution
 end
 
-function displayVerificationResults(verificationResults)
-    % extract the top field from each analysis result      
+function saveVerificationResults(verificationResults)
+    
+    modelWorkspace = get_param(gcs,'ModelWorkspace');
+    assignin(modelWorkspace,'verificationResults',verificationResults);                    
+     % extract the top field from each analysis result      
     analysisNames = cellfun(@(x) x.top, verificationResults.analysisResults,'UniformOutput', 0);
     % group the analysis results by top field
     groups = findgroups(analysisNames);    
     % get the name of each group
     distinctAnalysisNames = splitapply(@(x) x(1),analysisNames,groups); 
-    
+
     % get the options for compositional analysis    
     compositionalOptions = cell(1, length(distinctAnalysisNames));    
     for i = 1: length(verificationResults.analysisResults)        
@@ -157,105 +159,20 @@ function displayVerificationResults(verificationResults)
         optionIndex = length(compositionalOptions{index}) + 1;
         compositionalOptions{index}{optionIndex} = verificationResults.analysisResults{i}.abstract;        
     end    
-    
+
     % by default, display the last analysis for each group
     selectedOptions = cellfun(@(x) length(x), compositionalOptions);
-    
+
     %map options and selected options with each distinct name
     compositionalMap.analysisNames = distinctAnalysisNames;
     compositionalMap.compositionalOptions = compositionalOptions;
     compositionalMap.selectedOptions = selectedOptions;
-    
+
     %store the options in the model workspace
     modelWorkspace = get_param(gcs,'ModelWorkspace');
     assignin(modelWorkspace,'compositionalMap',compositionalMap);      
-    
-    % display the verification result of each group
-    initializeVerificationVisualization(verificationResults);
-    for analysisIndex = 1 : length(compositionalMap.analysisNames)
-        displayVerificationResult(analysisIndex);
-    end
 end
 
-function displayVerificationResult(analysisIndex)
-
-    %load variables
-    modelWorkspace = get_param(gcs,'ModelWorkspace');
-    verificationResults = modelWorkspace.getVariable('verificationResults');   
-    
-    compositionalMap = modelWorkspace.getVariable('compositionalMap');  
-    analysisName = compositionalMap.analysisNames{analysisIndex};
-    selectedOption = compositionalMap.selectedOptions(analysisIndex);
-    selectedAbstract = compositionalMap.compositionalOptions{analysisIndex}{selectedOption};
-    
-    % find the analysis whose top = analysisName and 
-    % abstrct = selectedAbstract
-    resultIndex = find(cellfun(@(x) strcmp(x.abstract, selectedAbstract) && ...
-        strcmp(x.top, analysisName),verificationResults.analysisResults));
-    verificationResult = verificationResults.analysisResults{resultIndex};
-    
-    ancestorColor = 'green';
-    for i = 1 : length(verificationResult.properties)        
-        ancestorColor = displayPropertyResult(verificationResult.properties{i},ancestorColor);
-        
-        % color ancestor blocks
-        ancestorBlock = fileparts(verificationResult.properties{i}.originPath);            
-        while contains(ancestorBlock, '/')
-            currentColor = get_param(ancestorBlock, 'BackgroundColor');
-            if strcmp(currentColor, 'white') || ...
-                    (strcmp(currentColor, 'green') && strcmp(ancestorColor, 'yellow')) || ...
-                    strcmp(ancestorColor, 'red')
-            set_param(ancestorBlock, 'BackgroundColor', ancestorColor);
-            end
-            ancestorBlock = fileparts(ancestorBlock);
-        end          
-    end           
-end
-
-
-function initializeVerificationVisualization(verificationResults)
-    for i = 1 : length(verificationResults.analysisResults)        
-        
-        % clear the colors of properties
-        for j = 1 : length(verificationResults.analysisResults{i}.properties)
-            propertyStruct = verificationResults.analysisResults{i}.properties{j};
-            set_param(propertyStruct.originPath, 'BackgroundColor', 'white');
-            set_param(propertyStruct.originPath, 'ForegroundColor', 'black');
-            
-            % clear the colors of ancestor blocks 
-            ancestorBlock = fileparts(verificationResults.analysisResults{i}.properties{j}.originPath);            
-            while contains(ancestorBlock, '/')        
-                set_param(ancestorBlock, 'BackgroundColor', 'white');
-                set_param(propertyStruct.originPath, 'ForegroundColor', 'black');
-                ancestorBlock = fileparts(ancestorBlock);
-            end   
-
-        end
-    end  
-end
-
-function [ancestorColor] = displayPropertyResult(propertyStruct, ancestorColor)
-     if strcmp(propertyStruct.answer, 'SAFE')
-        set_param(propertyStruct.originPath, 'BackgroundColor', 'green');
-        set_param(propertyStruct.originPath, 'ForegroundColor', 'green');                                
-    elseif strcmp(propertyStruct.answer, 'TIMEOUT')
-        set_param(propertyStruct.originPath, 'BackgroundColor', 'gray');
-        set_param(propertyStruct.originPath, 'ForegroundColor', 'gray');        
-        if strcmp(ancestorColor, 'green')
-            ancestorColor = 'yellow';
-        end
-    elseif strcmp(propertyStruct.answer, 'UNKNOWN')
-        set_param(propertyStruct.originPath, 'BackgroundColor', 'yellow');
-        set_param(propertyStruct.originPath, 'ForegroundColor', 'yellow');         
-        if strcmp(ancestorColor, 'green')
-            ancestorColor = 'yellow';
-        end
-    elseif strcmp(propertyStruct.answer, 'CEX')
-        set_param(propertyStruct.originPath, 'BackgroundColor', 'red');
-        set_param(propertyStruct.originPath, 'ForegroundColor', 'red');   
-        ancestorColor = 'red';
-     end                        
-end
 
 function [analysisStruct] = handleAnalysis(json, xml_analysis_start, ir_struct, date_value, ...
                                lustre_file_name, xml_trace, annot_text, analysisStruct)

@@ -82,6 +82,7 @@ function compositionalOptionCallback(callbackInfo)
     compositionalMap = modelWorkspace.getVariable('compositionalMap');    
     compositionalMap.selectedOptions(data.currentAnalysis) = data.currentOption; 
     assignin(modelWorkspace,'compositionalMap',compositionalMap);
+    displayVerificationResults();
 end
 
 function schema = signalBuilders(callbackInfo)
