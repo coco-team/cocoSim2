@@ -1,7 +1,8 @@
 function contract_callback(action,block)
 if evalin( 'base', '~exist(''ContractValidatorReady'',''var'')' ) == 1 || ...
         evalin( 'base', 'ContractValidatorReady' )  == 0
-    feval(action,block)
+    feval(action,block);
+    saveValidatorParameters(block);
 end
 end
 
@@ -41,7 +42,14 @@ blockModel = get_param(gcb, 'Parent');
 validatorBlock = gcb;
 ports = get_param(validatorBlock,'PortHandles');
 portConnectivity = get_param(validatorBlock, 'PortConnectivity');
-ContractValidatorBlock = evalin( 'base', 'ContractValidatorBlock');
+
+% get the previous values of the numbers of assume, guarantee, 
+% and mode ports
+modelWorkspace = get_param(bdroot,'Modelworkspace');
+ContractValidatorBlocksMap = modelWorkspace.getVariable('ContractValidatorBlocksMap');
+ContractValidatorBlock = ContractValidatorBlocksMap(validatorBlock);
+
+% check if the previous ports are different than the current ports
 if ContractValidatorBlock.assumePorts + ...
         ContractValidatorBlock.guaranteePorts + ...
         ContractValidatorBlock.modeBlocksPorts ~= ...
