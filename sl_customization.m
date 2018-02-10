@@ -560,9 +560,15 @@ function javaToLustreCompilerCallback(callbackInfo)
         javaaddpath(fullfile(cocosim_path,'tools','CocoSim_IR_Compiler-0.1-jar-with-dependencies.jar'));    
         addpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'java_lustre_compiler')));    
         rmpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'lustre_compiler')));    
+        
+        addpath(genpath(fullfile(cocosim_path, 'src', 'backEnd', 'verification', 'cocoSpecVerify')));    
+        rmpath(genpath(fullfile(cocosim_path, 'src', 'backEnd', 'verification', 'lustreVerify')));    
     else        
         addpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'lustre_compiler')));
         rmpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'java_lustre_compiler')));    
+        
+        addpath(genpath(fullfile(cocosim_path, 'src', 'backEnd', 'verification', 'lustreVerify')));    
+        rmpath(genpath(fullfile(cocosim_path, 'src', 'backEnd', 'verification', 'cocoSpecVerify')));           
     end
     saveCoCoSimPreferences(CoCoSimPreferences);
 end

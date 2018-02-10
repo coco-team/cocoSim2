@@ -27,7 +27,10 @@ catch
     SOLVER = 'NONE';
 end
 
-if numel(property_node_names) > 0 && not (strcmp(SOLVER, 'NONE'))
+mapping_file = strcat(output_dir,'/', file_name,'_mapping.json');
+
+if (numel(property_node_names) > 0 || exist(mapping_file) == 2) ...
+        && not (strcmp(SOLVER, 'NONE'))
     if not (strcmp(SOLVER, 'Z') || strcmp(SOLVER,'K') || strcmp(SOLVER, 'J'))
         display_msg('Available solvers are Z for Zustre and K for Kind2', Constants.WARNING, 'cocoSim', '');
         return
@@ -59,7 +62,7 @@ if numel(property_node_names) > 0 && not (strcmp(SOLVER, 'NONE'))
     elseif strcmp(SOLVER, 'K')
         display_msg('Running Kind2', Constants.INFO, 'Verification', '');
         try
-            kind2(nom_lustre_file, property_node_names, property_file_base_name, ir_struct, xml_trace);
+            kind2(nom_lustre_file, property_node_names, property_file_base_name, ir_struct, xml_trace, mapping_file);
         catch ME
             display_msg(ME.message, Constants.ERROR, 'Verification', '');
             display_msg(ME.getReport(), Constants.DEBUG, 'Verification', '');
