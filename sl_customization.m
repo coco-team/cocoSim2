@@ -469,19 +469,13 @@ function schema = getPreferences(callbackInfo)
     schema = sl_container_schema;
     schema.label = 'Preferences';
     schema.statustip = 'Preferences';
-    schema.autoDisableWhen = 'Busy';
+    schema.autoDisableWhen = 'Busy';    
     
-    % check if the preferences mat file is there
-    [cocosim_path, ~, ~] = fileparts(mfilename('fullpath'));
-    preferencesFile = fullfile(cocosim_path, 'libs', 'preferences.mat');
-    if exist(preferencesFile, 'file') == 2
-        % load variable CoCoSimPreferences into model workspace
-        load(preferencesFile);        
-    else
-        % define the default preferences
-        CoCoSimPreferences = {};
-    end    
-    schema.childrenFcns = {@getModelChecker, @getMiddleEnd, {@getCompositionalAnalysis, CoCoSimPreferences}};
+    CoCoSimPreferences = loadCoCoSimPreferences();
+    
+    schema.childrenFcns = {{@getModelChecker,CoCoSimPreferences}, ...
+        {@getMiddleEnd,CoCoSimPreferences}, ...
+        {@getCompositionalAnalysis, CoCoSimPreferences}};
 end
 
 function schema = getModelChecker(callbackInfo)
@@ -489,70 +483,88 @@ function schema = getModelChecker(callbackInfo)
     schema.label = 'Model checker';
     schema.statustip = 'Model checker';
     schema.autoDisableWhen = 'Busy';
-    schema.childrenFcns = {@getKindOption, @getJKindOption};
+    CoCoSimPreferences = callbackInfo.userdata;
+    schema.childrenFcns = { ...
+        {@getKindOption, CoCoSimPreferences} , ... 
+         {@getJKindOption, CoCoSimPreferences}};
 end
 
 function schema = getKindOption(callbackInfo)
     schema = sl_toggle_schema;
     schema.label = 'Kind2';    
-    schema.callback = @setKindOption;
-    if evalin( 'base', '~exist(''MODEL_CHECKER'',''var'')' ) == 1 || ...
-            strcmp(evalin( 'base', 'MODEL_CHECKER' ), 'Kind2')
+    CoCoSimPreferences = callbackInfo.userdata;
+    
+    if strcmp(CoCoSimPreferences.modelChecker, 'Kind2')
         schema.checked = 'checked';
     else
         schema.checked = 'unchecked';
-    end
+    end    
+    schema.callback = @setKindOption;
+    schema.userdata = CoCoSimPreferences;
 end
 
-function setKindOption(callbackInfo)
-    assignin('base', 'MODEL_CHECKER', 'Kind2');
+function setKindOption(callbackInfo)    
+    CoCoSimPreferences = callbackInfo.userdata;
+    CoCoSimPreferences.modelChecker = 'Kind2';
+    saveCoCoSimPreferences(CoCoSimPreferences);
 end
 
 function schema = getJKindOption(callbackInfo)
     schema = sl_toggle_schema;
     schema.label = 'JKind';    
-    schema.callback = @setJKindOption;
-    if evalin( 'base', 'exist(''MODEL_CHECKER'',''var'')' ) == 1 && ...
-            strcmp(evalin( 'base', 'MODEL_CHECKER' ) ,'JKind')
+    
+    CoCoSimPreferences = callbackInfo.userdata;
+    
+    if strcmp(CoCoSimPreferences.modelChecker, 'JKind')
         schema.checked = 'checked';
     else
         schema.checked = 'unchecked';
     end
+    
+    schema.callback = @setJKindOption;
+    schema.userdata = CoCoSimPreferences;
 end
 
-function setJKindOption(callbackInfo)
-    assignin('base', 'MODEL_CHECKER', 'JKind');
+function setJKindOption(callbackInfo)    
+    CoCoSimPreferences = callbackInfo.userdata;
+    CoCoSimPreferences.modelChecker = 'JKind';
+    saveCoCoSimPreferences(CoCoSimPreferences);
 end
 
 
 function schema = getMiddleEnd(callbackInfo)
     schema = sl_toggle_schema;
-    schema.label = 'Use java to lustre Compiler';
-    schema.callback = @javaToLustreCompilerCallback;
-
-    if evalin( 'base', '~exist(''JAVA_TO_LUSTRE_COMPILER'',''var'')' ) == 1 || ...
-            evalin( 'base', 'JAVA_TO_LUSTRE_COMPILER' )  == 1
+    schema.label = 'Use java to lustre Compiler';       
+    
+    CoCoSimPreferences = callbackInfo.userdata;
+    
+    if CoCoSimPreferences.javaToLustreCompiler
         schema.checked = 'checked';
     else
         schema.checked = 'unchecked';
-    end
+    end    
+    
+    schema.callback = @javaToLustreCompilerCallback;    
+    schema.userdata = CoCoSimPreferences;
+    
 end
 
 
 function javaToLustreCompilerCallback(callbackInfo)
-
-[cocosim_path, ~, ~] = fileparts(mfilename('fullpath'));
-
-if evalin( 'base', '~exist(''JAVA_TO_LUSTRE_COMPILER'',''var'')' ) == 1 || ...
-        evalin( 'base', 'JAVA_TO_LUSTRE_COMPILER' )  == 1
-    assignin('base', 'JAVA_TO_LUSTRE_COMPILER', 0);
-    addpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'lustre_compiler')));
-    rmpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'java_lustre_compiler')));    
-else
-    assignin('base', 'JAVA_TO_LUSTRE_COMPILER', 1);    
-    addpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'java_lustre_compiler')));    
-    rmpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'lustre_compiler')));    
-end
+    CoCoSimPreferences = callbackInfo.userdata;
+    CoCoSimPreferences.javaToLustreCompiler = ~ CoCoSimPreferences.javaToLustreCompiler;
+    
+    [cocosim_path, ~, ~] = fileparts(mfilename('fullpath'));        
+    if CoCoSimPreferences.javaToLustreCompiler
+        % select the middle end lustre compiler        
+        javaaddpath(fullfile(cocosim_path,'tools','CocoSim_IR_Compiler-0.1-jar-with-dependencies.jar'));    
+        addpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'java_lustre_compiler')));    
+        rmpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'lustre_compiler')));    
+    else        
+        addpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'lustre_compiler')));
+        rmpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'java_lustre_compiler')));    
+    end
+    saveCoCoSimPreferences(CoCoSimPreferences);
 end
 
 function schema = getCompositionalAnalysis(callbackInfo)
@@ -560,17 +572,10 @@ function schema = getCompositionalAnalysis(callbackInfo)
     schema.label = 'Compositional Analysis';    
     
     CoCoSimPreferences = callbackInfo.userdata;
-
-    if isfield(CoCoSimPreferences,'compositionalAnalysis')
-        if CoCoSimPreferences.compositionalAnalysis
-            schema.checked = 'checked';
-        else
-            schema.checked = 'unchecked';
-        end
-    else
-        % default case
+    if CoCoSimPreferences.compositionalAnalysis
         schema.checked = 'checked';
-        CoCoSimPreferences.compositionalAnalysis = true;        
+    else
+        schema.checked = 'unchecked';
     end
     
     schema.callback = @compositionalAnalysis;    
@@ -579,12 +584,7 @@ end
 
 function compositionalAnalysis(callbackInfo)
     CoCoSimPreferences = callbackInfo.userdata;
-    CoCoSimPreferences.compositionalAnalysis = ~ CoCoSimPreferences.compositionalAnalysis;    
-    if CoCoSimPreferences.compositionalAnalysis
-        schema.checked = 'checked';
-    else
-        schema.checked = 'unchecked';
-    end
+    CoCoSimPreferences.compositionalAnalysis = ~ CoCoSimPreferences.compositionalAnalysis;        
     saveCoCoSimPreferences(CoCoSimPreferences);
 end
 

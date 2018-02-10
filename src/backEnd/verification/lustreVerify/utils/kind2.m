@@ -17,66 +17,25 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
     catch
        timeout = '60.0';
     end
-    if exist(KIND2,'file') && exist(Z3,'file')
-%         for idx_prop=1:numel(property_node_names)
-%         
-%             date_value = datestr(now, 'ddmmyyyyHHMMSS');
-%             [~,file_name,~] = fileparts(lustre_file_name);
-%             if evalin( 'base', '~exist(''JAVA_TO_LUSTRE_COMPILER'',''var'')' ) == 1 || ...
-%                 evalin( 'base', 'JAVA_TO_LUSTRE_COMPILER' )  == 1
-%             command = sprintf('%s --z3_bin %s -xml --timeout %s %s --lus_main %s_%s %s',...
-%                 KIND2, Z3, timeout, kind2_option, file_name,property_node_names{idx_prop}.prop_name, lustre_file_name);
-%             else
-%                 command = sprintf('%s --z3_bin %s -xml --timeout %s %s --lus_main %s %s',...
-%                 KIND2, Z3, timeout, kind2_option, property_node_names{idx_prop}.prop_name, lustre_file_name);
-%             end
-%             
-%             display_msg(['KIND2_COMMAND ' command], Constants.DEBUG, 'write_code', '');
-%             [~, kind2_out] = system(command);
-%             display_msg(kind2_out, Constants.DEBUG, 'write_code', '');
-%             [answer, cex] = solver_result('KIND2', kind2_out, property_node_names{idx_prop}.prop_name, property_file_base_name);
-%             % Change the observer block display according to answer
-%             display = sprintf('color(''black'')\n');
-%             display = [display sprintf('text(0.5, 0.5, [''Property: '''''' get_param(gcb,''name'') ''''''''], ''horizontalAlignment'', ''center'');\n')];
-%             display = [display 'text(0.99, 0.03, ''{\bf\fontsize{12}'];
-%             display = [display char(upper(answer))];
-%             display = [display '}'', ''hor'', ''right'', ''ver'', ''bottom'', ''texmode'', ''on'');'];
-%             obs_mask = Simulink.Mask.get(property_node_names{idx_prop}.annotation);
-%             obs_mask.Display = sprintf('%s',display);
-%             if strcmp(answer, 'SAFE')
-%                 set_param(property_node_names{idx_prop}.origin_block_name, 'BackgroundColor', 'green');
-%                 set_param(property_node_names{idx_prop}.origin_block_name, 'ForegroundColor', 'green');
-%             elseif strcmp(answer, 'TIMEOUT')
-%                 set_param(property_node_names{idx_prop}.origin_block_name, 'BackgroundColor', 'gray');
-%                 set_param(property_node_names{idx_prop}.origin_block_name, 'ForegroundColor', 'gray');
-%             elseif strcmp(answer, 'UNKNOWN')
-%                 set_param(property_node_names{idx_prop}.origin_block_name, 'BackgroundColor', 'yellow');
-%                 set_param(property_node_names{idx_prop}.origin_block_name, 'ForegroundColor', 'yellow');
-%             elseif strcmp(answer, 'CEX')
-%                 set_param(property_node_names{idx_prop}.origin_block_name, 'BackgroundColor', 'red');
-%                 set_param(property_node_names{idx_prop}.origin_block_name, 'ForegroundColor', 'red');
-%                 if ~strcmp(cex, '')
-%                    try
-%                      display_cex(cex, property_node_names{idx_prop}, ...
-%                                   ir_struct, date_value, ...
-%                                    lustre_file_name, idx_prop, xml_trace);
-%                     catch ME
-%                         display_msg(ME.message, Constants.ERROR, 'JKind', '');
-%                    end
-%                 end
-%             end        
-%         end
+    if exist(KIND2,'file') && exist(Z3,'file')        
         
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % properties in the mapping file
-                        
+        % properties in the mapping file                        
         if exist(mapping_file) == 2
         
             date_value = datestr(now, 'ddmmyyyyHHMMSS');
             [~,file_name,~] = fileparts(lustre_file_name);
             
-            command = sprintf('%s --z3_bin %s -xml --timeout %s %s %s --modular true --compositional true',...
-                KIND2, Z3, timeout, kind2_option, lustre_file_name);
+            % load preferences
+            CoCoSimPreferences = loadCoCoSimPreferences();     
+            % check whether to use compositional analysis
+            if CoCoSimPreferences.compositionalAnalysis
+                command = sprintf('%s --z3_bin %s -xml --timeout %s %s %s --modular true --compositional true',...
+                    KIND2, Z3, timeout, kind2_option, lustre_file_name);
+            else
+                command = sprintf('%s --z3_bin %s -xml --timeout %s %s %s --modular true',...
+                    KIND2, Z3, timeout, kind2_option, lustre_file_name);
+            end
+            
             
             display_msg(['KIND2_COMMAND ' command], Constants.DEBUG, 'write_code', '');
             [~, kind2_out] = system(command);
