@@ -470,7 +470,18 @@ function schema = getPreferences(callbackInfo)
     schema.label = 'Preferences';
     schema.statustip = 'Preferences';
     schema.autoDisableWhen = 'Busy';
-    schema.childrenFcns = {@getModelChecker, @getMiddleEnd};
+    
+    % check if the preferences mat file is there
+    [cocosim_path, ~, ~] = fileparts(mfilename('fullpath'));
+    preferencesFile = fullfile(cocosim_path, 'libs', 'preferences.mat');
+    if exist(preferencesFile, 'file') == 2
+        % load variable CoCoSimPreferences into model workspace
+        load(preferencesFile);        
+    else
+        % define the default preferences
+        CoCoSimPreferences = {};
+    end    
+    schema.childrenFcns = {@getModelChecker, @getMiddleEnd, {@getCompositionalAnalysis, CoCoSimPreferences}};
 end
 
 function schema = getModelChecker(callbackInfo)
@@ -542,4 +553,43 @@ else
     addpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'java_lustre_compiler')));    
     rmpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'lustre_compiler')));    
 end
+end
+
+function schema = getCompositionalAnalysis(callbackInfo)
+    schema = sl_toggle_schema;
+    schema.label = 'Compositional Analysis';    
+    
+    CoCoSimPreferences = callbackInfo.userdata;
+
+    if isfield(CoCoSimPreferences,'compositionalAnalysis')
+        if CoCoSimPreferences.compositionalAnalysis
+            schema.checked = 'checked';
+        else
+            schema.checked = 'unchecked';
+        end
+    else
+        % default case
+        schema.checked = 'checked';
+        CoCoSimPreferences.compositionalAnalysis = true;        
+    end
+    
+    schema.callback = @compositionalAnalysis;    
+    schema.userdata = CoCoSimPreferences;
+end
+
+function compositionalAnalysis(callbackInfo)
+    CoCoSimPreferences = callbackInfo.userdata;
+    CoCoSimPreferences.compositionalAnalysis = ~ CoCoSimPreferences.compositionalAnalysis;    
+    if CoCoSimPreferences.compositionalAnalysis
+        schema.checked = 'checked';
+    else
+        schema.checked = 'unchecked';
+    end
+    saveCoCoSimPreferences(CoCoSimPreferences);
+end
+
+function saveCoCoSimPreferences(CoCoSimPreferences)
+    [cocosim_path, ~, ~] = fileparts(mfilename('fullpath'));
+    preferencesFile = fullfile(cocosim_path, 'libs', 'preferences.mat');
+    save(preferencesFile, 'CoCoSimPreferences');
 end
