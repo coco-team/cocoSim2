@@ -128,7 +128,7 @@ function [verificationResults, compositionalMap] = saveVerificationResults(verif
     compositionalMap.selectedOptions = selectedOptions;
 
     %store the options in the model workspace
-    modelWorkspace = get_param(gcs,'ModelWorkspace');
+    modelWorkspace = get_param(bdroot(gcs),'ModelWorkspace');
     assignin(modelWorkspace,'compositionalMap',compositionalMap);      
 end
 
@@ -147,11 +147,11 @@ function [analysisStruct] = handleAnalysis(json, xml_analysis_start, ir_struct, 
             propertyStruct = {};
             index = index + 1;
             % get the property name
-            propertyStruct.property_name = char(xml_element.getAttribute('name'));
+            propertyStruct.propertyName = char(xml_element.getAttribute('name'));
             %ToDo: fix the naming difference between kind2 xml file and
             %translator mapping file for compositional assume blocks
-            if contains (propertyStruct.property_name,'.assume')
-                propertyStruct.property_name 
+            if contains (propertyStruct.propertyName,'.assume')
+                propertyStruct.propertyName 
                 %ToDo delete this line
                 index = index - 1;
                 continue
@@ -165,7 +165,7 @@ function [analysisStruct] = handleAnalysis(json, xml_analysis_start, ir_struct, 
                 propertyStruct.answer = 'UNKNOWN';
             end
 
-            msg = [' result for property node [' propertyStruct.property_name ']: ' propertyStruct.answer];
+            msg = [' result for property node [' propertyStruct.propertyName ']: ' propertyStruct.answer];
             display_msg(msg, Constants.RESULT, 'Property checking', '');
 
             % Change the block display according to answer
@@ -178,7 +178,7 @@ function [analysisStruct] = handleAnalysis(json, xml_analysis_start, ir_struct, 
         %                     obs_mask.Display = sprintf('%s',display);
 
             % get the json mapping
-            jsonName = regexprep(propertyStruct.property_name,'\[l\S*?\]',''); 
+            jsonName = regexprep(propertyStruct.propertyName,'\[l\S*?\]',''); 
             originPath = '';
             if contains(jsonName,  '._one_mode_active')
                 % get the validator block

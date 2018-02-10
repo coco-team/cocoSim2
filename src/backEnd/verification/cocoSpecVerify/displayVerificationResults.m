@@ -20,7 +20,7 @@ function displayVerificationResult(verificationResults,compositionalMap, analysi
     
     ancestorColor = 'green';
     for i = 1 : length(verificationResult.properties)        
-        ancestorColor = displayPropertyResult(verificationResult.properties{i},ancestorColor);
+        ancestorColor = displayPropertyResult(verificationResult.properties{i},ancestorColor, resultIndex, i);
         
         % color ancestor blocks
         ancestorBlock = fileparts(verificationResult.properties{i}.originPath);            
@@ -58,7 +58,7 @@ function initializeVerificationVisualization(verificationResults)
     end  
 end
 
-function [ancestorColor] = displayPropertyResult(propertyStruct, ancestorColor)
+function [ancestorColor] = displayPropertyResult(propertyStruct, ancestorColor, resultIndex, propertyIndex)
      if strcmp(propertyStruct.answer, 'SAFE')
         set_param(propertyStruct.originPath, 'BackgroundColor', 'green');
         set_param(propertyStruct.originPath, 'ForegroundColor', 'green');                                
@@ -78,5 +78,25 @@ function [ancestorColor] = displayPropertyResult(propertyStruct, ancestorColor)
         set_param(propertyStruct.originPath, 'BackgroundColor', 'red');
         set_param(propertyStruct.originPath, 'ForegroundColor', 'red');   
         ancestorColor = 'red';
+        addCounterExampleOptions(propertyStruct, resultIndex, propertyIndex);
      end                        
+end
+
+function addCounterExampleOptions(propertyStruct,resultIndex, propertyIndex)
+
+    pathParts = strsplit(mfilename('fullpath'),'/');
+    path = strjoin(pathParts(1 :end - 3), '/');
+    cexTable = fileread([path filesep 'templates' filesep 'displayCexTable.m']);
+    
+    cexTable = strrep(cexTable, '[(resultIndex)]', num2str(resultIndex));
+    cexTable = strrep(cexTable, '[(propertyIndex)]', num2str(propertyIndex));          
+    createMaskAction('Display counter example as a table2', cexTable, propertyStruct.originPath);
+end
+
+function createMaskAction(title, content, originPath)
+    mask = Simulink.Mask.get(originPath);    
+    name = regexprep(title,'[/\s'']','_');    
+    button = mask.addDialogControl('pushbutton', name);
+    button.Prompt = title;
+    button.Callback = content;    
 end
