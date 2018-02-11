@@ -25,7 +25,7 @@ end
 % draw a figure that holds all tables
 f = figure('Name',propertyStruct.originPath,'NumberTitle','off');
 panel = uipanel('Parent',f);
-%set(panel,'Position',[0 0 1 1]);
+panel.Position = [0 0 f.Position(3) f.Position(4)];
 
 % draw a table for each node
 tables = cell(1, length(flattenedNodes));
@@ -61,12 +61,10 @@ for nodeIndex =1 : length(flattenedNodes)
     t.RowName = rowNames;
     t.ColumnWidth = {50};    
     t.Position(3:4) = t.Extent(3:4);
-    if nodeIndex == 1
-       t.Position(2) = 20;
-       t.Position(4) = t.Position(4) + 20;
-    else
-        t.Position(2) = tables{nodeIndex - 1}.Position(2) + tables{nodeIndex - 1}.Position(4) + 20;
+    if nodeIndex > 1       
+        t.Position(2) = tables{nodeIndex - 1}.Position(2) + tables{nodeIndex - 1}.Position(4) + 30;
     end
-
+    text = uicontrol('Style','text','String',flattenedNodes{nodeIndex}.name,'parent',panel);
+    text.Position = [0 t.Position(2)+t.Position(4)  500 20];
     tables{nodeIndex} = t;
 end
