@@ -20,7 +20,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
     if exist(KIND2,'file') && exist(Z3,'file')        
         
         % properties in the mapping file                        
-        if exist(mapping_file) == 2
+        if exist(mapping_file, 'file') == 2
         
             date_value = datestr(now, 'ddmmyyyyHHMMSS');
             [~,file_name,~] = fileparts(lustre_file_name);
@@ -47,10 +47,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
             fclose(fid);            
             s = dir(results_file_name);
             
-            %ToDo: enhance this code to execute only when there is counter
-            %examples
-            
-            % support multiple counter examples
+            %ToDo: clean this code   
             pathParts = strsplit(mfilename('fullpath'),'/');
             %set cocoSim_path to be ~/CoCoSim/src
             cocoSim_path = strjoin(pathParts(1 :end - 5), '/');            
@@ -103,7 +100,7 @@ end
 function [verificationResults, compositionalMap] = saveVerificationResults(verificationResults)
     
     modelWorkspace = get_param(gcs,'ModelWorkspace');
-    assignin(modelWorkspace,'verificationResults',verificationResults);                    
+                        
      % extract the top field from each analysis result      
     analysisNames = cellfun(@(x) x.top, verificationResults.analysisResults,'UniformOutput', 0);
     % group the analysis results by top field
@@ -126,10 +123,45 @@ function [verificationResults, compositionalMap] = saveVerificationResults(verif
     compositionalMap.analysisNames = distinctAnalysisNames;
     compositionalMap.compositionalOptions = compositionalOptions;
     compositionalMap.selectedOptions = selectedOptions;
-
+       
     %store the options in the model workspace
     modelWorkspace = get_param(bdroot(gcs),'ModelWorkspace');
     assignin(modelWorkspace,'compositionalMap',compositionalMap);      
+    
+    %aggregate valid properties in compositional analysis
+    %ToDo: remove this if kind2 verifier returns all properties in each 
+    %analysis
+    for i = 1 : length(compositionalMap.analysisNames)
+        % only nodes with multiple analysis results
+        if length(compositionalMap.compositionalOptions) > 1
+            aggregatedProperties = {};
+            for j = 1: length(verificationResults.analysisResults)
+                analysisResult = verificationResults.analysisResults{j};
+                aggregatedLength = length(aggregatedProperties);
+                
+                if strcmp(analysisResult.top, ...
+                        compositionalMap.analysisNames{i})
+                    %add valid properties to aggregatedProperties
+                    for propertyIndex = 1 : length(analysisResult.properties)
+                        if strcmp('SAFE', analysisResult.properties{propertyIndex}.answer)
+                            % In kind2  new valid properties are always
+                            % missing from aggregated properties
+                            aggregatedProperties = cat(2, aggregatedProperties, ...
+                                analysisResult.properties{propertyIndex});
+                        end
+                    end   
+                    %add valid properties so far to the analysis results
+                    verificationResults.analysisResults{j}.properties = ...
+                        cat (2, verificationResults.analysisResults{j}.properties, ...
+                        aggregatedProperties(1:aggregatedLength));
+                    
+                end                
+            end
+        end
+    end
+    
+    %store the verification results in the model workspace
+    assignin(modelWorkspace,'verificationResults',verificationResults);
 end
 
 
