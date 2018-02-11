@@ -113,7 +113,7 @@ function addCounterExampleOptions(propertyStruct,resultIndex, propertyIndex)
     cexTable = fileread([path filesep 'templates' filesep 'displayCexTable.m']);    
     cexTable = strrep(cexTable, '[(resultIndex)]', num2str(resultIndex));
     cexTable = strrep(cexTable, '[(propertyIndex)]', num2str(propertyIndex));          
-    createMaskAction('Display counter example as a table2', cexTable, propertyStruct.originPath);
+    createMaskAction('Display counter example as tables', cexTable, propertyStruct.originPath);
 end
 
 function createMaskAction(title, content, originPath)

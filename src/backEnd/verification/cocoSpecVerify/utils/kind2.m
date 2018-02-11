@@ -907,10 +907,11 @@ function add_plotting_function(cocoSim_path, path)
 	copyfile(src, path);
 end
 
+%ToDo: to be deleted
 function createMaskAction(title, content, origin_path)
-    mask = Simulink.Mask.get(origin_path);    
-    name = regexprep(title,'[/\s'']','_');    
-    button = mask.addDialogControl('pushbutton', name);
-    button.Prompt = title;
-    button.Callback = content;    
+%     mask = Simulink.Mask.get(origin_path);    
+%     name = regexprep(title,'[/\s'']','_');    
+%     button = mask.addDialogControl('pushbutton', name);
+%     button.Prompt = title;
+%     button.Callback = content;    
 end
