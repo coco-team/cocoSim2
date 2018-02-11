@@ -46,6 +46,22 @@ function initializeVerificationVisualization(verificationResults)
             set_param(propertyStruct.originPath, 'BackgroundColor', 'white');
             set_param(propertyStruct.originPath, 'ForegroundColor', 'black');
             
+            %clear mask controls for counter examples            
+            modelWorkspace = get_param(bdroot(gcs),'ModelWorkspace');
+            if modelWorkspace.hasVariable('maskControlsMap')
+                maskControlsMap = modelWorkspace.getVariable('maskControlsMap');
+                keySet = keys(maskControlsMap);
+                for keyIndex = 1: length(keySet)
+                    controls = maskControlsMap(keySet{keyIndex});
+                    mask = Simulink.Mask.get(keySet{keyIndex}); 
+                    for controlIndex = 1: length(controls)
+                        mask.removeDialogControl(controls{controlIndex});
+                    end
+                    maskControlsMap(keySet{keyIndex}) = {};
+                end
+                assignin(modelWorkspace,'maskControlsMap',maskControlsMap); 
+            end            
+            
             % clear the colors of ancestor blocks 
             ancestorBlock = fileparts(verificationResults.analysisResults{i}.properties{j}.originPath);            
             while contains(ancestorBlock, '/')        
@@ -99,4 +115,19 @@ function createMaskAction(title, content, originPath)
     button = mask.addDialogControl('pushbutton', name);
     button.Prompt = title;
     button.Callback = content;    
+    
+    % store the control 
+    modelWorkspace = get_param(bdroot(gcs),'ModelWorkspace');
+    if modelWorkspace.hasVariable('maskControlsMap')
+        maskControlsMap = modelWorkspace.getVariable('maskControlsMap');
+        if isKey(maskControlsMap, originPath)
+            maskControlsMap(originPath) = cat(2, maskControlsMap(originPath), {name}); 
+        else
+            maskControlsMap(originPath) = {name};
+        end
+    else
+        maskControlsMap = containers.Map
+        maskControlsMap(originPath) = {name};          
+    end
+    assignin(modelWorkspace,'maskControlsMap',maskControlsMap);  
 end
