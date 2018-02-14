@@ -219,6 +219,7 @@ function [analysisStruct] = handleAnalysis(json, xml_analysis_start, ir_struct, 
                         path = json{i,1}.OriginPath;
                         contractPath = fileparts(path);
                         originPath = strcat(contractPath, '/validator');
+                        propertyStruct.originPath = originPath;
 
                         if strcmp(propertyStruct.answer, 'CEX')
                             set_param(originPath, 'BackgroundColor', 'red');
@@ -243,9 +244,14 @@ function [analysisStruct] = handleAnalysis(json, xml_analysis_start, ir_struct, 
                                 msg = [solver ': FAILURE to get counter example: '];
                                 msg = [msg property_name '\n'];
                                 display_msg(msg, Constants.WARNING, 'Property Checking', '');
-                            end                                
-                            break;
+                            end                                                            
                         end
+                        % one mode active analysis uses the same node name
+                        % (top value) as compositional analyses. To
+                        % distinguish between the 2 cases, rename the top
+                        analysisStruct.top = strcat(analysisStruct.top, ' one mode active');
+                        analysisStruct.properties{index} = propertyStruct;                        
+                        break;
                     end
                 end
                 % check other properties

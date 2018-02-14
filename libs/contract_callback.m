@@ -15,27 +15,27 @@ index = 0;
 assumePorts = str2num(char(values(1)));
 for i= 1 : assumePorts
     index = index + 1;
-    portStr(index) = {['port_label(''input'',',num2str(index),',''assume'')']};
+    portStr(index) = {['port_label(''input'',',num2str(index),',''assume'');']};
 end
 
 % get the size of guarantee ports
 guaranteePorts = str2num(char(values(2)));
 for i= 1 : guaranteePorts
     index = index + 1;
-    portStr(index) = {['port_label(''input'',',num2str(index),',''guarantee'')']};
+    portStr(index) = {['port_label(''input'',',num2str(index),',''guarantee'');']};
 end
 
 % get the size of mode ports
 modeBlocksPorts = str2num(char(values(3)));
 for i= 1 : modeBlocksPorts
     index = index + 1;
-    portStr(index) = {['port_label(''input'',',num2str(index),',''mode'')']};
+    portStr(index) = {['port_label(''input'',',num2str(index),',''mode'');']};
 end
 
 % output ports
 % validator output port
 index = index + 1;
-portStr(index) = {['port_label(''output'',',num2str(1),',''valid'')']};
+portStr(index) = {['port_label(''output'',',num2str(1),',''valid'');']};
 
 %prepare for adding new blocks and lines
 blockModel = get_param(gcb, 'Parent');
@@ -64,7 +64,8 @@ if ContractValidatorBlock.assumePorts + ...
         end
 end
 
-set_param(block,'MaskDisplay',char(portStr));
+drawingCommands = ['color(''black'');' portStr];
+set_param(block,'MaskDisplay',char(drawingCommands));
 
 ports = get_param(validatorBlock,'PortHandles');
 portConnectivity = get_param(validatorBlock, 'PortConnectivity');
