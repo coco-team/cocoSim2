@@ -99,8 +99,49 @@ end
 
 function [verificationResults, compositionalMap] = saveVerificationResults(verificationResults)
     
-    modelWorkspace = get_param(gcs,'ModelWorkspace');
-                        
+    modelWorkspace = get_param(gcs,'ModelWorkspace');    
+    
+    %get blocks' names from nodes' names
+    %ToDo: refactor this process with the Java translator
+    blockSet = find_system(gcs,'LookUnderMasks', 'on');
+    nameSet = cell(length(blockSet), 1);
+    for i = 1 : length(blockSet)
+        nameSet{i} = Utils.name_format(blockSet{i});
+        nameSet{i} = strrep(nameSet{i}, '/','_');
+    end   
+    nodeNameToBlockNameMap = containers.Map(nameSet, blockSet);
+    %store the mapping in the model workspace
+    assignin(modelWorkspace,'nodeNameToBlockNameMap',nodeNameToBlockNameMap);    
+    
+    %replace the nodes' names with blocks' names
+    for i = 1: length(verificationResults.analysisResults)        
+        % replace the analysis name (top) with the corresponding block path
+        if isKey(nodeNameToBlockNameMap, verificationResults.analysisResults{i}.top)
+            verificationResults.analysisResults{i}.top = ...
+                nodeNameToBlockNameMap(verificationResults.analysisResults{i}.top);
+        else
+            % handle the case of one mode active
+            if contains(verificationResults.analysisResults{i}.top, '_one_mode_active')
+               verificationResults.analysisResults{i}.top = ...
+               strrep( verificationResults.analysisResults{i}.top, '_one_mode_active', '');
+               verificationResults.analysisResults{i}.top = ...
+                nodeNameToBlockNameMap(verificationResults.analysisResults{i}.top);
+               verificationResults.analysisResults{i}.top = ...
+                strcat(verificationResults.analysisResults{i}.top, ' (one mode active)' );
+            end            
+        end
+        if ~ isempty(verificationResults.analysisResults{i}.abstract)
+            % replace the abstract name with the corresponding block name        
+            abstract = strsplit(verificationResults.analysisResults{i}.abstract,',');
+            abstract = cellfun(@(x) nodeNameToBlockNameMap(x), abstract,'UniformOutput', 0);
+            for j = 1: length(abstract)
+                [~, nodeName] = fileparts(abstract{j});
+                abstract{j} = nodeName;
+            end
+            verificationResults.analysisResults{i}.abstract = strjoin(abstract,', ');
+        end
+    end
+    
      % extract the top field from each analysis result      
     analysisNames = cellfun(@(x) x.top, verificationResults.analysisResults,'UniformOutput', 0);
     % group the analysis results by top field
@@ -161,7 +202,7 @@ function [verificationResults, compositionalMap] = saveVerificationResults(verif
     end
     
     %store the verification results in the model workspace
-    assignin(modelWorkspace,'verificationResults',verificationResults);
+    assignin(modelWorkspace,'verificationResults',verificationResults);    
 end
 
 
@@ -249,7 +290,7 @@ function [analysisStruct] = handleAnalysis(json, xml_analysis_start, ir_struct, 
                         % one mode active analysis uses the same node name
                         % (top value) as compositional analyses. To
                         % distinguish between the 2 cases, rename the top
-                        analysisStruct.top = strcat(analysisStruct.top, ' one mode active');
+                        analysisStruct.top = strcat(analysisStruct.top, '_one_mode_active');
                         analysisStruct.properties{index} = propertyStruct;                        
                         break;
                     end

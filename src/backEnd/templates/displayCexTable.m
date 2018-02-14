@@ -1,6 +1,7 @@
 %get the verification results
 modelWorkspace = get_param(bdroot(gcs),'ModelWorkspace');
 verificationResults = modelWorkspace.getVariable('verificationResults');
+nodeNameToBlockNameMap = modelWorkspace.getVariable('nodeNameToBlockNameMap');
 
 propertyStruct = verificationResults.analysisResults{[(resultIndex)]}.properties{[(propertyIndex)]};
 
@@ -64,7 +65,11 @@ for nodeIndex =1 : length(flattenedNodes)
     if nodeIndex > 1       
         t.Position(2) = tables{nodeIndex - 1}.Position(2) + tables{nodeIndex - 1}.Position(4) + 30;
     end
-    text = uicontrol('Style','text','String',flattenedNodes{nodeIndex}.name,'parent',panel);
+    tableName = flattenedNodes{nodeIndex}.name;
+    if isKey(nodeNameToBlockNameMap, tableName)
+        tableName = nodeNameToBlockNameMap(flattenedNodes{nodeIndex}.name);
+    end
+    text = uicontrol('Style','text','String',tableName,'parent',panel);
     text.Position = [0 t.Position(2)+t.Position(4)  500 20];
     tables{nodeIndex} = t;
 end
