@@ -101,7 +101,7 @@ function [verificationResults, compositionalMap] = saveVerificationResults(verif
     
     modelWorkspace = get_param(gcs,'ModelWorkspace');    
     
-    %get blocks' names from nodes' names
+    %get blocks names from nodes names
     %ToDo: refactor this process with the Java translator
     blockSet = find_system(gcs,'LookUnderMasks', 'on');
     nameSet = cell(length(blockSet), 1);
@@ -113,7 +113,7 @@ function [verificationResults, compositionalMap] = saveVerificationResults(verif
     %store the mapping in the model workspace
     assignin(modelWorkspace,'nodeNameToBlockNameMap',nodeNameToBlockNameMap);    
     
-    %replace the nodes' names with blocks' names
+    %replace the nodes names with blocks names
     for i = 1: length(verificationResults.analysisResults)        
         % replace the analysis name (top) with the corresponding block path
         if isKey(nodeNameToBlockNameMap, verificationResults.analysisResults{i}.top)
