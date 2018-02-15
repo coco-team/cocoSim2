@@ -110,9 +110,7 @@ function addCounterExampleOptions(propertyStruct,resultIndex, propertyIndex)
     createMaskAction('Display counter example as signals', cexSignals, propertyStruct.originPath);
     
     % display the counter example as a table
-    cexTable = fileread([path filesep 'templates' filesep 'displayCexTable.m']);    
-    cexTable = strrep(cexTable, '[(resultIndex)]', num2str(resultIndex));
-    cexTable = strrep(cexTable, '[(propertyIndex)]', num2str(propertyIndex));          
+    cexTable = sprintf('displayCexTable(%d, %d);', resultIndex, propertyIndex);             
     createMaskAction('Display counter example as tables', cexTable, propertyStruct.originPath);
 end
 
