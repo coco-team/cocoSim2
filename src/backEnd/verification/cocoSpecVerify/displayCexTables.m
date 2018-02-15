@@ -1,4 +1,4 @@
-function displayCexTable(resultIndex, propertyIndex)
+function displayCexTables(resultIndex, propertyIndex)
     %get the verification results
     modelWorkspace = get_param(bdroot(gcs),'ModelWorkspace');
     verificationResults = modelWorkspace.getVariable('verificationResults');

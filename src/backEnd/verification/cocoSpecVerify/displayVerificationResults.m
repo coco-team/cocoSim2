@@ -103,14 +103,12 @@ function addCounterExampleOptions(propertyStruct,resultIndex, propertyIndex)
     pathParts = strsplit(mfilename('fullpath'),'/');
     path = strjoin(pathParts(1 :end - 3), '/');
     
-    % display the counter example as signals
-    cexSignals = fileread([path filesep 'templates' filesep 'displayCexSignals.m']);    
-    cexSignals = strrep(cexSignals, '[(resultIndex)]', num2str(resultIndex));
-    cexSignals = strrep(cexSignals, '[(propertyIndex)]', num2str(propertyIndex));          
+    % display the counter example as signals    
+    cexSignals = sprintf('displayCexSignals(%d, %d);', resultIndex, propertyIndex);        
     createMaskAction('Display counter example as signals', cexSignals, propertyStruct.originPath);
     
     % display the counter example as a table
-    cexTable = sprintf('displayCexTable(%d, %d);', resultIndex, propertyIndex);             
+    cexTable = sprintf('displayCexTables(%d, %d);', resultIndex, propertyIndex);             
     createMaskAction('Display counter example as tables', cexTable, propertyStruct.originPath);
 end
 
@@ -131,7 +129,7 @@ function createMaskAction(title, content, originPath)
             maskControlsMap(originPath) = {name};
         end
     else
-        maskControlsMap = containers.Map
+        maskControlsMap = containers.Map;
         maskControlsMap(originPath) = {name};          
     end
     assignin(modelWorkspace,'maskControlsMap',maskControlsMap);  
