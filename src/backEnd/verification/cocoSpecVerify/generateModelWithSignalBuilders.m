@@ -1,4 +1,4 @@
-function generateModelWithSignalBuilders(resultIndex, propertyIndex)
+function generateModelWithSignalBuilders(resultIndex, propertyIndex, level)
     %get the verification results
     modelWorkspace = get_param(bdroot(gcs),'ModelWorkspace');
     verificationResults = modelWorkspace.getVariable('verificationResults');    
@@ -30,18 +30,19 @@ function generateModelWithSignalBuilders(resultIndex, propertyIndex)
     
     %copy at the level of the parent of the contract    
     pathParts = strsplit(propertyStruct.originPath,'/');    
-    % the parent of the contract is 2 levels above the property 
-    contractParentPath = strjoin(pathParts(1 :end - 2), '/');    
+    % the parent of the contract is 2 levels above the property (level = 2)
+    % whereas the contract is 1 level above the property (level = 1)    
+    copyPath = strjoin(pathParts(1 :end - level), '/');    
     
     %ToDo: fix for the observer
-    if isempty(contractParentPath)
-        contractParentPath = pathParts{1};
+    if isempty(copyPath)
+        copyPath = pathParts{1};
     end
     
     open_system(generatedModel);
-    if contains(contractParentPath, '/')
+    if contains(copyPath, '/')
         % subsystem
-        Simulink.SubSystem.copyContentsToBlockDiagram(contractParentPath, generatedModel);
+        Simulink.SubSystem.copyContentsToBlockDiagram(copyPath, generatedModel);
     else
         % it would be better if there is a way to copy contents direclty
         % from block diagram to block diagram
@@ -51,7 +52,7 @@ function generateModelWithSignalBuilders(resultIndex, propertyIndex)
         open_system(tempModel);
         subsystemName = strcat(tempModelName, '/tempSubsystem');        
         add_block('built-in/Subsystem', subsystemName);
-        Simulink.BlockDiagram.copyContentsToSubsystem(contractParentPath, subsystemName);
+        Simulink.BlockDiagram.copyContentsToSubsystem(copyPath, subsystemName);
         Simulink.SubSystem.copyContentsToBlockDiagram(subsystemName, generatedModel);
         close_system(tempModelName, 0);
     end
@@ -68,7 +69,9 @@ function generateModelWithSignalBuilders(resultIndex, propertyIndex)
     end
 
     for i = 1 : length(node.streams)
-        if strcmp('input', node.streams{i}.class)
+        
+        if strcmp('input', node.streams{i}.class) || ... % outside the contract
+                (strcmp('output', node.streams{i}.class) && level == 1) % inside the contract
             %ToDo review the cases where stream name has special symbols            
             blockName = strcat(modelName, '/', node.streams{i}.name);
             
