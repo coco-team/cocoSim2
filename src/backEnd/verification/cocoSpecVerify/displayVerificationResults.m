@@ -110,6 +110,10 @@ function addCounterExampleOptions(propertyStruct,resultIndex, propertyIndex)
     % display the counter example as a table
     cexTable = sprintf('displayCexTables(%d, %d);', resultIndex, propertyIndex);             
     createMaskAction('Display counter example as tables', cexTable, propertyStruct.originPath);
+    
+    %generate model with signal builders
+    cexModel = sprintf('generateModelWithSignalBuilders(%d, %d);', resultIndex, propertyIndex);             
+    createMaskAction('Generate model for the counter example', cexModel, propertyStruct.originPath);
 end
 
 function createMaskAction(title, content, originPath)
