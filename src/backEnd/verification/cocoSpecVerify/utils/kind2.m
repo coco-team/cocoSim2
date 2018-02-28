@@ -201,8 +201,12 @@ function [verificationResults, compositionalMap] = saveVerificationResults(verif
         end
     end
     
+    %get the sample time
+    verificationResults.sampleTime = Utils.get_BlockDiagram_SampleTime(bdroot(gcs));
+    
     %store the verification results in the model workspace
     assignin(modelWorkspace,'verificationResults',verificationResults);    
+    
 end
 
 

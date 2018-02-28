@@ -38,8 +38,11 @@ function displayCexTables(resultIndex, propertyIndex)
         columns = flattenedNodes{nodeIndex}.timeSteps;
         columnNames = cell (1, columns);
 
+        timeStep = 0;
+        
         for j= 1 : columns
-            columnNames{j} = j - 1;
+            columnNames{j} = timeStep;
+            timeStep = timeStep + verificationResults.sampleTime;
         end
 
         t.ColumnName = columnNames;

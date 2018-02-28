@@ -17,9 +17,11 @@ function displayCexSignals(resultIndex, propertyIndex)
     numberOfSignals = length(inputOutputSignals);
 
     time = zeros (1, node.timeSteps);
-
+    
+    timeStep = 0;
     for i= 1 : length(time)
-        time(i) = i - 1;
+        time(i) = timeStep;
+        timeStep = timeStep + verificationResults.sampleTime;
     end
 
     colorSize = 500;
