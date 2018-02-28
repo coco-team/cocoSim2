@@ -136,7 +136,7 @@ function [verificationResults, compositionalMap] = saveVerificationResults(verif
             abstract = cellfun(@(x) nodeNameToBlockNameMap(x), abstract,'UniformOutput', 0);
             for j = 1: length(abstract)
                 [~, nodeName] = fileparts(abstract{j});
-                abstract{j} = nodeName;
+                abstract{j} = ['Abstract ' nodeName];
             end
             verificationResults.analysisResults{i}.abstract = strjoin(abstract,', ');
         end
