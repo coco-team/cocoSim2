@@ -16,8 +16,10 @@ function generateModelWithSignalBuilders(resultIndex, propertyIndex, level)
     
     time = zeros (1, node.timeSteps);
 
+    timeStep = 0;
     for i= 1 : length(time)
-        time(i) = i - 1;
+        time(i) = timeStep;
+        timeStep = timeStep + verificationResults.sampleTime;
     end    
     
     close_system(modelName, 0);
@@ -60,7 +62,7 @@ function generateModelWithSignalBuilders(resultIndex, propertyIndex, level)
     
     % signal builder requires time to be a vector
     if length(time) == 1
-        time = [0 1];
+        time = [0 verificationResults.sampleTime];
         % increase the dimensionality of the values by repeating the last
         % value
         for i = 1: length(node.streams)
