@@ -24,13 +24,12 @@ function displayCexSignals(resultIndex, propertyIndex)
         timeStep = timeStep + verificationResults.sampleTime;
     end
     
-    if length(time) == 1
-        time = [0 verificationResults.sampleTime];
-        % increase the dimensionality of the values by repeating the last
-        % value
-        for i = 1: length(node.streams)
-            node.streams{i}.values = cat(2,node.streams{i}.values,node.streams{i}.values);
-        end
+    % increase the time by one more step
+    time(end + 1) = timeStep;
+    % increase the dimensionality of the values by repeating the last
+    % value
+    for i = 1: length(node.streams)
+        node.streams{i}.values = cat(2,node.streams{i}.values,node.streams{i}.values(end));
     end
     
     colorSize = 500;
