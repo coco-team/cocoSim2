@@ -45,7 +45,7 @@ function displayCexSignals(resultIndex, propertyIndex)
         xLimits = xlim();
         ylabel(node.streams{signalIndex}.name, 'FontSize', 8);
 
-        set(gca, 'xtick', xLimits(1):1:xLimits(2));
+        set(gca, 'xtick', xLimits(1):verificationResults.sampleTime:xLimits(2));
         hold on;
     end
 
