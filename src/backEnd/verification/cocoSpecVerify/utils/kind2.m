@@ -27,19 +27,52 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
             
             % load preferences
             CoCoSimPreferences = loadCoCoSimPreferences();     
-            % check whether to use compositional analysis
-            if CoCoSimPreferences.compositionalAnalysis
-                command = sprintf('%s --z3_bin %s -xml --timeout %s %s %s --modular true --compositional true',...
-                    KIND2, Z3, timeout, kind2_option, lustre_file_name);
-            else
-                command = sprintf('%s --z3_bin %s -xml --timeout %s %s %s --modular true',...
-                    KIND2, Z3, timeout, kind2_option, lustre_file_name);
+            
+            % local installation
+            if strcmp(CoCoSimPreferences.kind2Command, 'local')
+                % check whether to use compositional analysis
+                if CoCoSimPreferences.compositionalAnalysis
+                    command = sprintf('%s --z3_bin %s -xml --timeout %s %s %s --modular true --compositional true',...
+                        KIND2, Z3, timeout, kind2_option, lustre_file_name);
+                else
+                    command = sprintf('%s --z3_bin %s -xml --timeout %s %s %s --modular true',...
+                        KIND2, Z3, timeout, kind2_option, lustre_file_name);
+                end
+                
+                display_msg(['KIND2_COMMAND ' command], Constants.DEBUG, 'write_code', '');
+                [~, kind2_out] = system(command);
+                display_msg(kind2_out, Constants.DEBUG, 'write_code', '');                
+            end          
+            
+            % call kind2  web server
+            if strcmp(CoCoSimPreferences.kind2Command, 'kind2WebService')            
+                postUrl = 'http://kind.cs.uiowa.edu:8080/kindservices/postCode';
+                data = {};
+                % read the lustre code from the file
+                data.code = fileread(lustre_file_name);
+                %data.code = 'node abs(x:real) returns(y: real);var Absolute: bool;let   y = if (x >= 0.0) then x else -x;   Absolute = y >= 0.0;   --%PROPERTY Absolute;tel';
+                data.arguments.smt_solver = 'Z3';
+                data.arguments.timeout = 30;
+                data.arguments.modular = 'true';
+                
+                if CoCoSimPreferences.compositionalAnalysis
+                    data.arguments.compositional = 'true';
+                end
+                
+                options = weboptions('MediaType','application/json');
+                postResponse = webwrite(postUrl,data,options);
+                
+                % pause for one second
+                pause(1);
+                getUrl = strcat('http://kind.cs.uiowa.edu:8080/kindservices/getRawResults/',postResponse.jobId);
+                getResponse = webread(getUrl);
+                while getResponse.jobFinished == 0
+                    % pause for one second
+                    pause(1);
+                    getResponse = webread(getUrl);
+                end
+                kind2_out = getResponse.data;
             end
-            
-            
-            display_msg(['KIND2_COMMAND ' command], Constants.DEBUG, 'write_code', '');
-            [~, kind2_out] = system(command);
-            display_msg(kind2_out, Constants.DEBUG, 'write_code', '');
             
             results_file_name = strrep(lustre_file_name,'.lus','.xml');
             fid = fopen(results_file_name, 'w');

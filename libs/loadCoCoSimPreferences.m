@@ -30,6 +30,12 @@ function [ CoCoSimPreferences ] = loadCoCoSimPreferences()
         CoCoSimPreferences.compositionalAnalysis = true;
         modified = true;
     end 
+    
+    % check if kind2Command is defined
+    if ~ isfield(CoCoSimPreferences,'kind2Command')
+        CoCoSimPreferences.kind2Command = 'kind2WebService';
+        modified = true;
+    end 
     % save if CoCoSimPreferences is modified
     if modified
         save(preferencesFile, 'CoCoSimPreferences');
