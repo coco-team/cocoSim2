@@ -29,7 +29,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
             CoCoSimPreferences = loadCoCoSimPreferences();     
             
             % local installation
-            if strcmp(CoCoSimPreferences.kind2Command, 'local')
+            if strcmp(CoCoSimPreferences.kind2Binary, 'Local')
                 % check whether to use compositional analysis
                 if CoCoSimPreferences.compositionalAnalysis
                     command = sprintf('%s --z3_bin %s -xml --timeout %s %s %s --modular true --compositional true',...
@@ -45,12 +45,11 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
             end          
             
             % call kind2  web server
-            if strcmp(CoCoSimPreferences.kind2Command, 'kind2WebService')            
+            if strcmp(CoCoSimPreferences.kind2Binary, 'Kind2 web service')            
                 postUrl = 'http://kind.cs.uiowa.edu:8080/kindservices/postCode';
                 data = {};
                 % read the lustre code from the file
-                data.code = fileread(lustre_file_name);
-                %data.code = 'node abs(x:real) returns(y: real);var Absolute: bool;let   y = if (x >= 0.0) then x else -x;   Absolute = y >= 0.0;   --%PROPERTY Absolute;tel';
+                data.code = fileread(lustre_file_name);                
                 data.arguments.smt_solver = 'Z3';
                 data.arguments.timeout = 30;
                 data.arguments.modular = 'true';

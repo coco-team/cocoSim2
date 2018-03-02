@@ -475,7 +475,8 @@ function schema = getPreferences(callbackInfo)
     
     schema.childrenFcns = {{@getModelChecker,CoCoSimPreferences}, ...
         {@getMiddleEnd,CoCoSimPreferences}, ...
-        {@getCompositionalAnalysis, CoCoSimPreferences}};
+        {@getCompositionalAnalysis, CoCoSimPreferences}, ...
+        {@getKind2Binary, CoCoSimPreferences}};
 end
 
 function schema = getModelChecker(callbackInfo)
@@ -591,6 +592,82 @@ end
 function compositionalAnalysis(callbackInfo)
     CoCoSimPreferences = callbackInfo.userdata;
     CoCoSimPreferences.compositionalAnalysis = ~ CoCoSimPreferences.compositionalAnalysis;        
+    saveCoCoSimPreferences(CoCoSimPreferences);
+end
+
+function schema = getKind2Binary(callbackInfo)
+    schema = sl_container_schema;
+    schema.label = 'Kind2 binary';        
+    schema.statustip = 'Kind2 binary';
+    schema.autoDisableWhen = 'Busy';    
+    
+    CoCoSimPreferences = callbackInfo.userdata;
+    
+    schema.childrenFcns = {{@kind2BinaryLocal,CoCoSimPreferences}, ...       
+        {@kind2BinaryDocker, CoCoSimPreferences}, ...
+        {@kind2BinaryWebService, CoCoSimPreferences}};
+end
+
+function schema = kind2BinaryLocal(callbackInfo)
+    schema = sl_toggle_schema;
+    schema.label = 'Local';    
+    
+    CoCoSimPreferences = callbackInfo.userdata;
+    if strcmp(CoCoSimPreferences.kind2Binary, 'Local')
+        schema.checked = 'checked';
+    else
+        schema.checked = 'unchecked';
+    end
+    
+    schema.callback = @kind2BinaryLocalCallback;    
+    schema.userdata = CoCoSimPreferences;
+end
+
+function kind2BinaryLocalCallback(callbackInfo)
+    CoCoSimPreferences = callbackInfo.userdata;
+    CoCoSimPreferences.kind2Binary = 'Local';        
+    saveCoCoSimPreferences(CoCoSimPreferences);
+end
+
+function schema = kind2BinaryDocker(callbackInfo)
+    schema = sl_toggle_schema;
+    schema.label = 'Docker';    
+    
+    CoCoSimPreferences = callbackInfo.userdata;
+    if strcmp(CoCoSimPreferences.kind2Binary, 'Docker')
+        schema.checked = 'checked';
+    else
+        schema.checked = 'unchecked';
+    end
+    
+    schema.callback = @kind2BinaryDockerCallback;    
+    schema.userdata = CoCoSimPreferences;
+end
+
+function kind2BinaryDockerCallback(callbackInfo)
+    CoCoSimPreferences = callbackInfo.userdata;
+    CoCoSimPreferences.kind2Binary = 'Docker';        
+    saveCoCoSimPreferences(CoCoSimPreferences);
+end
+
+function schema = kind2BinaryWebService(callbackInfo)
+    schema = sl_toggle_schema;
+    schema.label = 'Kind2 web service';    
+    
+    CoCoSimPreferences = callbackInfo.userdata;
+    if strcmp(CoCoSimPreferences.kind2Binary, 'Kind2 web service')
+        schema.checked = 'checked';
+    else
+        schema.checked = 'unchecked';
+    end
+    
+    schema.callback = @kind2BinaryWebServiceCallback;    
+    schema.userdata = CoCoSimPreferences;
+end
+
+function kind2BinaryWebServiceCallback(callbackInfo)
+    CoCoSimPreferences = callbackInfo.userdata;
+    CoCoSimPreferences.kind2Binary = 'Kind2 web service';        
     saveCoCoSimPreferences(CoCoSimPreferences);
 end
 

@@ -31,9 +31,9 @@ function [ CoCoSimPreferences ] = loadCoCoSimPreferences()
         modified = true;
     end 
     
-    % check if kind2Command is defined
-    if ~ isfield(CoCoSimPreferences,'kind2Command')
-        CoCoSimPreferences.kind2Command = 'kind2WebService';
+    % check if kind2Binary is defined
+    if ~ isfield(CoCoSimPreferences,'kind2Binary')
+        CoCoSimPreferences.kind2Binary = 'Local';
         modified = true;
     end 
     % save if CoCoSimPreferences is modified
