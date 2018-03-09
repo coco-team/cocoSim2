@@ -46,6 +46,10 @@ portConnectivity = get_param(validatorBlock, 'PortConnectivity');
 % get the previous values of the numbers of assume, guarantee, 
 % and mode ports
 modelWorkspace = get_param(bdroot,'Modelworkspace');
+if ~ modelWorkspace.hasVariable('ContractValidatorBlocksMap')
+    saveValidatorParameters(block);
+end
+
 ContractValidatorBlocksMap = modelWorkspace.getVariable('ContractValidatorBlocksMap');
 ContractValidatorBlock = ContractValidatorBlocksMap(validatorBlock);
 
@@ -228,12 +232,12 @@ end
 %update ContractValidatorBlock
 
 portConnectivity = get_param(validatorBlock, 'PortConnectivity');
-evalin('base',strcat('ContractValidatorBlock.assumePorts = ', char(values(1))));    
-evalin('base',strcat('ContractValidatorBlock.guaranteePorts = ', char(values(2))));
-evalin('base',strcat('ContractValidatorBlock.modeBlocksPorts = ', char(values(3))));
-expression = {'ContractValidatorBlock.portConnectivity'};
-assignin('base','temp', portConnectivity');
-cellfun(@(lhs) evalin('base', [lhs '=temp']), expression);   
+ContractValidatorBlock.assumePorts = values(1);    
+ContractValidatorBlock.guaranteePorts = values(2);
+ContractValidatorBlock.modeBlocksPorts = values(3);
+ContractValidatorBlock.portConnectivity = portConnectivity;
+assignin(modelWorkspace,'ContractValidatorBlocksMap',ContractValidatorBlocksMap); 
+
 
 % get the value of createInportsCheckbox
 createInportsValue = char(values(5));
