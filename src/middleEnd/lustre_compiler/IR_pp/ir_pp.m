@@ -1,4 +1,4 @@
-function [ new_ir, subs_blks_list ] = ir_pp( new_ir, df_export, output_dir, subs_blks_list )
+function [ new_ir, subs_blks_list, ir_handle_struct_map ] = ir_pp( new_ir, df_export, output_dir )
 %IR_PP pre-process the IR for cocoSim
 
 dir_path = which(mfilename);
@@ -15,6 +15,7 @@ end
 [~, model_name, ~] = fileparts(new_ir.meta.file_path);
 
 subs_blks_list = get_not_handled_masked_subs(new_ir, model_name);
+ir_handle_struct_map = get_ir_handle_struct_map(new_ir, model_name);
 
 json_model = json_encode(new_ir);
 json_model = strrep(json_model,'\/','/');
@@ -59,6 +60,26 @@ if isfield(ir_struct.(block_name), 'Content')
                 subs_blks_list = [subs_blks_list, get_not_handled_masked_subs(ir_struct.(block_name).Content, IRUtils.name_format(block.Name))];
             end
         end
+    end
+end
+end
+
+
+function handle_struct_map = get_ir_handle_struct_map(ir_struct, block_name)
+
+handle_struct_map = containers.Map('KeyType','double', 'ValueType','any');
+
+
+if isfield(ir_struct.(block_name),'Handle')
+    handle_struct_map(ir_struct.(block_name).Handle) = ir_struct.(block_name);
+end
+
+
+if isfield(ir_struct.(block_name), 'Content')
+    fields = fieldnames(ir_struct.(block_name).Content);
+    for i=1:numel(fields)
+        handle_struct_map_i = get_ir_handle_struct_map(ir_struct.(block_name).Content, fields{i});
+        handle_struct_map = [handle_struct_map; handle_struct_map_i];
     end
 end
 

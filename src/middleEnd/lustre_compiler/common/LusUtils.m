@@ -206,11 +206,11 @@ classdef LusUtils
                     blk_path_elems = regexp(inter_blk.Path, filesep, 'split');
                     node_name = Utils.concat_delim(blk_path_elems, '_');
                     if inter_blk.action_reset
-                        var_name = [node_name Constants.ACTION_RESET];
+                        var_name = [node_name BlockUtils.ACTION_RESET];
                     elseif inter_blk.enable_reset
-                        var_name = [node_name Constants.ENABLE_RESET];
+                        var_name = [node_name BlockUtils.ENABLE_RESET];
                     elseif inter_blk.foriter_reset
-                        var_name = [node_name Constants.FOR_ITER_RESET];
+                        var_name = [node_name BlockUtils.FOR_ITER_RESET];
                     end
                 end
             end
@@ -223,9 +223,9 @@ classdef LusUtils
             if strcmp(inter_blk.BlockType, 'SubSystem')
                 fields = fieldnames(inter_blk.Content);
                 fields(cellfun('isempty', regexprep(fields, '^Annotation.*', ''))) = [];
-                blocks = {};
+                blocks = [];
                 for i=1:numel(fields)
-                    blocks = [blocks, inter_blk.Content.(fields{i}).Path];
+                    blocks = [blocks, inter_blk.Content.(fields{i}).Handle];
                 end
                 block_types = cocoget_param(myblk, blocks, 'BlockType');
                 
@@ -237,7 +237,7 @@ classdef LusUtils
                         dt = LusUtils.get_lustre_dt(blk.IterationVariableDataType);
                         blk_path_elems = regexp(inter_blk.Path, filesep, 'split');
                         node_name = Utils.concat_delim(blk_path_elems, '_');
-                        var_name = [node_name Constants.FOR_ITER];
+                        var_name = [node_name BlockUtils.FOR_ITER];
                         res = true;
                     end
                 end

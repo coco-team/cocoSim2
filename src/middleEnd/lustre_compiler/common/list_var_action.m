@@ -4,7 +4,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [lo] = list_var_action(unbloc, type, ir_struct)
-
+lo ={};
 if strcmp(type, 'Action')
 	for idx=1:numel(unbloc.action)
         action_block = get_struct(ir_struct, unbloc.action(idx));

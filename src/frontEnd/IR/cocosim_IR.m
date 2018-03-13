@@ -1,4 +1,4 @@
-function [ir_struct, all_blocks, subsyst_blocks, handle_struct_map] = cocosim_IR( simulink_model_path, df_export, output_dir )
+function [ir_struct, all_blocks, subsyst_blocks, ir_handle_struct_map] = cocosim_IR( simulink_model_path, df_export, output_dir )
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This file is part of CoCoSim.
 % Copyright (C) 2014-2016  Carnegie Mellon University
@@ -32,7 +32,7 @@ ir_struct.meta.file_path = simulink_model_path;
 try
     Cmd = [file_name, '([], [], [], ''compile'');'];
     eval(Cmd);
-    ir_struct.meta.sampleTime = IRUtils.get_BlockDiagram_SampleTime(simulink_model_path);
+    ir_struct.meta.sampleTime = IRUtils.get_BlockDiagram_SampleTime(file_name);
 catch
     warning('Simulation of the model failed. The model doesn''t compile.');
 end
@@ -41,7 +41,7 @@ ir_struct.meta.date = datestr(datetime('today'));
 
 
 file_name_modif = IRUtils.name_format(file_name);
-[ir_struct.(file_name_modif).Content, all_blocks, subsyst_blocks, handle_struct_map] = subsystems_struct(file_name);
+[ir_struct.(file_name_modif).Content, all_blocks, subsyst_blocks, ir_handle_struct_map] = subsystems_struct(file_name);
 
 %% Stop the simulation
 try
@@ -69,7 +69,7 @@ if df_export
     % Write in the file
     fprintf(fid, '%s\n', json_model);
     fclose(fid);
-end
+
 new_path = fullfile(output_dir, [file_name '_IR.json']);
 cmd = ['cat ' file_path ' | python -mjson.tool > ' new_path];
 try
@@ -79,5 +79,6 @@ try
         system(['rm ' file_path]);
     end
 catch
+end
 end
 end

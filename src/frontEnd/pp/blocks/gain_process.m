@@ -34,13 +34,14 @@ catch error
     msg = sprintf('%s%s%s\n%s\n',...
         'error occured while parsing the expression : "',gain,...
         '" of block :',init_block);
-    display_msg(msg, Constants.ERROR, 'gain_process', ''); 
+    display_msg(msg, Constants.WARNING, 'gain_process', ''); 
     if not(strcmp('Python:BadMatlabVersion',error.identifier))
-        display_msg('the block must be processed manually\n', Constants.ERROR, 'gain_process', ''); 
+        display_msg('the block will be processed by the compiler\n', Constants.WARNING, 'gain_process', ''); 
     end
     err = 1;
     tree = 'err'; % To go threw the next if test
-    display_msg(error.message, Constants.ERROR, 'gain_process', ''); 
+    display_msg(error.message, Constants.DEBUG, 'gain_process', ''); 
+    return;
 end
 
 % If the gain contains a complex expression and needs processing
@@ -52,7 +53,7 @@ if isa(tree,'cell')
     success = expression_process(gain,new_block);
     if not(success)
         msg = sprintf('The block %s has to be handled manually\n',init_block);
-        display_msg(msg, Constants.ERROR, 'gain_process', ''); 
+        display_msg(msg, Constants.DEBUG, 'gain_process', ''); 
     else
         display_msg('init_block', Constants.INFO, 'gain_process', ''); 
         replace_one_block(init_block,new_block);

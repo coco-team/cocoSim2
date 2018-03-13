@@ -125,29 +125,9 @@ classdef Utils
         end
         
         function str_out = name_format(str)
-            newline = sprintf('\n');
-            str_out = strrep(str, newline, '');
-            str_out = strrep(str_out, ' ', '');
-            str_out = strrep(str_out, '-', '_minus_');
-            str_out = strrep(str_out, '+', '_plus_');
-            str_out = strrep(str_out, '*', '_mult_');
-            str_out = strrep(str_out, '.', '_dot_');
-            str_out = strrep(str_out, '#', '_sharp_');
-            str_out = strrep(str_out, '(', '_lpar_');
-            str_out = strrep(str_out, ')', '_rpar_');
-            str_out = strrep(str_out, '[', '_lsbrak_');
-            str_out = strrep(str_out, ']', '_rsbrak_');
-            str_out = strrep(str_out, '{', '_lbrak_');
-            str_out = strrep(str_out, '}', '_rbrak_');
-            %hamza modification
-            str_out = strrep(str_out, ',', '_comma_');
-            %             str_out = strrep(str_out, '/', '_slash_');
-            str_out = strrep(str_out, '=', '_equal_');
-            
-            str_out = regexprep(str_out, '/(\d+)', '/_$1');
-            str_out = regexprep(str_out, '[^a-zA-Z0-9_/]', '_');
+            str_out = IRUtils.name_format(str);
         end
-        
+
         function out = naming(nomsim)
             [a, b]=regexp (nomsim, '/', 'split');
             out = strcat(a{numel(a)-1},'_',a{end});

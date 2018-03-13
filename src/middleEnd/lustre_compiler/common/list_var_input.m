@@ -4,7 +4,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [list_out_final] = list_var_input(inter_blk, xml_trace, block_type)
-
+list_out_final = {};
 % Writing outputs declarations
 block_full_name = regexp(inter_blk.Path, filesep, 'split');
 %TODO : search what name_level is for

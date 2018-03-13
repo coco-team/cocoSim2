@@ -4,7 +4,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [list_out] = list_var_sortie(unbloc)
-
+list_out = {};
 block_full_name = regexp(unbloc.Path, filesep, 'split');
 if unbloc.name_level >= numel(block_full_name{1})
     block_name = Utils.concat_delim(block_full_name, '_');
