@@ -334,85 +334,87 @@ function [analysisStruct] = handleAnalysis(json, xml_analysis_start, ir_struct, 
                 % check other properties
                 continue;
             end
-            for i = 1 : length(json)
-                if isfield(json{i,1},'ContractName')
-                    propertyJsonName = json{i,1}.ContractName;
-                    if strcmp(json{i,1}.PropertyName, 'guarantee')
-                        propertyJsonName = strcat(propertyJsonName, '.guarantee');
-                    end
-                    if strcmp(json{i,1}.PropertyName, 'ensure')
-                        propertyJsonName = strcat(propertyJsonName,'.', json{i,1}.ModeName ,'.ensure');
-                    end
-                    if strcmp(json{i,1}.PropertyName, 'assume')
-                        propertyJsonName = strcat(propertyJsonName, '.assume');
-                    end
-                    if isfield(json{i,1},'Index')
-                        propertyJsonName = strcat(propertyJsonName,'[', json{i,1}.Index ,']');
-                    end
-                else
-                    propertyJsonName = json{i,1}.PropertyName;
-                end
-                %if strcmp(propertyJsonName, jsonName)                           
-                if contains(jsonName, propertyJsonName)   
-
-                    propertyStruct.originPath = json{i,1}.OriginPath;                            
-
-                    if strcmp(propertyStruct.answer, 'SAFE')
-                        set_param(propertyStruct.originPath, 'BackgroundColor', 'green');
-                        set_param(propertyStruct.originPath, 'ForegroundColor', 'green');                                
-                    elseif strcmp(propertyStruct.answer, 'TIMEOUT')
-                        set_param(propertyStruct.originPath, 'BackgroundColor', 'gray');
-                        set_param(propertyStruct.originPath, 'ForegroundColor', 'gray');
-                        % set the color of the contract
-                        if isfield(json{i,1},'ContractName') && strcmp(contractColor, 'green')
-                            contractColor = 'yellow';
+            for i = 1 : length(json)        
+                if isfield(json{i}, 'PropertyName')
+                    if isfield(json{i,1},'ContractName')
+                        propertyJsonName = json{i,1}.ContractName;
+                        if  strcmp(json{i,1}.PropertyName, 'guarantee')
+                            propertyJsonName = strcat(propertyJsonName, '.guarantee');
                         end
-                    elseif strcmp(propertyStruct.answer, 'UNKNOWN')
-                        set_param(propertyStruct.originPath, 'BackgroundColor', 'yellow');
-                        set_param(propertyStruct.originPath, 'ForegroundColor', 'yellow');
-                         % set the color of the contract
-                        if isfield(json{i,1},'ContractName') && strcmp(contractColor, 'green')
-                            contractColor = 'yellow';
+                        if strcmp(json{i,1}.PropertyName, 'ensure')
+                            propertyJsonName = strcat(propertyJsonName,'.', json{i,1}.ModeName ,'.ensure');
                         end
-                    elseif strcmp(propertyStruct.answer, 'CEX')
-                        set_param(propertyStruct.originPath, 'BackgroundColor', 'red');
-                        set_param(propertyStruct.originPath, 'ForegroundColor', 'red');   
-
-                         % set the color of the contract
-                        if isfield(json{i,1},'ContractName')
-                            contractColor = 'red';                                                            
+                        if strcmp(json{i,1}.PropertyName, 'assume')
+                            propertyJsonName = strcat(propertyJsonName, '.assume');
                         end
-
-                        % get the counter example                                        
-                        counterExampleElement = xml_element.getElementsByTagName('CounterExample');                        
-                        if counterExampleElement.getLength > 0                            
-                            
-                            propertyStruct.counterExample = parseCounterExample(counterExampleElement.item(0));
-                            
-                            [~,annot_text] = display_cex(counterExampleElement, propertyStruct.originPath, ir_struct, date_value, ...
-                               lustre_file_name, index, xml_trace, ir_struct, annot_text);                            
-                        else
-                            msg = [solver ': FAILURE to get counter example: '];
-                            msg = [msg property_name '\n'];
-                            display_msg(msg, Constants.WARNING, 'Property Checking', '');
+                        if isfield(json{i,1},'Index')
+                            propertyJsonName = strcat(propertyJsonName,'[', json{i,1}.Index ,']');
                         end
-
+                    else
+                        propertyJsonName = json{i,1}.PropertyName;
                     end
-                    analysisStruct.properties{index} = propertyStruct;
-                    if isfield(json{i,1},'ContractName')                            
-                            contractBlock = fileparts(json{i,1}.OriginPath);
-                            set_param(contractBlock, 'BackgroundColor', contractColor);
-                            ancestorBlock = fileparts(contractBlock);
-                            while contains(ancestorBlock, '/')
-                                ancestorBlockColor = get_param(ancestorBlock, 'BackgroundColor');
-                                if strcmp(ancestorBlockColor, 'white') || ...
-                                        (strcmp(ancestorBlockColor, 'green') && strcmp(ancestorBlockColor, 'yellow')) || ...
-                                        strcmp(contractColor, 'red')
-                                set_param(ancestorBlock, 'BackgroundColor', contractColor);
-                                end
-                                ancestorBlock = fileparts(ancestorBlock);
+                    %if strcmp(propertyJsonName, jsonName)                           
+                    if contains(jsonName, propertyJsonName)   
+
+                        propertyStruct.originPath = json{i,1}.OriginPath;                            
+
+                        if strcmp(propertyStruct.answer, 'SAFE')
+                            set_param(propertyStruct.originPath, 'BackgroundColor', 'green');
+                            set_param(propertyStruct.originPath, 'ForegroundColor', 'green');                                
+                        elseif strcmp(propertyStruct.answer, 'TIMEOUT')
+                            set_param(propertyStruct.originPath, 'BackgroundColor', 'gray');
+                            set_param(propertyStruct.originPath, 'ForegroundColor', 'gray');
+                            % set the color of the contract
+                            if isfield(json{i,1},'ContractName') && strcmp(contractColor, 'green')
+                                contractColor = 'yellow';
                             end
-                    end                    
+                        elseif strcmp(propertyStruct.answer, 'UNKNOWN')
+                            set_param(propertyStruct.originPath, 'BackgroundColor', 'yellow');
+                            set_param(propertyStruct.originPath, 'ForegroundColor', 'yellow');
+                             % set the color of the contract
+                            if isfield(json{i,1},'ContractName') && strcmp(contractColor, 'green')
+                                contractColor = 'yellow';
+                            end
+                        elseif strcmp(propertyStruct.answer, 'CEX')
+                            set_param(propertyStruct.originPath, 'BackgroundColor', 'red');
+                            set_param(propertyStruct.originPath, 'ForegroundColor', 'red');   
+
+                             % set the color of the contract
+                            if isfield(json{i,1},'ContractName')
+                                contractColor = 'red';                                                            
+                            end
+
+                            % get the counter example                                        
+                            counterExampleElement = xml_element.getElementsByTagName('CounterExample');                        
+                            if counterExampleElement.getLength > 0                            
+
+                                propertyStruct.counterExample = parseCounterExample(counterExampleElement.item(0));
+
+                                [~,annot_text] = display_cex(counterExampleElement, propertyStruct.originPath, ir_struct, date_value, ...
+                                   lustre_file_name, index, xml_trace, ir_struct, annot_text);                            
+                            else
+                                msg = [solver ': FAILURE to get counter example: '];
+                                msg = [msg property_name '\n'];
+                                display_msg(msg, Constants.WARNING, 'Property Checking', '');
+                            end
+
+                        end
+                        analysisStruct.properties{index} = propertyStruct;
+                        if isfield(json{i,1},'ContractName')                            
+                                contractBlock = fileparts(json{i,1}.OriginPath);
+                                set_param(contractBlock, 'BackgroundColor', contractColor);
+                                ancestorBlock = fileparts(contractBlock);
+                                while contains(ancestorBlock, '/')
+                                    ancestorBlockColor = get_param(ancestorBlock, 'BackgroundColor');
+                                    if strcmp(ancestorBlockColor, 'white') || ...
+                                            (strcmp(ancestorBlockColor, 'green') && strcmp(ancestorBlockColor, 'yellow')) || ...
+                                            strcmp(contractColor, 'red')
+                                    set_param(ancestorBlock, 'BackgroundColor', contractColor);
+                                    end
+                                    ancestorBlock = fileparts(ancestorBlock);
+                                end
+                        end                    
+                    end
                 end
             end
         end
