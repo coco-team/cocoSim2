@@ -85,8 +85,7 @@ while current_t < 100
     i = i + 1;
     num_period = num_period + 1;
 end
-data
-time
+
 
 signame = 'PG1';
 new_block = strcat(init_block,'_p');

@@ -1,5 +1,10 @@
 function [Object_struct] = get_struct(ir_struct, Object, handle_struct_map)
-
+global ir_handle_struct_map;
+if isempty(ir_handle_struct_map) && nargin >= 3
+    ir_handle_struct_map = handle_struct_map;
+elseif isempty(ir_handle_struct_map)
+    ir_handle_struct_map = containers.Map('KeyType','double', 'ValueType','any');
+end
 Object_struct = [];
 if isa(Object, 'char')
     path = strsplit(Object, '/');
@@ -17,8 +22,8 @@ if isa(Object, 'char')
         error(['error, reference to non-existent field : ', IRUtils.name_format(path{numel(path)})]);
     end
 elseif isa(Object, 'double')
-    if nargin >= 3 && isKey(handle_struct_map, Object)
-        Object_struct = handle_struct_map(Object);
+    if isKey(ir_handle_struct_map, Object)
+        Object_struct = ir_handle_struct_map(Object);
     else
         if isfield(ir_struct, 'Handle') && (ir_struct.Handle == Object)
             Object_struct = ir_struct;

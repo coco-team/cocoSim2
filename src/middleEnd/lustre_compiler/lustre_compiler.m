@@ -158,7 +158,8 @@ display_msg('Building internal format', Constants.INFO, 'cocoSim', '');
 %%%%%% Internal representation building %%%%%%
 [ir_struct, all_blks, subs_blks_list] = cocosim_IR(file_name, 1, output_dir);
 %Pre process of IR
-[ir_struct, subs_blks_list] = ir_pp(ir_struct, 1, output_dir, subs_blks_list);
+global ir_handle_struct_map;
+[ir_struct, subs_blks_list, ir_handle_struct_map] = ir_pp(ir_struct, 1, output_dir);
 % Create traceability informations in XML format
 display_msg('Start tracebility', Constants.INFO, 'cocoSim', '');
 xml_trace = XML_Trace(model_full_path, trace_file_name);

@@ -44,7 +44,6 @@ block_param_map('DiscreteIntegrator') = {'IntegratorMethod', 'gainval',...
     'ExternalReset', 'InitialConditionSource', 'InitialCondition',...
     'LimitOutput', 'LowerSaturationLimit','UpperSaturationLimit'};
 
-block_param_map('Delay') = {'InitialCondition', 'DelayLength'};
 
 block_param_map('DiscreteFilter') = {'Numerator', 'Denominator',...
     'a0EqualsOne', 'InitialStates'};
@@ -56,7 +55,7 @@ block_param_map('MultiPortSwitch') = {'DataPortOrder', 'DataPortIndices'...
 
 block_param_map('Scope') = {'Floating'};
 
-block_param_map('Outport') = {'Port', 'CompiledPortDimensions', 'CompiledPortDataTypes', 'UseBusObject', 'BusObject'};
+block_param_map('Outport') = {'Port', 'CompiledPortDimensions', 'CompiledPortDataTypes', 'UseBusObject', 'BusObject', 'OutputWhenDisabled', 'InitialOutput'};
 
 block_param_map('Inport') = {'Port', 'CompiledPortDimensions', 'CompiledPortDataTypes', 'UseBusObject', 'BusObject'};
 

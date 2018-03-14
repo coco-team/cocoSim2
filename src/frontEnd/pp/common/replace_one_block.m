@@ -13,7 +13,11 @@ if nargin > 2
         verif = true;
     end
 else
-    verif = evalin('base','verif');
+    try
+        verif = evalin('base','verif');
+    catch
+        verif = false;
+    end
 end
 
 % Create the verification model if necessary

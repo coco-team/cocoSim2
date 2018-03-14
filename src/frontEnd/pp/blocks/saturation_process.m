@@ -14,11 +14,16 @@ if not(isempty(saturation_list))
             'saturation_process', '');
         lower_limit = get_param(saturation_list{i},'LowerLimit');
         upper_limit = get_param(saturation_list{i},'UpperLimit');
+        outputDataType = get_param(saturation_list{i}, 'OutDataTypeStr');
         replace_one_block(saturation_list{i},'gal_lib/saturation');
         set_param(strcat(saturation_list{i},'/lower_limit'),...
             'Value',lower_limit);
         set_param(strcat(saturation_list{i},'/upper_limit'),...
             'Value',upper_limit);
+        set_param(strcat(saturation_list{i},'/upper'),...
+            'OutDataTypeStr',outputDataType);
+        set_param(strcat(saturation_list{i},'/lower'),...
+            'OutDataTypeStr',outputDataType);
     end
     display_msg('Done\n\n', Constants.INFO, 'saturation_process', ''); 
 end

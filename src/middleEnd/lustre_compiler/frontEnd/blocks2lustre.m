@@ -24,7 +24,7 @@ fields = fieldnames(subsys.Content);
 fields(cellfun('isempty', regexprep(fields, '^Annotation.*', ''))) = [];
 blks = {};
 for i=1:numel(fields)
-    blks = [blks, subsys.Content.(fields{i}).Path];
+    blks = [blks, subsys.Content.(fields{i}).Handle];
 end
 
 if idx_subsys == 1
@@ -172,7 +172,7 @@ for idx_block=newinit:nblk
 	list_output = '';
 	noutput = sub_blk.Ports(2);
 	% Only for the blocks that are not fby
-	if noutput ~= 0 && ~strcmp(sub_blk.BlockType, 'Inport')
+	if (noutput ~= 0 && ~strcmp(sub_blk.BlockType, 'Inport')) || (strcmp(sub_blk.BlockType, 'Goto'))
 		if ~(strcmp(sub_blk.BlockType, 'SubSystem') && BlockUtils.is_property(sub_blk.MaskType))
 			if cpt_var == 1
 				% Create the "Variables" traceability information element
@@ -181,9 +181,15 @@ for idx_block=newinit:nblk
 			list_output = list_var_input(sub_blk, xml_trace, 'Variable');
 			list_output_final = Utils.concat_delim(list_output, '; ');
 			if cpt_var == 1
-				node_header = app_sprintf(node_header, 'var\n\t%s;\n', char(list_output_final));
-			else
-				node_header = app_sprintf(node_header, '\t%s;\n', char(list_output_final));
+                if ~isempty(list_output_final)
+                    node_header = app_sprintf(node_header, 'var\n\t%s;\n', char(list_output_final));
+                else
+                    node_header = app_sprintf(node_header, 'var\n');
+                end
+            else
+                if ~isempty(list_output_final)
+                    node_header = app_sprintf(node_header, '\t%s;\n', char(list_output_final));
+                end
 			end
 			cpt_var = cpt_var+1;
 		end
