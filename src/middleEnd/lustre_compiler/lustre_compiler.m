@@ -42,7 +42,6 @@ if ~exist('default_Ts', 'var')
     end
 end
 addpath(genpath(fullfile(cocoSim_path, 'backEnd')));
-addpath(genpath(fullfile(cocoSim_path, 'middleEnd')));
 addpath(genpath(fullfile(cocoSim_path, 'frontEnd')));
 addpath(fullfile(cocoSim_path, 'utils'));
 addpath(fullfile(cocoSim_path, '.'));

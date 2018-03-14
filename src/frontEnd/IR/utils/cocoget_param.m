@@ -13,8 +13,8 @@ end
 
 if isa(Object, 'cell')
     ParamValue = {};
-    for j=1:numel(Object)
-        path = strsplit(Object{j}, filesep);
+    for j=1:numel(Object)                
+        path = strsplit(Object{j}, '/');
         Object_search = ir_struct;
         for i=1:numel(path)-1
             try
@@ -32,7 +32,7 @@ if isa(Object, 'cell')
         end
     end
 elseif isa(Object, 'char')
-    path = strsplit(Object, filesep);
+    path = strsplit(Object, '/');
     Object_search = ir_struct;
     for i=1:numel(path)-1
         try

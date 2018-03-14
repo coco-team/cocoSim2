@@ -56,8 +56,7 @@ for i=1:numel(content)
     all_blocks = [all_blocks, IRUtils.name_format(content(i))];
     [parent, sub_name, ~] = fileparts(content{i});
     sub_name = IRUtils.name_format(sub_name); %modified name to be a valid field name
-    sub_type = get_param(content{i}, 'BlockType');
-    
+    sub_type = get_param(content{i}, 'BlockType');    
     % Common IR
     Common = common_struct(content{i}, model_ref_parent);
     
@@ -82,9 +81,11 @@ for i=1:numel(content)
     handle_struct_map(get_param(content{i}, 'Handle')) = S.(sub_name);
     
     % Inner SubSystems/model struct
-    if strcmp(sub_type, 'SubSystem') || strcmp(get_param(content{i}, 'Mask'), 'on')
+    if strcmp(sub_type, 'SubSystem') ...
+        ||  (   ~strcmp(sub_type,'M-S-Function' ) ... % validatr has type 'M-S-Function'
+            && strcmp(get_param(content{i}, 'Mask'), 'on'))
         S.(sub_name).Mask = get_param(content{i}, 'Mask');
-        S.(sub_name).MaskType = mask_type;
+        S.(sub_name).MaskType = mask_type;        
         if strcmp(S.(sub_name).SFBlockType, 'Chart') && ~isempty(stateflow_treatment)
             if iscell(stateflow_treatment)
                 fun_name = stateflow_treatment{1};
@@ -102,7 +103,7 @@ for i=1:numel(content)
                 S.(sub_name).SFContent = struct();
             end
             S.(sub_name).Content = struct();
-        else
+        else            
             [S.(sub_name).Content, next_blocks, next_subsyst, handle_struct_map_next] = subsystems_struct(content{i}, true);
             all_blocks = [all_blocks, next_blocks];
             subsyst_blocks = [subsyst_blocks, next_subsyst];
@@ -134,4 +135,3 @@ for i=1:numel(content)
     end
 end
 end
-
