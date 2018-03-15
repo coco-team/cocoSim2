@@ -18,7 +18,6 @@ subs_blks_list = get_not_handled_masked_subs(new_ir, model_name);
 
 json_model = json_encode(new_ir);
 json_model = strrep(json_model,'\/','/');
-json_model = strrep(json_model,'X0','InitialCondition');
 
 if nargin < 3
     output_dir = parent;
@@ -31,7 +30,7 @@ if df_export
     % Write in the file
     fprintf(fid, '%s\n', json_model);
     fclose(fid);
-    new_path = fullfile(output_dir, 'IR_pp.json');
+%    new_path = fullfile(output_dir, 'IR_pp.json');
 %     cmd = ['cat ' file_path ' | python -mjson.tool > ' new_path];
 %     try
 %         [status, output] = system(cmd);
