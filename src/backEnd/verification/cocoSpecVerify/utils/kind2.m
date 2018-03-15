@@ -46,7 +46,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
             
             % call kind2  web server
             if strcmp(CoCoSimPreferences.kind2Binary, 'Kind2 web service')            
-                postUrl = 'http://kind.cs.uiowa.edu:8080/kindservices/postCode';
+                postUrl = 'http://kind.cs.uiowa.edu:8080/kindservices/verify';
                 data = {};
                 % read the lustre code from the file
                 data.code = fileread(lustre_file_name);                
@@ -390,8 +390,8 @@ function [analysisStruct] = handleAnalysis(json, xml_analysis_start, ir_struct, 
 
                                 propertyStruct.counterExample = parseCounterExample(counterExampleElement.item(0));
 
-                                [~,annot_text] = display_cex(counterExampleElement, propertyStruct.originPath, ir_struct, date_value, ...
-                                   lustre_file_name, index, xml_trace, ir_struct, annot_text);                            
+%                                 [~,annot_text] = display_cex(counterExampleElement, propertyStruct.originPath, ir_struct, date_value, ...
+%                                    lustre_file_name, index, xml_trace, ir_struct, annot_text);                            
                             else
                                 msg = [solver ': FAILURE to get counter example: '];
                                 msg = [msg property_name '\n'];
