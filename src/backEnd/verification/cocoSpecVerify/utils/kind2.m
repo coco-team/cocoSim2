@@ -17,7 +17,12 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
     catch
        timeout = '60.0';
     end
-    if exist(KIND2,'file') && exist(Z3,'file')        
+    
+    % load preferences
+    CoCoSimPreferences = loadCoCoSimPreferences();    
+    
+    if (exist(KIND2,'file') && exist(Z3,'file')) || ...
+            strcmp(CoCoSimPreferences.kind2Binary, 'Kind2 web service') 
         
         % properties in the mapping file                        
         if exist(mapping_file, 'file') == 2
@@ -25,8 +30,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
             date_value = datestr(now, 'ddmmyyyyHHMMSS');
             [~,file_name,~] = fileparts(lustre_file_name);
             
-            % load preferences
-            CoCoSimPreferences = loadCoCoSimPreferences();     
+            
             
             % local installation
             if strcmp(CoCoSimPreferences.kind2Binary, 'Local')
@@ -79,14 +83,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
             fclose(fid);            
             s = dir(results_file_name);
             
-            %ToDo: clean this code   
-            pathParts = strsplit(mfilename('fullpath'),'/');
-            %set cocoSim_path to be ~/CoCoSim/src
-            cocoSim_path = strjoin(pathParts(1 :end - 5), '/');            
-            annot_text = fileread([cocoSim_path filesep 'backEnd' filesep 'templates' filesep 'header.html']);
-            css_source = fullfile(cocoSim_path,'backEnd' , 'templates' , 'materialize.css');
-            annot_text = strrep(annot_text, '[css_source]', css_source);
-            
+         
             % read the mapping file
             fid = fopen(mapping_file);
             raw = fread(fid, inf);                
@@ -110,7 +107,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                     analysisStruct.concrete= char(xmlAnalysis.getAttribute('concrete'));
                     analysisStruct.assumptions = char(xmlAnalysis.getAttribute('assumptions'));                    
                     analysisStruct = handleAnalysis(json, xmlAnalysis, ir_struct, date_value, ...
-                               lustre_file_name, xml_trace, annot_text, analysisStruct);
+                               lustre_file_name, xml_trace, analysisStruct);
                     verificationResults.analysisResults{i+1} = analysisStruct;
                 end
                 
@@ -243,7 +240,7 @@ end
 
 
 function [analysisStruct] = handleAnalysis(json, xml_analysis_start, ir_struct, date_value, ...
-                               lustre_file_name, xml_trace, annot_text, analysisStruct)
+                               lustre_file_name, xml_trace, analysisStruct)
     xml_element = xml_analysis_start;
     analysisStruct.properties ={};
     contractColor = 'green';
@@ -314,8 +311,8 @@ function [analysisStruct] = handleAnalysis(json, xml_analysis_start, ir_struct, 
                             counterExampleElement = xml_element.getElementsByTagName('CounterExample');                        
                             if counterExampleElement.getLength > 0                                
                                 propertyStruct.counterExample = parseCounterExample(counterExampleElement.item(0));
-                                [~,annot_text] = display_cex(counterExampleElement, originPath, ir_struct, date_value, ...
-                                   lustre_file_name, index, xml_trace, ir_struct, annot_text);                               
+%                                 [~,annot_text] = display_cex(counterExampleElement, originPath, ir_struct, date_value, ...
+%                                    lustre_file_name, index, xml_trace, ir_struct, annot_text);                               
                                analysisStruct.properties{index} = propertyStruct;
                             else
                                 msg = [solver ': FAILURE to get counter example: '];
