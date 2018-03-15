@@ -4,7 +4,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-function kind2(lustre_file_name, ir_struct, mapping_file)
+function kind2(lustre_file_name, mapping_file)
      
     cocosim_config;
     try
@@ -29,10 +29,8 @@ function kind2(lustre_file_name, ir_struct, mapping_file)
         if exist(mapping_file, 'file') == 2
         
             date_value = datestr(now, 'ddmmyyyyHHMMSS');
-            [file_path,file_name,extension] = fileparts(lustre_file_name);
-            
-            
-            
+            [file_path,file_name,extension] = fileparts(lustre_file_name);      
+                        
             % local binary
             if strcmp(CoCoSimPreferences.kind2Binary, 'Local')
                 % check whether to use compositional analysis
@@ -124,8 +122,8 @@ function kind2(lustre_file_name, ir_struct, mapping_file)
                     analysisStruct.abstract = char(xmlAnalysis.getAttribute('abstract'));
                     analysisStruct.concrete= char(xmlAnalysis.getAttribute('concrete'));
                     analysisStruct.assumptions = char(xmlAnalysis.getAttribute('assumptions'));                    
-                    analysisStruct = handleAnalysis(json, xmlAnalysis, ir_struct, date_value, ...
-                               lustre_file_name, analysisStruct);
+                    analysisStruct = handleAnalysis(json, xmlAnalysis, date_value, ...
+                               analysisStruct);
                     verificationResults.analysisResults{i+1} = analysisStruct;
                 end
                 
@@ -255,8 +253,8 @@ function [verificationResults, compositionalMap] = saveVerificationResults(verif
 end
 
 
-function [analysisStruct] = handleAnalysis(json, xml_analysis_start, ir_struct, date_value, ...
-                               lustre_file_name, analysisStruct)
+function [analysisStruct] = handleAnalysis(json, xml_analysis_start, date_value, ...
+                               analysisStruct)
     xml_element = xml_analysis_start;
     analysisStruct.properties ={};
     contractColor = 'green';
@@ -467,60 +465,3 @@ function [nodeStruct] = parseCounterExampleNode(nodeElement)
         end            
     end        
 end 
-
-function [IO_struct, found] = parseCEX(cex, IO_struct, origin_path)
-	first_cex = cex.item(0); % Only one CounterExample for now, do we will need more ?
-    nodes = first_cex.getElementsByTagName('Node');
-    prop_name = Utils.name_format(origin_path);  
-    prop_name = strrep(prop_name, '/', '_');
-	parent_block_name = fileparts(origin_path);
-    time_steps = 0;
-	found = false;
-    
-    % Browse through all the nodes
-	for idx=0:(nodes.getLength-1)
-		node = nodes.item(idx);
-        streams = node.getElementsByTagName('Stream');
-        for i=0:(streams.getLength-1)
-            stream = streams.item(i);
-            stream_name = stream.getAttribute('name');
-            input_names = cellfun(@(x) x.origin_name, IO_struct.inputs, 'UniformOutput', 0);
-			output_names = cellfun(@(x) x.origin_name, IO_struct.outputs, 'UniformOutput', 0);
-			
-            var_name = strcat(parent_block_name,'/', char(stream_name));
-            if numel(find(strcmp(input_names, var_name))) ~= 0
-				index = find(strcmp(input_names, var_name));
-				[IO_struct.inputs{index}, time_steps] = addValue_IO_struct(IO_struct.inputs{index}, stream, prop_name, time_steps);		
-                found = true;
-			elseif numel(find(strcmp(output_names, var_name))) ~= 0
-				index = find(strcmp(output_names, var_name));
-				[IO_struct.outputs{index}, time_steps] = addValue_IO_struct(IO_struct.outputs{index}, stream, prop_name, time_steps);
-                found = true;
-			end
-        end
-    end
-    
-	if ~found
-		display_msg('Impossible to parse correctly the generated CEX', Constants.WARNING, 'CEX replay', '');
-    end
-	IO_struct.time_steps = time_steps;
-end
-
-
-function [out, time_step] = addValue_IO_struct(struct, signal, prop_name, time_steps)
-	out = struct;
-	values = signal.getElementsByTagName('Value');
-    for idx=0:(values.getLength-1)
-		val = char(values.item(idx).getTextContent);
-		if strcmp(val, 'false')
-			out.value(idx+1) = false;
-		elseif strcmp(val, 'true')
-			out.value(idx+1) = true;
-		else
-			out.value(idx+1) = str2num(val);
-		end
-    end
-
-	time_step = max(time_steps, idx);
-	out.var_name = sprintf('%s_%s', out.name, prop_name);
-end

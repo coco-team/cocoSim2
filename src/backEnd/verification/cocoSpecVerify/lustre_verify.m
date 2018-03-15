@@ -62,7 +62,7 @@ if (numel(property_node_names) > 0 || exist(mapping_file) == 2) ...
     elseif strcmp(SOLVER, 'K')
         display_msg('Running Kind2', Constants.INFO, 'Verification', '');
         try
-            kind2(nom_lustre_file, ir_struct, mapping_file);
+            kind2(nom_lustre_file, mapping_file);
         catch ME
             display_msg(ME.message, Constants.ERROR, 'Verification', '');
             display_msg(ME.getReport(), Constants.DEBUG, 'Verification', '');
