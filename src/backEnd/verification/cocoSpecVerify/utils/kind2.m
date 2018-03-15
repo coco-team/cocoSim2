@@ -22,17 +22,18 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
     CoCoSimPreferences = loadCoCoSimPreferences();    
     
     if (exist(KIND2,'file') && exist(Z3,'file')) || ...
-            strcmp(CoCoSimPreferences.kind2Binary, 'Kind2 web service') 
+            strcmp(CoCoSimPreferences.kind2Binary, 'Kind2 web service') || ...
+            strcmp(CoCoSimPreferences.kind2Binary, 'Docker') 
         
         % properties in the mapping file                        
         if exist(mapping_file, 'file') == 2
         
             date_value = datestr(now, 'ddmmyyyyHHMMSS');
-            [~,file_name,~] = fileparts(lustre_file_name);
+            [file_path,file_name,extension] = fileparts(lustre_file_name);
             
             
             
-            % local installation
+            % local binary
             if strcmp(CoCoSimPreferences.kind2Binary, 'Local')
                 % check whether to use compositional analysis
                 if CoCoSimPreferences.compositionalAnalysis
@@ -48,6 +49,23 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                 display_msg(kind2_out, Constants.DEBUG, 'write_code', '');                
             end          
             
+            
+            % docker binary
+            if strcmp(CoCoSimPreferences.kind2Binary, 'Docker')
+                % check whether to use compositional analysis
+                if CoCoSimPreferences.compositionalAnalysis
+                    command = sprintf('docker run -v %s:/lus kind2/kind2:dev /lus/%s -xml --timeout %s --modular true --compositional true',...
+                        file_path, [file_name extension], timeout);
+                else
+                     command = sprintf('docker run -v %s:/lus kind2/kind2:dev /lus/%s -xml --timeout %s --modular true',...
+                        file_path, [file_name extension], timeout);
+                end
+                
+                display_msg(['KIND2_COMMAND ' command], Constants.DEBUG, 'write_code', '');
+                [~, kind2_out] = system(command);
+                display_msg(kind2_out, Constants.DEBUG, 'write_code', '');                
+            end        
+            
             % call kind2  web server
             if strcmp(CoCoSimPreferences.kind2Binary, 'Kind2 web service')            
                 postUrl = 'http://kind.cs.uiowa.edu:8080/kindservices/verify';
@@ -55,7 +73,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                 % read the lustre code from the file
                 data.code = fileread(lustre_file_name);                
                 data.arguments.smt_solver = 'Z3';
-                data.arguments.timeout = 30;
+                data.arguments.timeout = str2num(timeout);
                 data.arguments.modular = 'true';
                 
                 if CoCoSimPreferences.compositionalAnalysis
