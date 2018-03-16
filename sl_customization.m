@@ -558,7 +558,7 @@ function javaToLustreCompilerCallback(callbackInfo)
     [cocosim_path, ~, ~] = fileparts(mfilename('fullpath'));        
     if CoCoSimPreferences.javaToLustreCompiler
         % select the middle end lustre compiler        
-        javaaddpath(fullfile(cocosim_path,'tools','CocoSim_IR_Compiler-0.1-jar-with-dependencies.jar'));    
+        javaaddpath(fullfile(cocosim_path,'src','backend','verification','cocoSpecVerify','utils','CocoSim_IR_Compiler-0.1-jar-with-dependencies.jar'));    
         addpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'java_lustre_compiler')));    
         rmpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'lustre_compiler')));    
         
