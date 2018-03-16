@@ -531,7 +531,7 @@ function action = createAction(title, content, cocoSim_path)
 end
 
 function add_plotting_function(cocoSim_path, path)
-	src = [cocoSim_path filesep 'backEnd' filesep 'templates' filesep 'plotting.m'];
+	src = [cocoSim_path filesep 'backEnd' filesep 'common' filesep 'plotting.m'];
 	copyfile(src, path);
 end
 
