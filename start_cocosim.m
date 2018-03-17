@@ -15,9 +15,9 @@ addpath(genpath(fullfile(cocoSim_path, 'src')));
 addpath(fullfile(cocoSim_path, 'libs'));
 addpath(fullfile(cocoSim_path, 'src','gui'));
 addpath(fullfile(cocoSim_path, 'src','utils'));
+
 cocosim_config;
-rmpath(genpath(fullfile(cocoSim_path, 'src', 'middleEnd')));
-addpath(genpath(LUSTRE_COMPILER_DIR));
+
 PWD = pwd;
 cd(fullfile(cocoSim_path, 'src', 'frontEnd', 'IR', 'utils'));
 make;
