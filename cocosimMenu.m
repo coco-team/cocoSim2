@@ -19,7 +19,7 @@ end
 
 schema.childrenFcns = {@VerificationMenu.verify, @VerificationMenu.verifyUsing,...
     @ValidationMenu.validate, @UnsupportedBlocksMenu.checkUnsupportedBlocks, ...
-    @ViewContractMenu.viewContract, @getProps, ...
+    @ViewContractMenu.viewContract, @PropertyGenerationMenu.generateProperty, ...
     @getPP,  @getCompiler, @preferencesMenu};
 end
 
@@ -62,21 +62,9 @@ btn = uicontrol('Parent',d,...
 end
 
 
-function schema = getProps(callbackInfo)
-schema = sl_action_schema;
-schema.label = 'Create Property';
-schema.callback = @synchObsCallback;
-end
 
-function synchObsCallback(callbackInfo)
-try
-    [prog_path, fname, ext] = fileparts(mfilename('fullpath'));
-    simulink_name = get_file_name(gcs);
-    add_property(simulink_name);
-catch ME
-    display_msg(ME.getReport(),Constants.DEBUG,'getProps','');
-end
-end
+
+
 
 function schema = getCompiler(callbackInfo)
 schema = sl_container_schema;
