@@ -18,28 +18,12 @@ if modelWorkspace.hasVariable('cocomSimMenuDisabled') && ...
 end
 
 schema.childrenFcns = {@VerificationMenu.verify, @VerificationMenu.verifyUsing,...
-    @ValidationMenu.validate,...
-    @getCheckBlocks, @viewContract, @getProps, ...
+    @ValidationMenu.validate, @UnsupportedBlocksMenu.checkUnsupportedBlocks, ...
+    @ViewContractMenu.viewContract, @getProps, ...
     @getPP,  @getCompiler, @preferencesMenu};
 end
 
 
-
-function schema = getCheckBlocks(callbackInfo)
-schema = sl_action_schema;
-schema.label = 'Check unsupported blocks';
-schema.callback = @checkBlocksCallBack;
-end
-
-function checkBlocksCallBack(callbackInfo)
-try
-    model_full_path = get_file_name(gcs);
-    unsupported_blocks_gui( model_full_path );
-catch ME
-    display_msg(ME.message,Constants.ERROR,'getCheckBlocks','');
-    display_msg(ME.getReport(),Constants.DEBUG,'getCheckBlocks','');
-end
-end
 
 
 % Function to pre-process and simplify the Simulink model
@@ -77,35 +61,6 @@ btn = uicontrol('Parent',d,...
     'Callback','delete(gcf)');
 end
 
-function schema = viewContract(callbackInfo)
-schema = sl_action_schema;
-schema.label = 'View generated CoCoSpec (Experimental)';
-schema.callback = @viewContractCallback;
-end
-
-function viewContractCallback(callbackInfo)
-model_full_path = get_file_name(gcs);
-simulink_name = gcs;
-contract_name = [simulink_name '_COCOSPEC'];
-emf_name = [simulink_name '_EMF'];
-try
-    CONTRACT = evalin('base', contract_name);
-    EMF = evalin('base', emf_name);
-    disp(['CONTRACT LOCATION ' char(CONTRACT)])
-    
-    
-catch ME
-    display_msg(ME.getReport(),Constants.DEBUG,'viewContract','');
-    msg = sprintf('No CoCoSpec Contract for %s \n Verify the model with Zustre', simulink_name);
-    warndlg(msg,'CoCoSim: Warning');
-end
-try
-    Output_url = view_cocospec(model_full_path, char(EMF));
-    open(Output_url);
-catch ME
-    display_msg(ME.getReport(),Constants.DEBUG,'viewContract','');
-end
-end
 
 function schema = getProps(callbackInfo)
 schema = sl_action_schema;
