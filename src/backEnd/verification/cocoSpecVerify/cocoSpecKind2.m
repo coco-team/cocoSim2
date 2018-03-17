@@ -4,7 +4,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-function kind2(lustre_file_name, mapping_file)
+function cocoSpecKind2(lustre_file_name, mapping_file)
      
     cocosim_config;
     try
@@ -24,6 +24,9 @@ function kind2(lustre_file_name, mapping_file)
     if (exist(KIND2,'file') && exist(Z3,'file')) || ...
             strcmp(CoCoSimPreferences.kind2Binary, 'Kind2 web service') || ...
             strcmp(CoCoSimPreferences.kind2Binary, 'Docker') 
+        
+        % Get start time
+        t_start = now;
         
         % properties in the mapping file                        
         if exist(mapping_file, 'file') == 2
@@ -99,6 +102,10 @@ function kind2(lustre_file_name, mapping_file)
             fclose(fid);            
             s = dir(results_file_name);
             
+            
+            t_end = now;
+            t_compute = t_end - t_start;
+            display_msg(['Total Kind2 verification time: ' datestr(t_compute, 'HH:MM:SS.FFF')], Constants.RESULT, 'Time', '');  
          
             % read the mapping file
             fid = fopen(mapping_file);

@@ -46,27 +46,3 @@ Z3 = fullfile(solvers_path,'z3');
 KIND2 = fullfile(solvers_path,'kind2');
 SEAHORN = 'PATH';
 cocosim_version = 'v0.1';
-
-
-% load preferences
-CoCoSimPreferences = loadCoCoSimPreferences();
-
-%ToDo: review removing this redundancy with function 
-%javaToLustreCompilerCallback in sl_customization.m 
-if CoCoSimPreferences.javaToLustreCompiler
-    % select the middle end lustre compiler
-    LUSTRE_COMPILER_DIR = fullfile(cocosim_path, 'src', 'middleEnd', 'java_lustre_compiler');
-    javaaddpath(fullfile(cocosim_path,'src','backEnd','verification','cocoSpecVerify','utils','CocoSim_IR_Compiler-0.1-jar-with-dependencies.jar'));    
-    addpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'java_lustre_compiler')));    
-    rmpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'lustre_compiler')));  
-    
-    addpath(genpath(fullfile(cocosim_path, 'src', 'backEnd', 'verification', 'cocoSpecVerify')));    
-    rmpath(genpath(fullfile(cocosim_path, 'src', 'backEnd', 'verification', 'lustreVerify')));    
-else
-    LUSTRE_COMPILER_DIR = fullfile(cocosim_path, 'src', 'middleEnd', 'lustre_compiler');    
-    addpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'lustre_compiler')));
-    rmpath(genpath(fullfile(cocosim_path, 'src', 'middleEnd', 'java_lustre_compiler')));    
-    
-    addpath(genpath(fullfile(cocosim_path, 'src', 'backEnd', 'verification', 'lustreVerify')));    
-    rmpath(genpath(fullfile(cocosim_path, 'src', 'backEnd', 'verification', 'cocoSpecVerify')));           
-end

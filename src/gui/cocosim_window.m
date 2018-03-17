@@ -102,16 +102,26 @@ properties_panel = uipanel(tab6,'Title','',...
 %% call cocosim
 assignin('base','cocosim_tgroup_handle',cocosim_display_tgroup);
 assignin('base','cocosim_status_handle',t_status);
-if nargin==1
-    lustre_verify(model_full_path);
-elseif nargin==2
-    lustre_verify(model_full_path, const_files);
-elseif nargin==3
-    lustre_verify(model_full_path, const_files, default_Ts);
-elseif nargin==4
-    lustre_verify(model_full_path, const_files, default_Ts, trace);
-elseif nargin==5
-    lustre_verify(model_full_path, const_files, default_Ts, trace, dfexport);
+
+
+% load preferences
+CoCoSimPreferences = loadCoCoSimPreferences();
+
+%determine which compiler to use
+if CoCoSimPreferences.javaToLustreCompiler   
+    cocoSpecVerify(model_full_path);
+else
+    if nargin==1
+        lustre_verify(model_full_path);
+    elseif nargin==2
+        lustre_verify(model_full_path, const_files);
+    elseif nargin==3
+        lustre_verify(model_full_path, const_files, default_Ts);
+    elseif nargin==4
+        lustre_verify(model_full_path, const_files, default_Ts, trace);
+    elseif nargin==5
+        lustre_verify(model_full_path, const_files, default_Ts, trace, dfexport);
+     end    
 end
 
 %% callbacks

@@ -5,8 +5,8 @@
 
 % Main file for CoCoSim
 
-function [nom_lustre_file, sf2lus_Time, c_code, ir_struct]= ... 
-    lustre_compiler(model_full_path)
+function [nom_lustre_file, sf2lus_Time, ir_struct]= ... 
+    cocoSpecCompiler(model_full_path)
 bdclose('all');
 open(model_full_path);
 
@@ -32,24 +32,15 @@ addpath(fullfile(cocoSim_path, '.'));
 addpath(cocoSim_path);
 cocosim_config;
 try
-    SOLVER = evalin('base','SOLVER');
-    RUST_GEN = evalin('base', 'RUST_GEN');
-    C_GEN = evalin('base', 'C_GEN');
+    SOLVER = evalin('base','SOLVER');   
 catch
-    SOLVER = 'NONE';
-    RUST_GEN = 0;
-    C_GEN = 0;
+    SOLVER = 'NONE';    
 end
 
-config_msg = ['CoCoSim Configuration, Change this configuration in src/config.m\n'];
+config_msg = 'CoCoSim Configuration, Change this configuration in src/config.m\n';
 config_msg = [config_msg '--------------------------------------------------\n'];
 config_msg = [config_msg '|  SOLVER: ' SOLVER '\n'];
-config_msg = [config_msg '|  ZUSTRE: ' ZUSTRE '\n'];
-config_msg = [config_msg '|  JKIND:  ' JKIND '\n'];
 config_msg = [config_msg '|  KIND2:  ' KIND2 '\n'];
-config_msg = [config_msg '|  LUSTREC:' LUSTREC '\n'];
-config_msg = [config_msg '|  LUSTREC Include Dir:' LUCTREC_INCLUDE_DIR '\n'];
-config_msg = [config_msg '|  SEAHORN:' SEAHORN '\n'];
 config_msg = [config_msg '|  Z3: ' Z3 '\n'];
 config_msg = [config_msg '--------------------------------------------------\n'];
 display_msg(config_msg, Constants.INFO, 'cocoSim', '');
@@ -91,7 +82,7 @@ Utils.update_status('Lustre generation');
 display_msg('Lustre generation', Constants.INFO, 'cocoSim', '');
 
 %%%%%%%%%%%%%%%%%%
-
+javaaddpath(fullfile('src','backEnd','verification','cocoSpecVerify','utils','CocoSim_IR_Compiler-0.1-jar-with-dependencies.jar'));    
 json_file=fullfile(output_dir, strcat(file_name, '_IR.json'));
 j2l_trans=edu.uiowa.json2lus.J2LTranslator(json_file);
 ppv=edu.uiowa.json2lus.lustreAst.LustrePrettyPrinter();
@@ -103,45 +94,23 @@ j2l_trans.dumpMappingInfoToJsonFile(mapping_file);
 
 %%%%%%%%%%%%%%%%%%
 
-c_code = '';
 display_msg('End of code generation', Constants.INFO, 'cocoSim', '');
 
 sf2lus_Time = toc(sf2lus_start);
 msg = sprintf(' %s', nom_lustre_file);
 display_msg(msg, Constants.RESULT, 'Lustre Code', '');
 
-
-%%%%%%%%%%%%% Compilation to C or Rust %%%%%%%%%%%%%
-Utils.update_status('Compilation');
-if RUST_GEN
-    display_msg('Generating Rust Code', Constants.INFO, 'Rust Compilation', '');
-    try
-        rust(nom_lustre_file);
-    catch ME
-        display_msg(ME.getReport(), Constants.DEBUG, 'Rust Compilation', '');
-        display_msg(ME.message, Constants.ERROR, 'Rust Compilation', '');
-    end
-elseif C_GEN
-    display_msg('Generating C Code', Constants.INFO, 'C Compilation', '');
-    try
-        lustrec(nom_lustre_file);
-    catch ME
-        display_msg(ME.message, Constants.ERROR, 'C Compilation', '');
-        display_msg(ME.getReport(), Constants.DEBUG, 'C Compilation', '');
-    end
-end
-
 %%%%%%%%%%%% Cleaning and end of operations %%%%%%%%%%
 
 
 t_end = now;
 t_compute = t_end - t_start;
-display_msg(['Total computation time: ' datestr(t_compute, 'HH:MM:SS.FFF')], Constants.RESULT, 'Time', '');
+display_msg(['Total compile time: ' datestr(t_compute, 'HH:MM:SS.FFF')], Constants.RESULT, 'Time', '');
 Utils.update_status('Done');
 end
 
 function display_help_message()
-msg = [ ' -----------------------------------------------------  \n'];
+msg =  ' -----------------------------------------------------  \n';
 msg = [msg '  CoCoSim: Automated Analysis Framework for Simulink/Stateflow\n'];
 msg = [msg '   \n Usage:\n'];
 msg = [msg '    >> cocoSim(MODEL_PATH\n'];
