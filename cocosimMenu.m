@@ -20,31 +20,15 @@ end
 schema.childrenFcns = {@VerificationMenu.verify, @VerificationMenu.verifyUsing,...
     @ValidationMenu.validate, @UnsupportedBlocksMenu.checkUnsupportedBlocks, ...
     @ViewContractMenu.viewContract, @PropertyGenerationMenu.generateProperty, ...
-    @getPP,  @getCompiler, @preferencesMenu};
+    @PreprocessingMenu.preprocess,  @getCompiler, @preferencesMenu};
 end
 
 
 
 
-% Function to pre-process and simplify the Simulink model
-function schema = getPP(callbackInfo)
-schema = sl_action_schema;
-schema.label = 'Simplifier';
-schema.callback = @ppCallBack;
-end
 
-function ppCallBack(callbackInfo)
-try
-    [prog_path, fname, ext] = fileparts(mfilename('fullpath'));
-    addpath(fullfile(prog_path, 'pp'));
-    simulink_name = get_file_name(gcs);%gcs;
-    pp_model = cocosim_pp(simulink_name);
-    load_system(char(pp_model));
-catch ME
-    display_msg(ME.getReport(),Constants.DEBUG,'getPP','');
-    display_msg(ME.message,Constants.ERROR,'getPP','');
-end
-end
+
+
 
 function cocoSimDialog(message)
 msg= sprintf('CoCoSpec in: %s', message);
