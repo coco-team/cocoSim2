@@ -42,7 +42,7 @@ blk_path_elems = regexp(blk, filesep, 'split');
 % If we are at the last pass (main System)
 if idx_subsys == 1    
 	newinit= 1;
-    blk_path_elems = regexp(blk, filesep, 'split');
+    blk_path_elems = regexp(blk, '/', 'split');
 	node_name = Utils.concat_delim(blk_path_elems(1:(end-1)), '_');
 	xml_trace.create_Node_Element(Utils.concat_delim(blk_path_elems(1:(end-1)), filesep), node_name);
 else
