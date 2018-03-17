@@ -12,7 +12,7 @@ disp('--------------------------')
 disp('... adding cocoSim path')
 addpath(genpath(fullfile(cocoSim_path, 'src')));
 %TODO: clean 'addpath' mess-up
-addpath(fullfile(cocoSim_path, 'libs'));
+addpath(genpath(fullfile(cocoSim_path, 'libs')));
 addpath(fullfile(cocoSim_path, 'src','gui'));
 addpath(fullfile(cocoSim_path, 'src','utils'));
 

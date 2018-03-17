@@ -1,7 +1,7 @@
 function [ CoCoSimPreferences ] = loadCoCoSimPreferences()
     % check if the preferences mat file is there
     path = fileparts(mfilename('fullpath'));
-    preferencesFile = fullfile(path, 'preferences.mat');
+    preferencesFile = fullfile(fileparts(path), 'preferences.mat');
     if exist(preferencesFile, 'file') == 2        
         load(preferencesFile, 'CoCoSimPreferences');        
     end
