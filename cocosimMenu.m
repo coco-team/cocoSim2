@@ -17,7 +17,8 @@ if modelWorkspace.hasVariable('cocomSimMenuDisabled') && ...
     schema.state = 'Disabled';
 end
 
-schema.childrenFcns = {@VerificationMenu.verify, @VerificationMenu.verifyUsing,@getValidate,...
+schema.childrenFcns = {@VerificationMenu.verify, @VerificationMenu.verifyUsing,...
+    @ValidationMenu.validate,...
     @getCheckBlocks, @viewContract, @getProps, ...
     @getPP,  @getCompiler, @preferencesMenu};
 end
@@ -40,23 +41,6 @@ catch ME
 end
 end
 
-function schema = getValidate(callbackInfo)
-schema = sl_action_schema;
-schema.label = 'Compiler Validation (Experimental)';
-schema.callback = @validateCallBack;
-end
-
-function validateCallBack(callbackInfo)
-try
-    [cocoSim_path, ~, ~] = fileparts(mfilename('fullpath'));
-    model_full_path = get_file_name(gcs) ;
-    L = log4m.getLogger(fullfile(fileparts(model_full_path),'logfile.txt'));
-    validate_window(model_full_path,cocoSim_path,1,L);
-catch ME
-    display_msg(ME.getReport(), Constants.DEBUG,'Validate_model','');
-    display_msg(ME.message, Constants.ERROR,'Validate_model','');
-end
-end
 
 % Function to pre-process and simplify the Simulink model
 function schema = getPP(callbackInfo)
