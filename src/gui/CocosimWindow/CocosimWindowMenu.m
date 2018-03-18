@@ -15,13 +15,18 @@ classdef CocosimWindowMenu
         end
 
         function rustCallback(callbackInfo)
-            try
-                [prog_path, fname, ext] = fileparts(mfilename('fullpath'));
-                assignin('base', 'SOLVER', 'NONE');
-                assignin('base', 'RUST_GEN', 1);
-                assignin('base', 'C_GEN', 0);
-                simulink_name = CocosimWindowMenu.get_file_name(gcs);%gcs;    
-                cocosim_window(simulink_name);
+            try               
+                model_full_path = CocosimWindowMenu.get_file_name(gcs);             
+                % load preferences
+                CoCoSimPreferences = loadCoCoSimPreferences();
+                if CoCoSimPreferences.javaToLustreCompiler   
+                    lustre_file=cocoSpecCompiler(model_full_path);
+                else
+                    lustre_file=lustre_compiler(model_full_path);
+                end
+                
+                rust (lustre_file);
+                
             catch ME
                 display_msg(ME.getReport(),Constants.DEBUG,'getRust','');
                 disp('run the command in the top level of the model')

@@ -13,10 +13,10 @@ disp('... adding cocoSim path')
 addpath(genpath(fullfile(cocoSim_path, 'src')));
 %TODO: clean 'addpath' mess-up
 addpath(genpath(fullfile(cocoSim_path, 'libs')));
-addpath(genpath(fullfile(cocoSim_path, 'src','gui')));
+
 addpath(genpath(fullfile(cocoSim_path, 'preContextMenu')));
 addpath(genpath(fullfile(cocoSim_path, 'preferences')));
-addpath(fullfile(cocoSim_path, 'src','utils'));
+
 
 cocosim_config;
 

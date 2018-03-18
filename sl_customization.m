@@ -4,6 +4,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function sl_customization(cm)    
-    cm.addCustomMenuFcn('Simulink:ToolsMenu', @cocosimMenu);
-    cm.addCustomMenuFcn('Simulink:PreContextMenu', @preContextMenu);
+    cm.addCustomMenuFcn('Simulink:ToolsMenu', @CocosimMenu.cocosimMenu);
+    cm.addCustomMenuFcn('Simulink:PreContextMenu', @PreContextMenu.preContextMenu);
 end
