@@ -14,10 +14,6 @@ addpath(genpath(fullfile(cocoSim_path, 'src')));
 %TODO: clean 'addpath' mess-up
 addpath(genpath(fullfile(cocoSim_path, 'libs')));
 
-addpath(genpath(fullfile(cocoSim_path, 'preContextMenu')));
-addpath(genpath(fullfile(cocoSim_path, 'preferences')));
-
-
 cocosim_config;
 
 PWD = pwd;
