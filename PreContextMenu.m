@@ -12,74 +12,13 @@ classdef PreContextMenu
 
             modelWorkspace = get_param(callbackInfo.studio.App.blockDiagramHandle,'modelworkspace');   
             if modelWorkspace.hasVariable('compositionalMap')
-                schema.childrenFcns = {@PreContextMenu.compositionalOptions,...
-                    @PreContextMenu.signalBuilders};
+                schema.childrenFcns = {...
+                    @VerificationMenu.compositionalOptions,...
+                    @PreContextMenu.signalBuilders...
+                    };
             else
                 schema.childrenFcns = {@PreContextMenu.signalBuilders};
             end
-        end
-
-        function schema = compositionalOptions(callbackInfo)
-            schema = sl_container_schema;
-            schema.label = 'Compositional Abstract';
-            schema.statustip = 'Compositional Abstract';
-            schema.autoDisableWhen = 'Busy';
-            % get the compositional options from the model workspace
-            modelWorkspace = get_param(callbackInfo.studio.App.blockDiagramHandle,'modelworkspace');   
-            compositionalMap = modelWorkspace.getVariable('compositionalMap');    
-
-            % add a menu item for each option
-            index = 1;
-            for i = 1: length(compositionalMap.analysisNames)        
-                schema.childrenFcns{index} = {@compositionalKey, compositionalMap.analysisNames{i}};
-                index = index + 1;
-                for j=1: length(compositionalMap.compositionalOptions{i})
-                    data.label = compositionalMap.compositionalOptions{i}{j};
-                    data.selectedOption = compositionalMap.selectedOptions(i);
-                    data.currentOption = j;
-                    data.currentAnalysis = i;
-                    schema.childrenFcns{index} = {@PreContextMenu.compositionalOption, data};
-                    index = index + 1;
-                end
-                schema.childrenFcns{index} = 'separator';
-                index = index + 1;
-            end    
-        end
-
-        function schema = compositionalKey(callbackInfo)
-            schema = sl_action_schema;
-            label = callbackInfo.userdata;    
-            schema.label = label;      
-            schema.state = 'Disabled';    
-        end
-
-        function schema = compositionalOption(callbackInfo)
-            schema = sl_toggle_schema;
-            data = callbackInfo.userdata;    
-            if length(data.label) == 0
-                schema.label = 'No abstract';
-            else
-                schema.label = data.label;
-            end          
-            if data.selectedOption == data.currentOption
-                schema.checked = 'checked';    
-            else
-                schema.checked = 'unchecked';    
-            end
-
-            schema.callback = @PreContextMenu.compositionalOptionCallback;
-            schema.userdata = data;
-
-        end
-
-        function compositionalOptionCallback(callbackInfo)    
-            data = callbackInfo.userdata;    
-            modelWorkspace = get_param(callbackInfo.studio.App.blockDiagramHandle,'modelworkspace');   
-            verificationResults = modelWorkspace.getVariable('verificationResults');
-            compositionalMap = modelWorkspace.getVariable('compositionalMap');    
-            compositionalMap.selectedOptions(data.currentAnalysis) = data.currentOption; 
-            assignin(modelWorkspace,'compositionalMap',compositionalMap);
-            displayVerificationResults(verificationResults, compositionalMap);
         end
 
         function schema = signalBuilders(callbackInfo)
