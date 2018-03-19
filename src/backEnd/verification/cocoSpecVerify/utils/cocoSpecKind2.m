@@ -17,132 +17,61 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
     catch
        timeout = '60.0';
     end
-    
-    % load preferences
-    CoCoSimPreferences = loadCoCoSimPreferences();    
-    
-    if (exist(KIND2,'file') && exist(Z3,'file')) || ...
-            strcmp(CoCoSimPreferences.kind2Binary, 'Kind2 web service') || ...
-            strcmp(CoCoSimPreferences.kind2Binary, 'Docker') 
+       
+    % Get start time
+    t_start = now;
+
+    % properties in the mapping file                        
+    if exist(mapping_file, 'file') == 2
+
+        date_value = datestr(now, 'ddmmyyyyHHMMSS');
+        [file_path,file_name,extension] = fileparts(lustre_file_name);      
+
+        kind2_out = Kind2Utils.verify(lustre_file_name, kind2_option, timeout);
         
-        % Get start time
-        t_start = now;
-        
-        % properties in the mapping file                        
-        if exist(mapping_file, 'file') == 2
-        
-            date_value = datestr(now, 'ddmmyyyyHHMMSS');
-            [file_path,file_name,extension] = fileparts(lustre_file_name);      
-                        
-            % local binary
-            if strcmp(CoCoSimPreferences.kind2Binary, 'Local')
-                % check whether to use compositional analysis
-                if CoCoSimPreferences.compositionalAnalysis
-                    command = sprintf('%s --z3_bin %s -xml --timeout %s %s %s --modular true --compositional true',...
-                        KIND2, Z3, timeout, kind2_option, lustre_file_name);
-                else
-                    command = sprintf('%s --z3_bin %s -xml --timeout %s %s %s --modular true',...
-                        KIND2, Z3, timeout, kind2_option, lustre_file_name);
-                end
-                
-                display_msg(['KIND2_COMMAND ' command], Constants.DEBUG, 'write_code', '');
-                [~, kind2_out] = system(command);
-                display_msg(kind2_out, Constants.DEBUG, 'write_code', '');                
-            end          
-            
-            
-            % docker binary
-            if strcmp(CoCoSimPreferences.kind2Binary, 'Docker')
-                % check whether to use compositional analysis
-                if CoCoSimPreferences.compositionalAnalysis
-                    command = sprintf('docker run -v %s:/lus kind2/kind2:dev /lus/%s -xml --timeout %s --modular true --compositional true',...
-                        file_path, [file_name extension], timeout);
-                else
-                     command = sprintf('docker run -v %s:/lus kind2/kind2:dev /lus/%s -xml --timeout %s --modular true',...
-                        file_path, [file_name extension], timeout);
-                end
-                
-                display_msg(['KIND2_COMMAND ' command], Constants.DEBUG, 'write_code', '');
-                [~, kind2_out] = system(command);
-                display_msg(kind2_out, Constants.DEBUG, 'write_code', '');                
-            end        
-            
-            % call kind2  web server
-            if strcmp(CoCoSimPreferences.kind2Binary, 'Kind2 web service')            
-                postUrl = 'http://kind.cs.uiowa.edu:8080/kindservices/verify';
-                data = {};
-                % read the lustre code from the file
-                data.code = fileread(lustre_file_name);                
-                data.arguments.smt_solver = 'Z3';
-                data.arguments.timeout = str2num(timeout);
-                data.arguments.modular = 'true';
-                
-                if CoCoSimPreferences.compositionalAnalysis
-                    data.arguments.compositional = 'true';
-                end
-                
-                options = weboptions('MediaType','application/json');
-                postResponse = webwrite(postUrl,data,options);
-                
-                % pause for one second
-                pause(1);
-                getUrl = strcat('http://kind.cs.uiowa.edu:8080/kindservices/getRawResults/',postResponse.jobId);
-                getResponse = webread(getUrl);
-                while getResponse.jobFinished == 0
-                    % pause for one second
-                    pause(1);
-                    getResponse = webread(getUrl);
-                end
-                kind2_out = getResponse.data;
-            end
-            
-            results_file_name = strrep(lustre_file_name,'.lus','.xml');
-            fid = fopen(results_file_name, 'w');
-            fprintf(fid, kind2_out);
-            fclose(fid);            
-            s = dir(results_file_name);
-            
-            
-            t_end = now;
-            t_compute = t_end - t_start;
-            display_msg(['Total Kind2 verification time: ' datestr(t_compute, 'HH:MM:SS.FFF')], Constants.RESULT, 'Time', '');  
-         
-            % read the mapping file
-            fid = fopen(mapping_file);
-            raw = fread(fid, inf);                
-            str = char(raw');  
-            fclose(fid); 
-            json = jsondecode(str);
-            %convert to cell if its json is struct 
-            if isstruct(json)
-                json = num2cell(json);
-            end
-            
-            verificationResults = {};
-            
-            if s.bytes ~= 0                
-                xml_doc = xmlread(results_file_name);
-                xml_analysis_elements = xml_doc.getElementsByTagName('AnalysisStart');     
-                for i = 0:(xml_analysis_elements.getLength-1)
-                    xmlAnalysis = xml_analysis_elements.item(i);
-                    analysisStruct.top = char(xmlAnalysis.getAttribute('top'));
-                    analysisStruct.abstract = char(xmlAnalysis.getAttribute('abstract'));
-                    analysisStruct.concrete= char(xmlAnalysis.getAttribute('concrete'));
-                    analysisStruct.assumptions = char(xmlAnalysis.getAttribute('assumptions'));                    
-                    analysisStruct = handleAnalysis(json, xmlAnalysis, date_value, ...
-                               analysisStruct);
-                    verificationResults.analysisResults{i+1} = analysisStruct;
-                end
-                
-                %store the verification results in the model workspace
-                [verificationResults, compositionalMap] = saveVerificationResults(verificationResults);
-                displayVerificationResults(verificationResults, compositionalMap);
-            end                        
+        results_file_name = strrep(lustre_file_name,'.lus','.xml');
+        fid = fopen(results_file_name, 'w');
+        fprintf(fid, kind2_out);
+        fclose(fid);            
+        s = dir(results_file_name);
+
+
+        t_end = now;
+        t_compute = t_end - t_start;
+        display_msg(['Total Kind2 verification time: ' datestr(t_compute, 'HH:MM:SS.FFF')], Constants.RESULT, 'Time', '');  
+
+        % read the mapping file
+        fid = fopen(mapping_file);
+        raw = fread(fid, inf);                
+        str = char(raw');  
+        fclose(fid); 
+        json = jsondecode(str);
+        %convert to cell if its json is struct 
+        if isstruct(json)
+            json = num2cell(json);
         end
-    else
-        msg = 'Kind2: Impossible to find Kind2';
-        display_msg(msg, Constants.ERROR, 'Kind2', '');
-    end
+
+        verificationResults = {};
+
+        if s.bytes ~= 0                
+            xml_doc = xmlread(results_file_name);
+            xml_analysis_elements = xml_doc.getElementsByTagName('AnalysisStart');     
+            for i = 0:(xml_analysis_elements.getLength-1)
+                xmlAnalysis = xml_analysis_elements.item(i);
+                analysisStruct.top = char(xmlAnalysis.getAttribute('top'));
+                analysisStruct.abstract = char(xmlAnalysis.getAttribute('abstract'));
+                analysisStruct.concrete= char(xmlAnalysis.getAttribute('concrete'));
+                analysisStruct.assumptions = char(xmlAnalysis.getAttribute('assumptions'));                    
+                analysisStruct = handleAnalysis(json, xmlAnalysis, date_value, ...
+                           analysisStruct);
+                verificationResults.analysisResults{i+1} = analysisStruct;
+            end
+
+            %store the verification results in the model workspace
+            [verificationResults, compositionalMap] = saveVerificationResults(verificationResults);
+            displayVerificationResults(verificationResults, compositionalMap);
+        end                        
+    end    
     
     %% for modular execution
 end
