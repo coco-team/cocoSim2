@@ -215,11 +215,11 @@ cpt_in = 1;
 cpt_out = 1;
 
 parent_block_name = prop_node_name.parent_block_name;
-if numel(regexp(parent_block_name, filesep, 'split')) == 1
+if numel(regexp(parent_block_name, '/', 'split')) == 1
     main_model_name = parent_block_name;
     sub_block = model_inter_blk;
 else
-    par_name_comp = regexp(parent_block_name, filesep, 'split');
+    par_name_comp = regexp(parent_block_name, '/', 'split');
     main_model_name = par_name_comp{1};
 
     sub_block = get_struct(model_inter_blk, Utils.name_format(parent_block_name));
@@ -236,7 +236,7 @@ fields(cellfun('isempty', regexprep(fields, '^Annotation.*', ''))) = [];
 for idx_blk=1:numel(fields)
     ablock = sub_block.Content.(fields{idx_blk});
     if strcmp(ablock.BlockType, 'Inport')
-        block_full_name = regexp(ablock.Origin_path, filesep, 'split');
+        block_full_name = regexp(ablock.Origin_path, '/', 'split');
         block_name = block_full_name{end};
         block_name = strrep(block_name, ' ', '_');
         IO_struct.inputs{cpt_in}.name = block_name;
@@ -248,7 +248,7 @@ for idx_blk=1:numel(fields)
         IO_struct.inputs{cpt_in}.dt = inpu_ports_compiled_dt.Outport;
         cpt_in = cpt_in + 1;
     elseif strcmp(ablock.BlockType, 'Outport')
-        block_full_name = regexp(ablock.Origin_path, filesep, 'split');
+        block_full_name = regexp(ablock.Origin_path, '/', 'split');
         block_name = block_full_name{end};
         block_name = strrep(block_name, ' ', '_');
         IO_struct.outputs{cpt_out}.name = block_name;

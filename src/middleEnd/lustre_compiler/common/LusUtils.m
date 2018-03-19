@@ -203,7 +203,7 @@ classdef LusUtils
                     end
                 end
                 if res
-                    blk_path_elems = regexp(inter_blk.Path, filesep, 'split');
+                    blk_path_elems = regexp(inter_blk.Path, '/', 'split');
                     node_name = Utils.concat_delim(blk_path_elems, '_');
                     if inter_blk.action_reset
                         var_name = [node_name BlockUtils.ACTION_RESET];
@@ -235,7 +235,7 @@ classdef LusUtils
                     ext_incr = blk.ExternalIncrement;
                     if strcmp(ext_incr, 'off')
                         dt = LusUtils.get_lustre_dt(blk.IterationVariableDataType);
-                        blk_path_elems = regexp(inter_blk.Path, filesep, 'split');
+                        blk_path_elems = regexp(inter_blk.Path, '/', 'split');
                         node_name = Utils.concat_delim(blk_path_elems, '_');
                         var_name = [node_name BlockUtils.FOR_ITER];
                         res = true;
@@ -282,7 +282,7 @@ classdef LusUtils
         
         function name = var_naming(unbloc, postfix)
             
-            block_full_name = regexp(unbloc.Path, filesep, 'split');
+            block_full_name = regexp(unbloc.Path, '/', 'split');
             if unbloc.name_level >= numel(block_full_name{1})
                 block_name = Utils.concat_delim(block_full_name{1}, '_');
             else

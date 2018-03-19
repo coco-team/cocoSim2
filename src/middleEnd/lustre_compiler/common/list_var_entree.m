@@ -10,7 +10,7 @@ li = '';
 for idx_input=1:unbloc.Ports(1)
     pre = get_struct(ir_struct, unbloc.Pre(idx_input));
     prename = pre.Path;
-	preceding_block_full_name = regexp(prename, filesep, 'split');
+	preceding_block_full_name = regexp(prename, '/', 'split');
 	pre_block_level = pre.name_level;
 	preceding_block_name = Utils.concat_delim(preceding_block_full_name(end - pre_block_level : end), '_');
 

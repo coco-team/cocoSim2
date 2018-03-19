@@ -120,7 +120,7 @@ function IO_struct = mk_IO_struct(model_inter_blk, prop_node_name)
 	for idx_blk=1:numel(fields)
         ablock = sub_block.Content.(fiels{idx_blk});
 		if strcmp(ablock.BlockType, 'Inport')
-			block_full_name = regexp(ablock.Origin_path, filesep, 'split');
+			block_full_name = regexp(ablock.Origin_path, '/', 'split');
 			block_name = block_full_name{end};
 			block_name = strrep(block_name, ' ', '_');
 			IO_struct.inputs{cpt_in}.name = block_name;
@@ -132,7 +132,7 @@ function IO_struct = mk_IO_struct(model_inter_blk, prop_node_name)
 			IO_struct.inputs{cpt_in}.dt = inpu_ports_compiled_dt.Outport;
 			cpt_in = cpt_in + 1;
 		elseif strcmp(ablock.BlockType, 'Outport')
-			block_full_name = regexp(ablock.Origin_path, filesep, 'split');
+			block_full_name = regexp(ablock.Origin_path, '/', 'split');
 			block_name = block_full_name{end};
 			block_name = strrep(block_name, ' ', '_');
 			IO_struct.outputs{cpt_out}.name = block_name;

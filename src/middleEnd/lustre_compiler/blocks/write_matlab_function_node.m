@@ -27,7 +27,7 @@ function [header] = write_matlab_function_node(block, main_blk, inter_blk, fun_n
 header = '';
 
 % Prepare node header
-blk_path_elems = regexp(block.Path, filesep, 'split');
+blk_path_elems = regexp(block.Path, '/', 'split');
 node_call_name = Utils.concat_delim(blk_path_elems, '_');
 
 header = sprintf('node %s_%s (', node_call_name, fun_name);

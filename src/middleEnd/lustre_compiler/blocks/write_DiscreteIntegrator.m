@@ -158,7 +158,7 @@ elseif iscell(vinit) % if vinit is a cell issued from an external condition (fun
             list_input=strcat(list_input,{', '});
         end
         
-        [a b]=regexp (cocoget_param(sub_blk.Content.(name_bloc_pre).Pre(k2), 'Path'), filesep, 'split');
+        [a b]=regexp (cocoget_param(sub_blk.Content.(name_bloc_pre).Pre(k2), 'Path'), '/', 'split');
         num_out_pre=sub_blk.Content.(name_bloc_pre).CompiledPortWidths.Inport(k2)+1; % numerotation starts at 0 !!
         
         %[li_index]=list_var_entree_prelude(inter_blk.Content.(nom_bloc_pre));
