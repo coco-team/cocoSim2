@@ -157,7 +157,11 @@ nb_argin = nargin;
             %determine which compiler to use
             if CoCoSimPreferences.javaToLustreCompiler   
                  [valid, validation_compute,sim_failed, lus_file_path, ...
-                    sf2lus_time] = cocoSpecValidate(model_full_path)
+                    sf2lus_time] = cocoSpecValidate(model_full_path, min_max_constraints);
+                  
+                  % kind2 doesn't use lustrec
+                  lustrec_failed = 0;
+                  lustrec_binary_failed = 0;
             else
                 if nb_argin==1
                     [valid, validation_compute,lustrec_failed, ...

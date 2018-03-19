@@ -165,6 +165,60 @@ classdef Kind2Utils
             Z3 = fullfile(solvers_path,'z3');
             KIND2 = fullfile(solvers_path,'kind2');
         end %loadConfig
+        
+                
+        function [simulationStruct] = parseSimulation(kind2XmlOutput)
+            xmlDocument = xmlread(kind2XmlOutput);
+            xmlExecutionElement = xmlDocument.getElementsByTagName('Execution').item(0);    
+            simulationStruct = {};    
+            nodeElement = xmlExecutionElement.getElementsByTagName('Node').item(0); 
+            simulationStruct.node = Kind2Utils.parseSimulationNode(nodeElement);        
+        end % 
+
+        function [nodeStruct] = parseSimulationNode(nodeElement)
+            nodeStruct = {};
+            nodeStruct.name = char(nodeElement.getAttribute('name'));  
+            children = nodeElement.getChildNodes;        
+            streamIndex = 0;
+            nodeIndex = 0;
+
+            for childIndex = 0 : (children.getLength - 1)
+
+                xmlElement = children.item(childIndex);
+
+                if strcmp(xmlElement.getNodeName,'Stream')                                              
+                    streamStruct = {};    
+                    streamStruct.class = char(xmlElement.getAttribute('class')); 
+                    % for simulation, we only need the output
+                    if ~strcmp(streamStruct.class, 'output')
+                        continue;
+                    end
+                    streamStruct.name = char(xmlElement.getAttribute('name'));
+                    streamStruct.type = char(xmlElement.getAttribute('type'));                              
+                    valueElements = xmlElement.getElementsByTagName('Value');
+                    streamStruct.values = [];
+                    nodeStruct.timeSteps = valueElements.getLength;
+                    for valueIndex=0:(valueElements.getLength-1)
+                        value = char(valueElements.item(valueIndex).getTextContent);
+                        if strcmp(value, 'false')
+                            streamStruct.values(valueIndex + 1) = false;
+                        elseif strcmp(value, 'true')
+                            streamStruct.values(valueIndex + 1) = true;
+                        else
+                            streamStruct.values(valueIndex + 1) = str2num(value);
+                        end
+                    end
+                    streamIndex = streamIndex + 1;
+                    nodeStruct.streams{streamIndex} = streamStruct;    
+                elseif strcmp(xmlElement.getNodeName,'Node')   
+                    % for parsing nested nodes and their streams inside
+                    % the counter example            
+                    nestedNodeStruct = Kind2Utils.parseSimulationNode(xmlElement);
+                    nodeIndex = nodeIndex + 1;
+                    nodeStruct.nodes{nodeIndex} = nestedNodeStruct;   
+                end            
+            end        
+        end  %        
     end
 end
 
