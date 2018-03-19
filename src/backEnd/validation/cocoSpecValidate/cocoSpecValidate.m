@@ -164,8 +164,10 @@ function [valid, validation_compute,sim_failed, lus_file_path, ...
     end
     fclose(fid);
     
-     command = sprintf('docker run -v %s:/lus kind2/kind2:dev /lus/%s --enable interpreter --interpreter_input_file /lus/input_values -xml > outputs_values',...
-                lus_file_dir, [lus_file_name extension]);
+    Kind2Utils.simulate(lus_file_path, fullfile(lus_file_dir ,'input_values'));
+    
+%      command = sprintf('docker run -v %s:/lus kind2/kind2:dev /lus/%s --enable interpreter --interpreter_input_file /lus/input_values -xml > outputs_values',...
+%                 lus_file_dir, [lus_file_name extension]);
 
     %command  = sprintf('./%s  < input_values > outputs_values',lustre_binary);
     [status, binary_out] =system(command);
