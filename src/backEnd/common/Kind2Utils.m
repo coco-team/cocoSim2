@@ -2,7 +2,7 @@ classdef Kind2Utils
     
     methods(Static)
         function [kind2Output] = simulate(lustreFile, inputsFile)
-             CoCoSimPreferences = Kind2Utils.checkAvailability();      
+             [CoCoSimPreferences, KIND2, Z3] = Kind2Utils.checkAvailability();      
 
             [file_path,file_name,extension] = fileparts(lustreFile);   
             [~,inputsName,inputsExtension] = fileparts(inputsFile);   
@@ -64,7 +64,7 @@ classdef Kind2Utils
         
         function [kind2Output] = verify(lustreFile, arguments, timeout)
             
-            CoCoSimPreferences = Kind2Utils.checkAvailability();      
+            [CoCoSimPreferences, KIND2, Z3] = Kind2Utils.checkAvailability();      
 
             [file_path,file_name,extension] = fileparts(lustreFile);      
 
@@ -133,7 +133,7 @@ classdef Kind2Utils
         end % verify
         
         
-        function [CoCoSimPreferences] = checkAvailability()
+        function [CoCoSimPreferences,KIND2, Z3] = checkAvailability()
             
             [KIND2, Z3] =  Kind2Utils.loadConfig(); 
             % load preferences
@@ -151,7 +151,10 @@ classdef Kind2Utils
         
         function [KIND2, Z3]= loadConfig()
             [file_path, ~, ~] = fileparts(mfilename('fullpath'));
+                
                 cocosim_path = fileparts(file_path);
+                cocosim_path = fileparts(cocosim_path);
+                cocosim_path = fileparts(cocosim_path);
             if ismac
                 solvers_path = fullfile(cocosim_path, 'tools/verifiers/osx/bin/');               
             elseif isunix
