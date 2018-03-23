@@ -123,10 +123,17 @@ classdef PreferencesMenu
             schema.autoDisableWhen = 'Busy';    
 
             CoCoSimPreferences = callbackInfo.userdata;
-
-            schema.childrenFcns = {{@PreferencesMenu.kind2BinaryLocal,CoCoSimPreferences}, ...       
-                {@PreferencesMenu.kind2BinaryDocker, CoCoSimPreferences}, ...
-                {@PreferencesMenu.kind2BinaryWebService, CoCoSimPreferences}};
+            
+            % Kind2 binary is not locally supported in windows
+            if ispc 
+                    schema.childrenFcns = { ...      
+                    {@PreferencesMenu.kind2BinaryDocker, CoCoSimPreferences}, ...
+                    {@PreferencesMenu.kind2BinaryWebService, CoCoSimPreferences}};
+            else
+                schema.childrenFcns = {{@PreferencesMenu.kind2BinaryLocal,CoCoSimPreferences}, ...       
+                    {@PreferencesMenu.kind2BinaryDocker, CoCoSimPreferences}, ...
+                    {@PreferencesMenu.kind2BinaryWebService, CoCoSimPreferences}};
+            end
         end
 
         function schema = kind2BinaryLocal(callbackInfo)

@@ -33,7 +33,12 @@ function [ CoCoSimPreferences ] = loadCoCoSimPreferences()
     
     % check if kind2Binary is defined
     if ~ isfield(CoCoSimPreferences,'kind2Binary')
-        CoCoSimPreferences.kind2Binary = 'Local';
+        % for windows the web service is the default
+        if ispc
+            CoCoSimPreferences.kind2Binary = 'Kind2 web service';
+        else
+            CoCoSimPreferences.kind2Binary = 'Local';
+        end
         modified = true;
     end 
     % save if CoCoSimPreferences is modified
