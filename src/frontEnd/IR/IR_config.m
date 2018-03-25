@@ -75,4 +75,4 @@ block_param_map('UnwantedParameters') = {'IconShape'};
 block_param_map('CommonParameters') = {'CompiledSampleTime', 'CompiledPortDataTypes', 'CompiledPortDimensions', 'CompiledPortWidths', 'CompiledPortComplexSignals', 'PortConnectivity', 'Ports', 'Position', 'AttributesFormatString'};
 
 %% Stateflow Treatment
-stateflow_treatment = {''};
+stateflow_treatment = {'chart_struct'};
