@@ -103,7 +103,7 @@ function stateStruct =  buildStateStruct(state, stateTransitions)
     % set the state actions
     stateStruct.state_actions = {};  
     for i = 1 : length(keys)
-        stateStruct.state_actions.(keys(i)) = char(hashMap.get(keys(i)));
+        stateStruct.state_actions.(keys(i)) = cell(hashMap.get(keys(i)));
     end    
     
     % set the state transitions    
