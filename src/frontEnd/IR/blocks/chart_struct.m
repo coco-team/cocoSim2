@@ -25,7 +25,7 @@ function [chartStruct] = chart_struct(chartPath)
     chartStruct.SFCHART.origin_path = chart.Path;
     
     % get the data of the chart
-    chartData = chart.find('-isa','Stateflow.Data')
+    chartData = chart.find('-isa','Stateflow.Data');
     
     % get the states in the chart
     chartStates = chart.find('-isa','Stateflow.State');
@@ -97,7 +97,7 @@ function stateStruct =  buildStateStruct(state, stateTransitions)
     stateStruct.id = state.id;
     
     % parse the label string of the state
-    hashMap = edu.uiowa.chart.state.StateActionParser.parse(state.LabelString);     
+    hashMap = edu.uiowa.chart.state.StateParser.parse(state.LabelString);     
     keys = hashMap.keySet.toArray;
      
     % set the state actions
@@ -135,7 +135,13 @@ function transitionStruct = buildDestinationStruct(transition)
     destination =  transition.Destination;
     transitionStruct.dest.id = destination.id;    
     
-       
+    % parse the label string of the transition
+    transitionObject = edu.uiowa.chart.transition.TransitionParser.parse(transition.LabelString);   
+    transitionStruct.event = char(transitionObject.eventOrMessage);
+    transitionStruct.condition = char(transitionObject.condition);
+    transitionStruct.condition_act = cell(transitionObject.conditionActions);  
+    transitionStruct.transition_act = cell(transitionObject.transitionActions);  
+    
     % check if the destination is a state or a junction
     if strcmp(destination.Type, 'CONNECTIVE') || ...
        strcmp(destination.Type, 'HISTORY')
