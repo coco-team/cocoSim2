@@ -24,23 +24,16 @@ function [chartStruct] = chart_struct(chartPath)
     %get the chart path
     chartStruct.SFCHART.origin_path = chart.Path;
     
-    % create a map that holds all needed chart objects
-    chartObjectsMap = containers.Map('KeyType','int32','ValueType','any');
-    
-    % a convenient function to add chart objects to chartObjectsMap
-    function addObjectToMap(chartObject)
-        chartObjectsMap(chartObject.id) = chartObject;
-    end
-    
     % get the states in the chart
     chartStates = chart.find('-isa','Stateflow.State');
-    % add chart states to the map
-    arrayfun(@addObjectToMap, chartStates);
+    
     %get the transitions in the chart
     chartTransitions = chart.find('-isa','Stateflow.Transition');
-    % add chart transitions to the map
-    arrayfun(@addObjectToMap, chartTransitions);
-       
+    
+    %get the junctions in the chart
+    chartJunctions = chart.find('-isa','Stateflow.Junction');       
+    
+    % a map to store the pairs (transition.source, transition)
     sourceTransitionMap = containers.Map('KeyType','int32','ValueType','any');
         
     for i = 1 : length(chartTransitions)
@@ -64,11 +57,25 @@ function [chartStruct] = chart_struct(chartPath)
         end
         chartStruct.SFCHART.states{index} = buildStateStruct(chartStates(index), stateTransitions);
     end
+    
+    % build the json struct for junctions
+    chartStruct.SFCHART.junctions = cell(length(chartJunctions),1);
+    for index = 1 : length(chartJunctions)
+        % if the junction is a source of some transitions
+        junctionTransitions = [];
+        if isKey(sourceTransitionMap, chartJunctions(index).id)
+            junctionTransitions = sourceTransitionMap(chartJunctions(index).id);
+        end
+        chartStruct.SFCHART.junctions{index} = buildJunctionStruct(chartJunctions(index), junctionTransitions);
+    end 
 end
 
 function stateStruct =  buildStateStruct(state, stateTransitions)    
     % set the state path
-    stateStruct.path = state.Path;
+    stateStruct.path = strcat (state.Path, '/',state.name);
+    
+    %set the id of the state
+    stateStruct.id = state.id;
     
     % parse the label string of the state
     hashMap = edu.uiowa.chart.state.StateActionParser.parse(state.LabelString);     
@@ -83,18 +90,42 @@ function stateStruct =  buildStateStruct(state, stateTransitions)
     % set the state transitions    
     stateStruct.outer_trans = {};
     for i = 1 : length(stateTransitions)
-       transitionStruct.id = stateTransitions(i).id;
-       
-       transitionStruct.dest.id = stateTransitions(i).Destination.id;
-       
-       % check if the destination is a junction or a state
-       if strcmp(stateTransitions(i).Destination.Type, 'CONNECTIVE')
-           transitionStruct.dest.type = 'Junction';
-           transitionStruct.dest.name = '';
-       else
-           transitionStruct.dest.type = 'State';
-           transitionStruct.dest.name = stateTransitions(i).Destination.name;
-       end                
+       transitionStruct = buildDestinationStruct(stateTransitions(i));               
        stateStruct.outer_trans = [stateStruct.outer_trans transitionStruct];
     end    
+end
+
+function junctionStruct =  buildJunctionStruct(junction, junctionTransitions)    
+    % set the junction path
+    junctionStruct.path = strcat (junction.Path, '/Junction',int2str(junction.id));
+    
+    %set the junction type
+    junctionStruct.type = junction.Type;
+    
+    % set the junction transitions    
+    junctionStruct.outer_trans = {};
+    for i = 1 : length(junctionTransitions)          
+       transitionStruct.dest = buildDestinationStruct(junctionTransitions(i));
+       junctionStruct.outer_trans = [junctionStruct.outer_trans transitionStruct];
+    end    
+end
+
+function transitionStruct = buildDestinationStruct(transition)
+    transitionStruct = {};
+    transitionStruct.id = transition.id;       
+    destination =  transition.Destination;
+    transitionStruct.dest.id = destination.id;    
+    
+       
+    % check if the destination is a state or a junction
+    if strcmp(destination.Type, 'CONNECTIVE') || ...
+       strcmp(destination.Type, 'HISTORY')
+       transitionStruct.dest.type = 'Junction';
+       transitionStruct.dest.name = strcat(destination.Path, '/', ...
+           'Junction', int2str(destination.id));
+    else
+       transitionStruct.dest.type = 'State';
+       transitionStruct.dest.name = strcat(destination.Path, '/', ...
+           destination.name);
+    end                       
 end
