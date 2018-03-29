@@ -24,6 +24,9 @@ function [chartStruct] = chart_struct(chartPath)
     %get the chart path
     chartStruct.SFCHART.origin_path = chart.Path;
     
+    % get the data of the chart
+    chartData = chart.find('-isa','Stateflow.Data')
+    
     % get the states in the chart
     chartStates = chart.find('-isa','Stateflow.State');
     
@@ -47,6 +50,12 @@ function [chartStruct] = chart_struct(chartPath)
         end
     end
     
+    % build the json struct for data
+    chartStruct.SFCHART.data = cell(length(chartData),1);
+    for index = 1 : length(chartData)       
+        chartStruct.SFCHART.data{index} = buildDataStruct(chartData(index));
+    end
+    
     % build the json struct for states
     chartStruct.SFCHART.states = cell(length(chartStates),1);
     for index = 1 : length(chartStates)
@@ -68,6 +77,16 @@ function [chartStruct] = chart_struct(chartPath)
         end
         chartStruct.SFCHART.junctions{index} = buildJunctionStruct(chartJunctions(index), junctionTransitions);
     end 
+end
+
+function dataStruct = buildDataStruct(data)
+    dataStruct.id = data.id;
+    dataStruct.name = data.name;
+    dataStruct.datatype = data.DataType;
+    dataStruct.port = data.Port;
+    dataStruct.initial_value = data.Props.InitialValue;    
+    dataStruct.scope = data.scope;
+    dataStruct.array_size = data.Props.Array.Size;
 end
 
 function stateStruct =  buildStateStruct(state, stateTransitions)    
