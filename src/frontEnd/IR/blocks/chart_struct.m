@@ -64,7 +64,7 @@ function [chartStruct] = chart_struct(chartPath)
         if isKey(sourceTransitionMap, chartStates(index).id)
             stateTransitions = sourceTransitionMap(chartStates(index).id);
         end
-        chartStruct.SFCHART.states{index} = buildStateStruct(chartStates(index), stateTransitions);
+        chartStruct.SFCHART.states{index} = buildStateStruct(chartStates(index));
     end
     
     % build the json struct for junctions
@@ -89,7 +89,7 @@ function dataStruct = buildDataStruct(data)
     dataStruct.array_size = data.Props.Array.Size;
 end
 
-function stateStruct =  buildStateStruct(state, stateTransitions)    
+function stateStruct =  buildStateStruct(state)    
     % set the state path
     stateStruct.path = strcat (state.Path, '/',state.name);
     
@@ -107,16 +107,33 @@ function stateStruct =  buildStateStruct(state, stateTransitions)
     end    
     
     % set the state transitions    
+    for i = 1 : length(state.innerTransitions)
+        if length(state.innerTransitions) == 1
+            transitionStruct = buildDestinationStruct(state.innerTransitions);               
+        else
+            transitionStruct = buildDestinationStruct(state.innerTransitions(i));               
+        end
+       stateStruct.inner_trans = [stateStruct.inner_trans transitionStruct];
+    end  
+    
     stateStruct.outer_trans = {};
-    for i = 1 : length(stateTransitions)
-       transitionStruct = buildDestinationStruct(stateTransitions(i));               
+    for i = 1 : length(state.outerTransitions)
+        if length(state.outerTransitions) == 1
+            transitionStruct = buildDestinationStruct(state.outerTransitions);               
+        else
+            transitionStruct = buildDestinationStruct(state.outerTransitions(i));               
+        end
        stateStruct.outer_trans = [stateStruct.outer_trans transitionStruct];
-    end    
+    end  
+    
 end
 
 function junctionStruct =  buildJunctionStruct(junction, junctionTransitions)    
     % set the junction path
     junctionStruct.path = strcat (junction.Path, '/Junction',int2str(junction.id));
+    
+    %set the id of the junction
+    junctionStruct.id = junction.id;
     
     %set the junction type
     junctionStruct.type = junction.Type;
