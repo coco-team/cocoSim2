@@ -28,27 +28,10 @@ function [chartStruct] = chart_struct(chartPath)
     chartData = chart.find('-isa','Stateflow.Data');
     
     % get the states in the chart
-    chartStates = chart.find('-isa','Stateflow.State');
-    
-    %get the transitions in the chart
-    chartTransitions = chart.find('-isa','Stateflow.Transition');
-    
+    chartStates = chart.find('-isa','Stateflow.State');   
+        
     %get the junctions in the chart
     chartJunctions = chart.find('-isa','Stateflow.Junction');       
-    
-    % a map to store the pairs (transition.source, transition)
-    sourceTransitionMap = containers.Map('KeyType','int32','ValueType','any');
-        
-    for i = 1 : length(chartTransitions)
-        if ~ isempty(chartTransitions(i).Source) 
-            id = chartTransitions(i).Source.id;
-            if isKey(sourceTransitionMap, id)
-                sourceTransitionMap(id) = [sourceTransitionMap(id) chartTransitions(i)];
-            else
-                sourceTransitionMap(id) = chartTransitions(i);
-            end
-        end
-    end
     
     % build the json struct for data
     chartStruct.SFCHART.data = cell(length(chartData),1);
@@ -56,26 +39,28 @@ function [chartStruct] = chart_struct(chartPath)
         chartStruct.SFCHART.data{index} = buildDataStruct(chartData(index));
     end
     
+    % add a virtual state that represents the chart itself 
+    % set the state path
+    virtualState.path = chart.path;    
+    %set the id of the state
+    virtualState.id = chart.id;       
+    virtualState.inner_trans = [];
+    virtualState.outer_trans = [];
+    %ToDo: find a better name for internal_composition
+    virtualState.internal_composition = getContent(chart, false);     
+    
+    
     % build the json struct for states
-    chartStruct.SFCHART.states = cell(length(chartStates),1);
-    for index = 1 : length(chartStates)
-        % if the state is a source of some transitions
-        stateTransitions = [];
-        if isKey(sourceTransitionMap, chartStates(index).id)
-            stateTransitions = sourceTransitionMap(chartStates(index).id);
-        end
-        chartStruct.SFCHART.states{index} = buildStateStruct(chartStates(index));
+    chartStruct.SFCHART.states = cell(length(chartStates) + 1,1);
+     chartStruct.SFCHART.states{1} = virtualState;
+    for index = 1 : length(chartStates)       
+        chartStruct.SFCHART.states{index+1} = buildStateStruct(chartStates(index));
     end
     
     % build the json struct for junctions
     chartStruct.SFCHART.junctions = cell(length(chartJunctions),1);
-    for index = 1 : length(chartJunctions)
-        % if the junction is a source of some transitions
-        junctionTransitions = [];
-        if isKey(sourceTransitionMap, chartJunctions(index).id)
-            junctionTransitions = sourceTransitionMap(chartJunctions(index).id);
-        end
-        chartStruct.SFCHART.junctions{index} = buildJunctionStruct(chartJunctions(index), junctionTransitions);
+    for index = 1 : length(chartJunctions)        
+        chartStruct.SFCHART.junctions{index} = buildJunctionStruct(chartJunctions(index));
     end 
 end
 
@@ -121,36 +106,48 @@ function stateStruct =  buildStateStruct(state)
        stateStruct.outer_trans = [stateStruct.outer_trans transitionStruct];
     end  
     
+    %ToDo: find a better name for internal_composition
+    stateStruct.internal_composition = getContent(state, true);    
+end
+
+function content = getContent(chartObject, self)
     content = {};
     
-    %handle initial transitions
-    content.type = state.Type;
-    defaultTransitions = state.defaultTransitions;
+    % specify the decomposition
+    if isprop(chartObject, 'Decomposition')
+        content.type = chartObject.Decomposition;
+    else
+        content.type = 'EXCLUSIVE_OR';
+    end
+    
+    %handle initial transitions    
+    defaultTransitions = chartObject.defaultTransitions;
     content.initial_transitions = {};
     for i = 1 : length(defaultTransitions)
         transitionStruct = buildDestinationStruct(defaultTransitions(i));                       
        content.initial_transitions = ...
            [content.initial_transitions transitionStruct];
     end
-    stateStruct.internal_composition = content;
-    
     
     %handle initial states
-    childStates = state.find('-isa', 'Stateflow.State');
-    % childStates(1) is the current states. children states start from
-    % childstates(2)
-    content.substates = {};
-    content.states = {};
-    for i = 2 : length(childStates)
-        content.substates{i-1} = childStates(i).name;
-        content.states{i-1} = childStates(i).id;
+    childStates = chartObject.find('-isa', 'Stateflow.State', '-depth', 1);
+    
+    index = 0;
+    % for states: child states start from childstates(2)
+    % for chart: child states  start from childStates(1)
+    if self 
+        index = 1; 
     end
-    % add content to stateStruct
-    %ToDo: find a better name for internal_composition
-    stateStruct.internal_composition = content;    
+    
+    content.substates = cell(length(childStates) - index,1);
+    content.states = cell(length(childStates) - index,1);
+    for i = 1 + index : length(childStates)
+        content.substates{i-index} = childStates(i).name;
+        content.states{i-index} = childStates(i).id;
+    end
 end
 
-function junctionStruct =  buildJunctionStruct(junction, junctionTransitions)    
+function junctionStruct =  buildJunctionStruct(junction)    
     % set the junction path
     junctionStruct.path = strcat (junction.Path, '/Junction',int2str(junction.id));
     
@@ -162,8 +159,9 @@ function junctionStruct =  buildJunctionStruct(junction, junctionTransitions)
     
     % set the junction transitions    
     junctionStruct.outer_trans = {};
-    for i = 1 : length(junctionTransitions)          
-       transitionStruct.dest = buildDestinationStruct(junctionTransitions(i));
+    transitions = junction.sourcedTransitions;
+    for i = 1 : length(transitions)          
+       transitionStruct.dest = buildDestinationStruct(transitions(i));
        junctionStruct.outer_trans = [junctionStruct.outer_trans transitionStruct];
     end    
 end
