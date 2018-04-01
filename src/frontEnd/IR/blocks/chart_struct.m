@@ -107,25 +107,47 @@ function stateStruct =  buildStateStruct(state)
     end    
     
     % set the state transitions    
-    for i = 1 : length(state.innerTransitions)
-        if length(state.innerTransitions) == 1
-            transitionStruct = buildDestinationStruct(state.innerTransitions);               
-        else
-            transitionStruct = buildDestinationStruct(state.innerTransitions(i));               
-        end
+    stateStruct.inner_trans = {};
+    transitions = state.innerTransitions;
+    for i = 1 : length(transitions)       
+       transitionStruct = buildDestinationStruct(transitions(i));                       
        stateStruct.inner_trans = [stateStruct.inner_trans transitionStruct];
     end  
     
     stateStruct.outer_trans = {};
-    for i = 1 : length(state.outerTransitions)
-        if length(state.outerTransitions) == 1
-            transitionStruct = buildDestinationStruct(state.outerTransitions);               
-        else
-            transitionStruct = buildDestinationStruct(state.outerTransitions(i));               
-        end
+    transitions = state.outerTransitions;
+    for i = 1 : length(transitions)
+       transitionStruct = buildDestinationStruct(transitions(i));                       
        stateStruct.outer_trans = [stateStruct.outer_trans transitionStruct];
     end  
     
+    content = {};
+    
+    %handle initial transitions
+    content.type = state.Type;
+    defaultTransitions = state.defaultTransitions;
+    content.initial_transitions = {};
+    for i = 1 : length(defaultTransitions)
+        transitionStruct = buildDestinationStruct(defaultTransitions(i));                       
+       content.initial_transitions = ...
+           [content.initial_transitions transitionStruct];
+    end
+    stateStruct.internal_composition = content;
+    
+    
+    %handle initial states
+    childStates = state.find('-isa', 'Stateflow.State');
+    % childStates(1) is the current states. children states start from
+    % childstates(2)
+    content.substates = {};
+    content.states = {};
+    for i = 2 : length(childStates)
+        content.substates{i-1} = childStates(i).name;
+        content.states{i-1} = childStates(i).id;
+    end
+    % add content to stateStruct
+    %ToDo: find a better name for internal_composition
+    stateStruct.internal_composition = content;    
 end
 
 function junctionStruct =  buildJunctionStruct(junction, junctionTransitions)    
