@@ -62,6 +62,14 @@ function [chartStruct] = chart_struct(chartPath)
     for index = 1 : length(chartJunctions)        
         chartStruct.SFCHART.junctions{index} = buildJunctionStruct(chartJunctions(index));
     end 
+    
+    %get the functions in the chart
+    chartFunctions = chart.find('-isa','Stateflow.Function'); 
+    % build the json struct for functions              
+    chartStruct.SFCHART.functionObjects = cell(length(chartFunctions),1);
+    for index = 1 : length(chartFunctions)        
+        chartStruct.SFCHART.functionObjects{index} = buildFunctionStruct(chartFunctions(index));
+    end 
 end
 
 function dataStruct = buildDataStruct(data)
@@ -190,4 +198,15 @@ function transitionStruct = buildDestinationStruct(transition)
        transitionStruct.dest.name = strcat(destination.Path, '/', ...
            destination.name);
     end                       
+end
+
+function functionStruct =  buildFunctionStruct(functionObject)    
+    % set the function path
+    functionStruct.path = strcat (functionObject.Path, '/',functionObject.name);
+    
+    %set the id of the function
+    functionStruct.id = functionObject.id;       
+     
+    %set the name of the function
+    functionStruct.name = functionObject.name;      
 end
