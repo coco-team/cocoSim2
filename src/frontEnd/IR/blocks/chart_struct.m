@@ -6,13 +6,13 @@ function [chartStruct] = chart_struct(chartPath)
     javaaddpath(path);
     
     chartStruct = {};
-    chartStruct.SFCHART = {};
+    chartStruct.Chart = {};
     
     chartPathParts = strsplit(chartPath, '/');    
     % get the name of the model
     modelName = char(chartPathParts(1));
     % get the name of the chart block
-    chartStruct.SFCHART.name = chartPathParts(end);    
+    chartStruct.Chart.name = chartPathParts(end);    
     
     % get a handle to the root object
     stateflowRoot = sfroot;
@@ -22,7 +22,7 @@ function [chartStruct] = chart_struct(chartPath)
     chart = model.find('-isa','Stateflow.Chart', 'Path', chartPath);   
     
     %get the chart path
-    chartStruct.SFCHART.origin_path = chart.Path;
+    chartStruct.Chart.origin_path = chart.Path;
     
     % get the data of the chart
     chartData = chart.find('-isa','Stateflow.Data');
@@ -34,9 +34,9 @@ function [chartStruct] = chart_struct(chartPath)
     chartJunctions = chart.find('-isa','Stateflow.Junction');       
     
     % build the json struct for data
-    chartStruct.SFCHART.data = cell(length(chartData),1);
+    chartStruct.Chart.data = cell(length(chartData),1);
     for index = 1 : length(chartData)       
-        chartStruct.SFCHART.data{index} = buildDataStruct(chartData(index));
+        chartStruct.Chart.data{index} = buildDataStruct(chartData(index));
     end
     
     % add a virtual state that represents the chart itself 
@@ -51,24 +51,24 @@ function [chartStruct] = chart_struct(chartPath)
     
     
     % build the json struct for states
-    chartStruct.SFCHART.states = cell(length(chartStates) + 1,1);
-     chartStruct.SFCHART.states{1} = virtualState;
+    chartStruct.Chart.states = cell(length(chartStates) + 1,1);
+     chartStruct.Chart.states{1} = virtualState;
     for index = 1 : length(chartStates)       
-        chartStruct.SFCHART.states{index+1} = buildStateStruct(chartStates(index));
+        chartStruct.Chart.states{index+1} = buildStateStruct(chartStates(index));
     end
     
     % build the json struct for junctions
-    chartStruct.SFCHART.junctions = cell(length(chartJunctions),1);
+    chartStruct.Chart.junctions = cell(length(chartJunctions),1);
     for index = 1 : length(chartJunctions)        
-        chartStruct.SFCHART.junctions{index} = buildJunctionStruct(chartJunctions(index));
+        chartStruct.Chart.junctions{index} = buildJunctionStruct(chartJunctions(index));
     end 
     
     %get the functions in the chart
     chartFunctions = chart.find('-isa','Stateflow.Function'); 
     % build the json struct for functions              
-    chartStruct.SFCHART.functionObjects = cell(length(chartFunctions),1);
+    chartStruct.Chart.graphicalFunctions = cell(length(chartFunctions),1);
     for index = 1 : length(chartFunctions)        
-        chartStruct.SFCHART.functionObjects{index} = buildFunctionStruct(chartFunctions(index));
+        chartStruct.Chart.graphicalFunctions{index} = buildFunctionStruct(chartFunctions(index));
     end 
 end
 
@@ -90,14 +90,18 @@ function stateStruct =  buildStateStruct(state)
     stateStruct.id = state.id;
     
     % parse the label string of the state
-    hashMap = edu.uiowa.chart.state.StateParser.parse(state.LabelString);     
-    keys = hashMap.keySet.toArray;
-     
-    % set the state actions
-    stateStruct.state_actions = {};  
-    for i = 1 : length(keys)
-        stateStruct.state_actions.(keys(i)) = cell(hashMap.get(keys(i)));
-    end    
+    stateAction = edu.uiowa.chart.state.StateParser.parse(state.LabelString);     
+    
+    % set the state actions    
+    stateStruct.actions.entry = cell(stateAction.entry);
+    stateStruct.actions.during = cell(stateAction.during);
+    stateStruct.actions.exit = cell(stateAction.exit);
+    stateStruct.actions.bind = cell(stateAction.bind);
+    stateStruct.actions.on = getOnAction(stateAction.on);
+    stateStruct.actions.onAfter = getOnAction(stateAction.onAfter);
+    stateStruct.actions.onBefore = getOnAction(stateAction.onBefore);
+    stateStruct.actions.onAt = getOnAction(stateAction.onAt);
+    stateStruct.actions.onEvery = getOnAction(stateAction.onEvery);
     
     % set the state transitions    
     stateStruct.inner_trans = {};
@@ -209,4 +213,14 @@ function functionStruct =  buildFunctionStruct(functionObject)
      
     %set the name of the function
     functionStruct.name = functionObject.name;      
+end
+
+function [onActionStruct] = getOnAction(onActionObject)
+    onActionArray = cell(onActionObject);
+    onActionStruct = cell(length(onActionArray), 1);
+    for i = 1 : length(onActionStruct)
+        onActionStruct{i}.n = onActionArray{i}.n;
+        onActionStruct{i}.eventName = cell(onActionArray{i}.eventName);
+        onActionStruct{i}.actions = cell(onActionArray{i}.actions);
+    end
 end
