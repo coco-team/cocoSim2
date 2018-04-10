@@ -1,3 +1,10 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This file is part of CoCoSim.
+% Copyright (C) 2018  The university of Iowa
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Author: Mudathir
+
 function [chartStruct] = chart_struct(chartPath)
     % add the CharParser jar file to the path
     [path, ~, ~] = fileparts(mfilename('fullpath'));
@@ -39,15 +46,23 @@ function [chartStruct] = chart_struct(chartPath)
         chartStruct.Chart.data{index} = buildDataStruct(chartData(index));
     end
     
+    % get the events of the chart
+    chartEvents = chart.find('-isa','Stateflow.Event');
+    % build the json struct for events
+    chartStruct.Chart.events = cell(length(chartEvents),1);
+    for index = 1 : length(chartEvents)       
+        chartStruct.Chart.events{index} = buildEventStruct(chartEvents(index));
+    end
+    
     % add a virtual state that represents the chart itself 
     % set the state path
     virtualState.path = chart.path;    
     %set the id of the state
     virtualState.id = chart.id;       
-    virtualState.inner_trans = [];
-    virtualState.outer_trans = [];
-    %ToDo: find a better name for internal_composition
-    virtualState.internal_composition = getContent(chart, false);     
+    virtualState.innerTransitions = [];
+    virtualState.outerTransitions = [];
+    %ToDo: find a better name for composition
+    virtualState.composition = getContent(chart, false);     
     
     
     % build the json struct for states
@@ -77,9 +92,16 @@ function dataStruct = buildDataStruct(data)
     dataStruct.name = data.name;
     dataStruct.datatype = data.DataType;
     dataStruct.port = data.Port;
-    dataStruct.initial_value = data.Props.InitialValue;    
+    dataStruct.initialValue = data.Props.InitialValue;    
     dataStruct.scope = data.scope;
-    dataStruct.array_size = data.Props.Array.Size;
+    dataStruct.arraySize = data.Props.Array.Size;
+end
+
+function eventStruct = buildEventStruct(event)
+    eventStruct.id = event.id;
+    eventStruct.name = event.name;    
+    eventStruct.port = event.Port;
+    eventStruct.scope = event.scope;
 end
 
 function stateStruct =  buildStateStruct(state)    
@@ -104,22 +126,22 @@ function stateStruct =  buildStateStruct(state)
     stateStruct.actions.onEvery = getOnAction(stateAction.onEvery);
     
     % set the state transitions    
-    stateStruct.inner_trans = {};
+    stateStruct.innerTransitions = {};
     transitions = state.innerTransitions;
     for i = 1 : length(transitions)       
        transitionStruct = buildDestinationStruct(transitions(i));                       
-       stateStruct.inner_trans = [stateStruct.inner_trans transitionStruct];
+       stateStruct.innerTransitions = [stateStruct.innerTransitions transitionStruct];
     end  
     
-    stateStruct.outer_trans = {};
+    stateStruct.outerTransitions = {};
     transitions = state.outerTransitions;
     for i = 1 : length(transitions)
        transitionStruct = buildDestinationStruct(transitions(i));                       
-       stateStruct.outer_trans = [stateStruct.outer_trans transitionStruct];
+       stateStruct.outerTransitions = [stateStruct.outerTransitions transitionStruct];
     end  
     
-    %ToDo: find a better name for internal_composition
-    stateStruct.internal_composition = getContent(state, true);    
+    %ToDo: find a better name for composition
+    stateStruct.composition = getContent(state, true);    
 end
 
 function content = getContent(chartObject, self)
@@ -134,11 +156,11 @@ function content = getContent(chartObject, self)
     
     %handle initial transitions    
     defaultTransitions = chartObject.defaultTransitions;
-    content.initial_transitions = {};
+    content.defaultTransitions = {};
     for i = 1 : length(defaultTransitions)
         transitionStruct = buildDestinationStruct(defaultTransitions(i));                       
-       content.initial_transitions = ...
-           [content.initial_transitions transitionStruct];
+       content.defaultTransitions = ...
+           [content.defaultTransitions transitionStruct];
     end
     
     %handle initial states
@@ -170,11 +192,11 @@ function junctionStruct =  buildJunctionStruct(junction)
     junctionStruct.type = junction.Type;
     
     % set the junction transitions    
-    junctionStruct.outer_trans = {};
+    junctionStruct.outerTransitions = {};
     transitions = junction.sourcedTransitions;
     for i = 1 : length(transitions)          
        transitionStruct.dest = buildDestinationStruct(transitions(i));
-       junctionStruct.outer_trans = [junctionStruct.outer_trans transitionStruct];
+       junctionStruct.outerTransitions = [junctionStruct.outerTransitions transitionStruct];
     end    
 end
 
@@ -188,8 +210,8 @@ function transitionStruct = buildDestinationStruct(transition)
     transitionObject = edu.uiowa.chart.transition.TransitionParser.parse(transition.LabelString);   
     transitionStruct.event = char(transitionObject.eventOrMessage);
     transitionStruct.condition = char(transitionObject.condition);
-    transitionStruct.condition_act = cell(transitionObject.conditionActions);  
-    transitionStruct.transition_act = cell(transitionObject.transitionActions);  
+    transitionStruct.conditionAction = cell(transitionObject.conditionActions);  
+    transitionStruct.transitionAction = cell(transitionObject.transitionActions);  
     
     % check if the destination is a state or a junction
     if strcmp(destination.Type, 'CONNECTIVE') || ...
@@ -213,6 +235,11 @@ function functionStruct =  buildFunctionStruct(functionObject)
      
     %set the name of the function
     functionStruct.name = functionObject.name;      
+    
+    %set the signature of the function
+    functionStruct.signature = functionObject.LabelString;    
+    % set the content of the function
+    functionStruct.composition = getContent(functionObject, false); 
 end
 
 function [onActionStruct] = getOnAction(onActionObject)
