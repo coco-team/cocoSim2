@@ -88,6 +88,7 @@ function dataStruct = buildDataStruct(data)
     dataStruct.id = data.id;
     dataStruct.name = data.name;
     dataStruct.datatype = data.DataType;
+    dataStruct.compiledType = data.CompiledType;
     dataStruct.port = data.Port;
     dataStruct.initialValue = data.Props.InitialValue;    
     dataStruct.scope = data.scope;
