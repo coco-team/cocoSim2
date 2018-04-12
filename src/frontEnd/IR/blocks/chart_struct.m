@@ -19,7 +19,7 @@ function [chartStruct] = chart_struct(chartPath)
     % get the name of the model
     modelName = char(chartPathParts(1));
     % get the name of the chart block
-    chartStruct.Chart.name = chartPathParts(end);    
+    chartStruct.Chart.Name = chartPathParts(end);    
     
     % get a handle to the root object
     stateflowRoot = sfroot;
@@ -29,117 +29,117 @@ function [chartStruct] = chart_struct(chartPath)
     chart = model.find('-isa','Stateflow.Chart', 'Path', chartPath);   
     
     %get the chart path
-    chartStruct.Chart.path = chart.Path;
+    chartStruct.Chart.Path = chart.Path;
        
     % get the data of the chart
     chartData = chart.find('-isa','Stateflow.Data', '-depth', 1);
     % build the json struct for data
-    chartStruct.Chart.data = cell(length(chartData),1);
+    chartStruct.Chart.Data = cell(length(chartData),1);
     for index = 1 : length(chartData)       
-        chartStruct.Chart.data{index} = buildDataStruct(chartData(index));
+        chartStruct.Chart.Data{index} = buildDataStruct(chartData(index));
     end
     
     
     % get the events of the chart
     chartEvents = chart.find('-isa','Stateflow.Event');
     % build the json struct for events
-    chartStruct.Chart.events = cell(length(chartEvents),1);
+    chartStruct.Chart.Events = cell(length(chartEvents),1);
     for index = 1 : length(chartEvents)       
-        chartStruct.Chart.events{index} = buildEventStruct(chartEvents(index));
+        chartStruct.Chart.Events{index} = buildEventStruct(chartEvents(index));
     end
     
     % add a virtual state that represents the chart itself 
     % set the state path
-    virtualState.path = chart.path;    
+    virtualState.Path = chart.path;    
     %set the id of the state
-    virtualState.id = chart.id;       
-    virtualState.innerTransitions = [];
-    virtualState.outerTransitions = [];
+    virtualState.Id = chart.id;       
+    virtualState.InnerTransitions = [];
+    virtualState.OuterTransitions = [];
     %ToDo: find a better name for composition
-    virtualState.composition = getContent(chart, false);     
+    virtualState.Composition = getContent(chart, false);     
     
     % get the states in the chart
     chartStates = chart.find('-isa','Stateflow.State');   
     % build the json struct for states
-    chartStruct.Chart.states = cell(length(chartStates) + 1,1);
-     chartStruct.Chart.states{1} = virtualState;
+    chartStruct.Chart.States = cell(length(chartStates) + 1,1);
+     chartStruct.Chart.States{1} = virtualState;
     for index = 1 : length(chartStates)       
-        chartStruct.Chart.states{index+1} = buildStateStruct(chartStates(index));
+        chartStruct.Chart.States{index+1} = buildStateStruct(chartStates(index));
     end
     
      %get the junctions in the chart
     chartJunctions = chart.find('-isa','Stateflow.Junction');           
     % build the json struct for junctions
-    chartStruct.Chart.junctions = cell(length(chartJunctions),1);
+    chartStruct.Chart.Junctions = cell(length(chartJunctions),1);
     for index = 1 : length(chartJunctions)        
-        chartStruct.Chart.junctions{index} = buildJunctionStruct(chartJunctions(index));
+        chartStruct.Chart.Junctions{index} = buildJunctionStruct(chartJunctions(index));
     end 
     
     %get the functions in the chart
     chartFunctions = chart.find('-isa','Stateflow.Function'); 
     % build the json struct for functions              
-    chartStruct.Chart.graphicalFunctions = cell(length(chartFunctions),1);
+    chartStruct.Chart.GraphicalFunctions = cell(length(chartFunctions),1);
     for index = 1 : length(chartFunctions)        
-        chartStruct.Chart.graphicalFunctions{index} = buildFunctionStruct(chartFunctions(index));
+        chartStruct.Chart.GraphicalFunctions{index} = buildFunctionStruct(chartFunctions(index));
     end 
 end
 
 function dataStruct = buildDataStruct(data)
-    dataStruct.id = data.id;
-    dataStruct.name = data.name;
-    dataStruct.datatype = data.DataType;
-    dataStruct.compiledType = data.CompiledType;
-    dataStruct.port = data.Port;
-    dataStruct.initialValue = data.Props.InitialValue;    
-    dataStruct.scope = data.scope;
-    dataStruct.arraySize = data.Props.Array.Size;
+    dataStruct.Id = data.id;
+    dataStruct.Name = data.name;
+    dataStruct.Datatype = data.DataType;
+    dataStruct.CompiledType = data.CompiledType;
+    dataStruct.Port = data.Port;
+    dataStruct.InitialValue = data.Props.InitialValue;    
+    dataStruct.Scope = data.scope;
+    dataStruct.ArraySize = data.Props.Array.Size;
 end
 
 function eventStruct = buildEventStruct(event)
-    eventStruct.id = event.id;
-    eventStruct.name = event.name;    
-    eventStruct.port = event.Port;
-    eventStruct.scope = event.scope;
+    eventStruct.Id = event.id;
+    eventStruct.Name = event.name;    
+    eventStruct.Port = event.Port;
+    eventStruct.Scope = event.scope;
 end
 
 function stateStruct =  buildStateStruct(state)    
     % set the state path
-    stateStruct.path = strcat (state.Path, '/',state.name);
+    stateStruct.Path = strcat (state.Path, '/',state.name);
     
     %set the id of the state
-    stateStruct.id = state.id;
+    stateStruct.Id = state.id;
     
     % parse the label string of the state
     stateAction = edu.uiowa.chart.state.StateParser.parse(state.LabelString);     
     
     % set the state actions    
-    stateStruct.actions.entry = cell(stateAction.entry);
-    stateStruct.actions.during = cell(stateAction.during);
-    stateStruct.actions.exit = cell(stateAction.exit);
-    stateStruct.actions.bind = cell(stateAction.bind);
-    stateStruct.actions.on = getOnAction(stateAction.on);
-    stateStruct.actions.onAfter = getOnAction(stateAction.onAfter);
-    stateStruct.actions.onBefore = getOnAction(stateAction.onBefore);
-    stateStruct.actions.onAt = getOnAction(stateAction.onAt);
-    stateStruct.actions.onEvery = getOnAction(stateAction.onEvery);
+    stateStruct.Actions.Entry = cell(stateAction.entry);
+    stateStruct.Actions.During = cell(stateAction.during);
+    stateStruct.Actions.Exit = cell(stateAction.exit);
+    stateStruct.Actions.Bind = cell(stateAction.bind);
+    stateStruct.Actions.On = getOnAction(stateAction.on);
+    stateStruct.Actions.OnAfter = getOnAction(stateAction.onAfter);
+    stateStruct.Actions.OnBefore = getOnAction(stateAction.onBefore);
+    stateStruct.Actions.OnAt = getOnAction(stateAction.onAt);
+    stateStruct.Actions.OnEvery = getOnAction(stateAction.onEvery);
     
     % set the state transitions    
-    stateStruct.innerTransitions = {};
+    stateStruct.InnerTransitions = {};
     transitions = state.innerTransitions;
     for i = 1 : length(transitions)       
        transitionStruct = buildDestinationStruct(transitions(i));                       
-       stateStruct.innerTransitions = [stateStruct.innerTransitions transitionStruct];
+       stateStruct.InnerTransitions = [stateStruct.InnerTransitions transitionStruct];
     end  
     
-    stateStruct.outerTransitions = {};
+    stateStruct.OuterTransitions = {};
     transitions = state.outerTransitions;
     for i = 1 : length(transitions)
        transitionStruct = buildDestinationStruct(transitions(i));                       
-       stateStruct.outerTransitions = [stateStruct.outerTransitions transitionStruct];
+       stateStruct.OuterTransitions = [stateStruct.OuterTransitions transitionStruct];
     end  
     
     %ToDo: find a better name for composition
-    stateStruct.composition = getContent(state, true);    
+    stateStruct.Composition = getContent(state, true);    
 end
 
 function content = getContent(chartObject, self)
@@ -147,18 +147,18 @@ function content = getContent(chartObject, self)
     
     % specify the decomposition
     if isprop(chartObject, 'Decomposition')
-        content.type = chartObject.Decomposition;
+        content.Type = chartObject.Decomposition;
     else
-        content.type = 'EXCLUSIVE_OR';
+        content.Type = 'EXCLUSIVE_OR';
     end
     
     %handle initial transitions    
     defaultTransitions = chartObject.defaultTransitions;
-    content.defaultTransitions = {};
+    content.DefaultTransitions = {};
     for i = 1 : length(defaultTransitions)
         transitionStruct = buildDestinationStruct(defaultTransitions(i));                       
-       content.defaultTransitions = ...
-           [content.defaultTransitions transitionStruct];
+       content.DefaultTransitions = ...
+           [content.DefaultTransitions transitionStruct];
     end
     
     %handle initial states
@@ -171,80 +171,80 @@ function content = getContent(chartObject, self)
         index = 1; 
     end
     
-    content.substates = cell(length(childStates) - index,1);
-    content.states = cell(length(childStates) - index,1);
+    content.Substates = cell(length(childStates) - index,1);
+    content.States = cell(length(childStates) - index,1);
     for i = 1 + index : length(childStates)
-        content.substates{i-index} = childStates(i).name;
-        content.states{i-index} = childStates(i).id;
+        content.Substates{i-index} = childStates(i).name;
+        content.States{i-index} = childStates(i).id;
     end
 end
 
 function junctionStruct =  buildJunctionStruct(junction)    
     % set the junction path
-    junctionStruct.path = strcat (junction.Path, '/Junction',int2str(junction.id));
+    junctionStruct.Path = strcat (junction.Path, '/Junction',int2str(junction.id));
     
     %set the id of the junction
-    junctionStruct.id = junction.id;
+    junctionStruct.Id = junction.id;
     
     %set the junction type
-    junctionStruct.type = junction.Type;
+    junctionStruct.Type = junction.Type;
     
     % set the junction transitions    
-    junctionStruct.outerTransitions = {};
+    junctionStruct.OuterTransitions = {};
     transitions = junction.sourcedTransitions;
     for i = 1 : length(transitions)          
-       transitionStruct.dest = buildDestinationStruct(transitions(i));
-       junctionStruct.outerTransitions = [junctionStruct.outerTransitions transitionStruct];
+       transitionStruct.Destination = buildDestinationStruct(transitions(i));
+       junctionStruct.OuterTransitions = [junctionStruct.OuterTransitions transitionStruct];
     end    
 end
 
 function transitionStruct = buildDestinationStruct(transition)
     transitionStruct = {};
-    transitionStruct.id = transition.id;       
+    transitionStruct.Id = transition.id;       
     destination =  transition.Destination;
-    transitionStruct.dest.id = destination.id;    
+    transitionStruct.Destination.Id = destination.id;    
     
     % parse the label string of the transition
     transitionObject = edu.uiowa.chart.transition.TransitionParser.parse(transition.LabelString);   
-    transitionStruct.event = char(transitionObject.eventOrMessage);
-    transitionStruct.condition = char(transitionObject.condition);
-    transitionStruct.conditionAction = cell(transitionObject.conditionActions);  
-    transitionStruct.transitionAction = cell(transitionObject.transitionActions);  
+    transitionStruct.Event = char(transitionObject.eventOrMessage);
+    transitionStruct.Condition = char(transitionObject.condition);
+    transitionStruct.ConditionAction = cell(transitionObject.conditionActions);  
+    transitionStruct.TransitionAction = cell(transitionObject.transitionActions);  
     
     % check if the destination is a state or a junction
     if strcmp(destination.Type, 'CONNECTIVE') || ...
        strcmp(destination.Type, 'HISTORY')
-       transitionStruct.dest.type = 'Junction';
-       transitionStruct.dest.name = strcat(destination.Path, '/', ...
+       transitionStruct.Destination.Type = 'Junction';
+       transitionStruct.Destination.Name = strcat(destination.Path, '/', ...
            'Junction', int2str(destination.id));
     else
-       transitionStruct.dest.type = 'State';
-       transitionStruct.dest.name = strcat(destination.Path, '/', ...
+       transitionStruct.Destination.Type = 'State';
+       transitionStruct.Destination.Name = strcat(destination.Path, '/', ...
            destination.name);
     end                       
 end
 
 function functionStruct =  buildFunctionStruct(functionObject)    
     % set the function path
-    functionStruct.path = strcat (functionObject.Path, '/',functionObject.name);
+    functionStruct.Path = strcat (functionObject.Path, '/',functionObject.name);
     
     %set the id of the function
-    functionStruct.id = functionObject.id;       
+    functionStruct.Id = functionObject.id;       
      
     %set the name of the function
-    functionStruct.name = functionObject.name;      
+    functionStruct.Name = functionObject.name;      
     
     %set the signature of the function
-    functionStruct.labelString = functionObject.LabelString;    
+    functionStruct.LabelString = functionObject.LabelString;    
     % set the content of the function
-    functionStruct.composition = getContent(functionObject, false); 
+    functionStruct.Composition = getContent(functionObject, false); 
     
      % get the data of the function
     functionData = functionObject.find('-isa','Stateflow.Data');
     % build the json struct for data
-    functionStruct.data = cell(length(functionData),1);
+    functionStruct.Data = cell(length(functionData),1);
     for index = 1 : length(functionData)       
-        functionStruct.data{index} = buildDataStruct(functionData(index));
+        functionStruct.Data{index} = buildDataStruct(functionData(index));
     end
     
 end
@@ -253,8 +253,8 @@ function [onActionStruct] = getOnAction(onActionObject)
     onActionArray = cell(onActionObject);
     onActionStruct = cell(length(onActionArray), 1);
     for i = 1 : length(onActionStruct)
-        onActionStruct{i}.n = onActionArray{i}.n;
-        onActionStruct{i}.eventName = cell(onActionArray{i}.eventName);
-        onActionStruct{i}.actions = cell(onActionArray{i}.actions);
+        onActionStruct{i}.N = onActionArray{i}.n;
+        onActionStruct{i}.EventName = cell(onActionArray{i}.eventName);
+        onActionStruct{i}.Actions = cell(onActionArray{i}.actions);
     end
 end
