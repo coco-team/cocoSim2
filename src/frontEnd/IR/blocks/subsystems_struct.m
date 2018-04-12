@@ -98,9 +98,9 @@ for i=1:numel(content)
                 if ~isempty(parent); cd(parent); end
                 func_handle = str2func(file_name);
                 if ~isempty(parent); cd(PWD); end
-                S.(sub_name).SFContent = func_handle(content{i});
+                S.(sub_name).StateflowContent = func_handle(content{i});
             else
-                S.(sub_name).SFContent = struct();
+                S.(sub_name).StateflowContent = struct();
             end
             S.(sub_name).Content = struct();
         else            

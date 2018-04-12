@@ -5,21 +5,20 @@
 
 %Author: Mudathir
 
-function [chartStruct] = chart_struct(chartPath)
+function [StateflowContentStruct] = chart_struct(chartPath)
     % add the CharParser jar file to the path
     [path, ~, ~] = fileparts(mfilename('fullpath'));
     path = fileparts(path);
     path = fullfile(path, 'utils', 'ChartParser.jar');    
     javaaddpath(path);
     
-    chartStruct = {};
-    chartStruct.Chart = {};
+    StateflowContentStruct = {};
     
     chartPathParts = strsplit(chartPath, '/');    
     % get the name of the model
     modelName = char(chartPathParts(1));
     % get the name of the chart block
-    chartStruct.Chart.Name = chartPathParts(end);    
+    StateflowContentStruct.Name = chartPathParts(end);    
     
     % get a handle to the root object
     stateflowRoot = sfroot;
@@ -29,23 +28,23 @@ function [chartStruct] = chart_struct(chartPath)
     chart = model.find('-isa','Stateflow.Chart', 'Path', chartPath);   
     
     %get the chart path
-    chartStruct.Chart.Path = chart.Path;
+    StateflowContentStruct.Path = chart.Path;
        
     % get the data of the chart
     chartData = chart.find('-isa','Stateflow.Data', '-depth', 1);
     % build the json struct for data
-    chartStruct.Chart.Data = cell(length(chartData),1);
+    StateflowContentStruct.Data = cell(length(chartData),1);
     for index = 1 : length(chartData)       
-        chartStruct.Chart.Data{index} = buildDataStruct(chartData(index));
+        StateflowContentStruct.Data{index} = buildDataStruct(chartData(index));
     end
     
     
     % get the events of the chart
     chartEvents = chart.find('-isa','Stateflow.Event');
     % build the json struct for events
-    chartStruct.Chart.Events = cell(length(chartEvents),1);
+    StateflowContentStruct.Events = cell(length(chartEvents),1);
     for index = 1 : length(chartEvents)       
-        chartStruct.Chart.Events{index} = buildEventStruct(chartEvents(index));
+        StateflowContentStruct.Events{index} = buildEventStruct(chartEvents(index));
     end
     
     % add a virtual state that represents the chart itself 
@@ -61,26 +60,26 @@ function [chartStruct] = chart_struct(chartPath)
     % get the states in the chart
     chartStates = chart.find('-isa','Stateflow.State');   
     % build the json struct for states
-    chartStruct.Chart.States = cell(length(chartStates) + 1,1);
-     chartStruct.Chart.States{1} = virtualState;
+    StateflowContentStruct.States = cell(length(chartStates) + 1,1);
+     StateflowContentStruct.States{1} = virtualState;
     for index = 1 : length(chartStates)       
-        chartStruct.Chart.States{index+1} = buildStateStruct(chartStates(index));
+        StateflowContentStruct.States{index+1} = buildStateStruct(chartStates(index));
     end
     
      %get the junctions in the chart
     chartJunctions = chart.find('-isa','Stateflow.Junction');           
     % build the json struct for junctions
-    chartStruct.Chart.Junctions = cell(length(chartJunctions),1);
+    StateflowContentStruct.Junctions = cell(length(chartJunctions),1);
     for index = 1 : length(chartJunctions)        
-        chartStruct.Chart.Junctions{index} = buildJunctionStruct(chartJunctions(index));
+        StateflowContentStruct.Junctions{index} = buildJunctionStruct(chartJunctions(index));
     end 
     
     %get the functions in the chart
     chartFunctions = chart.find('-isa','Stateflow.Function'); 
     % build the json struct for functions              
-    chartStruct.Chart.GraphicalFunctions = cell(length(chartFunctions),1);
+    StateflowContentStruct.GraphicalFunctions = cell(length(chartFunctions),1);
     for index = 1 : length(chartFunctions)        
-        chartStruct.Chart.GraphicalFunctions{index} = buildFunctionStruct(chartFunctions(index));
+        StateflowContentStruct.GraphicalFunctions{index} = buildFunctionStruct(chartFunctions(index));
     end 
 end
 
