@@ -30,21 +30,15 @@ function [chartStruct] = chart_struct(chartPath)
     
     %get the chart path
     chartStruct.Chart.origin_path = chart.Path;
-    
+       
     % get the data of the chart
-    chartData = chart.find('-isa','Stateflow.Data');
-    
-    % get the states in the chart
-    chartStates = chart.find('-isa','Stateflow.State');   
-        
-    %get the junctions in the chart
-    chartJunctions = chart.find('-isa','Stateflow.Junction');       
-    
+    chartData = chart.find('-isa','Stateflow.Data', '-depth', 1);
     % build the json struct for data
     chartStruct.Chart.data = cell(length(chartData),1);
     for index = 1 : length(chartData)       
         chartStruct.Chart.data{index} = buildDataStruct(chartData(index));
     end
+    
     
     % get the events of the chart
     chartEvents = chart.find('-isa','Stateflow.Event');
@@ -64,7 +58,8 @@ function [chartStruct] = chart_struct(chartPath)
     %ToDo: find a better name for composition
     virtualState.composition = getContent(chart, false);     
     
-    
+    % get the states in the chart
+    chartStates = chart.find('-isa','Stateflow.State');   
     % build the json struct for states
     chartStruct.Chart.states = cell(length(chartStates) + 1,1);
      chartStruct.Chart.states{1} = virtualState;
@@ -72,6 +67,8 @@ function [chartStruct] = chart_struct(chartPath)
         chartStruct.Chart.states{index+1} = buildStateStruct(chartStates(index));
     end
     
+     %get the junctions in the chart
+    chartJunctions = chart.find('-isa','Stateflow.Junction');           
     % build the json struct for junctions
     chartStruct.Chart.junctions = cell(length(chartJunctions),1);
     for index = 1 : length(chartJunctions)        
@@ -240,6 +237,15 @@ function functionStruct =  buildFunctionStruct(functionObject)
     functionStruct.signature = functionObject.LabelString;    
     % set the content of the function
     functionStruct.composition = getContent(functionObject, false); 
+    
+     % get the data of the function
+    functionData = functionObject.find('-isa','Stateflow.Data');
+    % build the json struct for data
+    functionStruct.data = cell(length(functionData),1);
+    for index = 1 : length(functionData)       
+        functionStruct.data{index} = buildDataStruct(functionData(index));
+    end
+    
 end
 
 function [onActionStruct] = getOnAction(onActionObject)
