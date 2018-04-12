@@ -29,7 +29,7 @@ function [chartStruct] = chart_struct(chartPath)
     chart = model.find('-isa','Stateflow.Chart', 'Path', chartPath);   
     
     %get the chart path
-    chartStruct.Chart.origin_path = chart.Path;
+    chartStruct.Chart.path = chart.Path;
        
     % get the data of the chart
     chartData = chart.find('-isa','Stateflow.Data', '-depth', 1);
@@ -235,7 +235,7 @@ function functionStruct =  buildFunctionStruct(functionObject)
     functionStruct.name = functionObject.name;      
     
     %set the signature of the function
-    functionStruct.signature = functionObject.LabelString;    
+    functionStruct.labelString = functionObject.LabelString;    
     % set the content of the function
     functionStruct.composition = getContent(functionObject, false); 
     
