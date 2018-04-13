@@ -82,7 +82,7 @@ Utils.update_status('Lustre generation');
 display_msg('Lustre generation', Constants.INFO, 'cocoSim', '');
 
 %%%%%%%%%%%%%%%%%%
-javaaddpath(fullfile('src','backEnd','verification','cocoSpecVerify','utils','CocoSim_IR_Compiler-0.1-jar-with-dependencies.jar'));    
+javaaddpath(fullfile(cocoSim_path, 'src','backEnd','verification','cocoSpecVerify','utils','CocoSim_IR_Compiler-0.1-jar-with-dependencies.jar'));    
 json_file=fullfile(output_dir, strcat(file_name, '_IR.json'));
 j2l_trans=edu.uiowa.json2lus.J2LTranslator(json_file);
 ppv=edu.uiowa.json2lus.lustreAst.LustrePrettyPrinter();
