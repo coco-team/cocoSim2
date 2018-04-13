@@ -21,6 +21,9 @@ t_start = now;
 sf2lus_start = tic;
 % Retrieving of the path containing the cocoSim file
 [cocoSim_path, ~, ~] = fileparts(mfilename('fullpath'));
+pathParts = strsplit(cocoSim_path,filesep) ;
+%CoCoSim/src/middleEnd/cocSpecCompiler
+cocoSim_path = strjoin(pathParts(1: end - 3), filesep);
 % Retrieving of the path containing the model for which we generate the code
 [model_path, file_name, ~] = fileparts(model_full_path);
 
