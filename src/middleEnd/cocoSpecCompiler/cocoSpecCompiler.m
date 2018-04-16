@@ -21,6 +21,9 @@ t_start = now;
 sf2lus_start = tic;
 % Retrieving of the path containing the cocoSim file
 [cocoSim_path, ~, ~] = fileparts(mfilename('fullpath'));
+pathParts = strsplit(cocoSim_path,filesep) ;
+%CoCoSim/src/middleEnd/cocSpecCompiler
+cocoSim_path = strjoin(pathParts(1: end - 3), filesep);
 % Retrieving of the path containing the model for which we generate the code
 [model_path, file_name, ~] = fileparts(model_full_path);
 
@@ -82,7 +85,7 @@ Utils.update_status('Lustre generation');
 display_msg('Lustre generation', Constants.INFO, 'cocoSim', '');
 
 %%%%%%%%%%%%%%%%%%
-javaaddpath(fullfile('src','backEnd','verification','cocoSpecVerify','utils','CocoSim_IR_Compiler-0.1-jar-with-dependencies.jar'));    
+javaaddpath(fullfile(cocoSim_path, 'src','backEnd','verification','cocoSpecVerify','utils','CocoSim_IR_Compiler-0.1-jar-with-dependencies.jar'));    
 json_file=fullfile(output_dir, strcat(file_name, '_IR.json'));
 j2l_trans=edu.uiowa.json2lus.J2LTranslator(json_file);
 ppv=edu.uiowa.json2lus.lustreAst.LustrePrettyPrinter();
