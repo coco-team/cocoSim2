@@ -259,21 +259,34 @@ function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, da
             jsonName = regexprep(propertyStruct.propertyName,'\[l\S*?\]',''); 
             originPath = '';
             if contains(jsonName,  '._one_mode_active')
-                % get the validator block
-                %ToDo: handle one mode active in the map
-                for i = 1 : length(json)
-                    if isfield(json{i},'ContractName')
-                        path = json{i}.OriginPath;
-                        contractPath = fileparts(path);
-                        originPath = strcat(contractPath, '/validator');
-                        propertyStruct.originPath = originPath;
+                %ToDo: find the contract block direclty when the json
+                %mapping file is fixed                
+                contractName = strrep(jsonName, '._one_mode_active', '');                
+                propertiesValues = values(propertiesMap);  
+                
+                for i = 1 : length(propertiesValues)
+                    if isfield(propertiesValues{i},'ContractName') && ...
+                            strcmp(propertiesValues{i}.ContractName, contractName)                        
+                        
+                        blockPath = propertiesValues{i}.OriginPath;
+                        blocks = find_system(blockPath,'LookUnderMasks','on','MaskType','KindContractValidator');
+                        %ToDo: remove this while when the json mapping file
+                        %is fixed
+                        while isempty(blocks) 
+                            blockPath = fileparts(blockPath);
+                            blocks = find_system(blockPath,'LookUnderMasks','on','MaskType','KindContractValidator');
+                        end
+                        validatorBlock = blocks{1};
+                        propertyStruct.originPath = getfullname(validatorBlock);
 
+                        contractPath = fileparts(propertyStruct.originPath);
+                        
                         if strcmp(propertyStruct.answer, 'CEX')
-                            set_param(originPath, 'BackgroundColor', 'red');
+                            set_param(validatorBlock, 'BackgroundColor', 'red');
                             contractColor = 'red';
                             oneModeActiveAnnotation = strcat(contractPath, '/contract has non-exhaustive modes');                                    
                             note = Simulink.Annotation(oneModeActiveAnnotation);
-                            validatorPosition = get_param(originPath, 'Position');
+                            validatorPosition = get_param(validatorBlock, 'Position');
                             validatorPosition(2) = validatorPosition(2) + 20;                                    
                             note.position = [validatorPosition(1) validatorPosition(4) + 20]; 
                             note.ForegroundColor = 'red';
