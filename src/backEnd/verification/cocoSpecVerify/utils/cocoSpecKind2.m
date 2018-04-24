@@ -1,8 +1,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This file is part of CoCoSim.
-% Copyright (C) 2014-2016  Carnegie Mellon University
+% Copyright (C) 2018  The university of Iowa
+% Author: Mudathir
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 function cocoSpecKind2(lustre_file_name, mapping_file)
      
@@ -53,11 +53,29 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
 
         % extract only properties
         
-        jsonProperties= {};
+        properties= {};
         index = 1;
         for i = 1 : length(json)        
             if isfield(json{i}, 'PropertyName')
-                jsonProperties{index} = json{i};
+                properties{index} = json{i};                
+                if isfield(json{i},'ContractName')
+                    properties{index}.name = json{i}.ContractName;
+                    if  strcmp(json{i}.PropertyName, 'guarantee')
+                        properties{index}.name = strcat(properties{index}.name, '.guarantee');
+                    end
+                    if strcmp(json{i}.PropertyName, 'ensure')
+                        properties{index}.name = strcat(properties{index}.name,'.', json{i}.ModeName ,'.ensure');
+                    end
+                    if strcmp(json{i}.PropertyName, 'assume')
+                        properties{index}.name = strcat(properties{index}.name, '.assume');
+                    end
+                    if isfield(json{i},'Index')
+                        properties{index}.name = strcat(properties{index}.name,'[', json{i}.Index ,']');
+                    end
+                else
+                    properties{index}.name = json{i}.PropertyName;
+                end
+                
                 index = index + 1;
             end
         end
@@ -73,7 +91,7 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
                 analysisStruct.abstract = char(xmlAnalysis.getAttribute('abstract'));
                 analysisStruct.concrete= char(xmlAnalysis.getAttribute('concrete'));
                 analysisStruct.assumptions = char(xmlAnalysis.getAttribute('assumptions'));                    
-                analysisStruct = handleAnalysis(jsonProperties, xmlAnalysis, date_value, ...
+                analysisStruct = handleAnalysis(properties, xmlAnalysis, date_value, ...
                            analysisStruct);
                 verificationResults.analysisResults{i+1} = analysisStruct;
             end
@@ -285,26 +303,10 @@ function [analysisStruct] = handleAnalysis(json, xml_analysis_start, date_value,
             
             for i = 1 : length(json)        
                 if isfield(json{i}, 'PropertyName')
-                    if isfield(json{i},'ContractName')
-                        propertyJsonName = json{i}.ContractName;
-                        if  strcmp(json{i}.PropertyName, 'guarantee')
-                            propertyJsonName = strcat(propertyJsonName, '.guarantee');
-                        end
-                        if strcmp(json{i}.PropertyName, 'ensure')
-                            propertyJsonName = strcat(propertyJsonName,'.', json{i}.ModeName ,'.ensure');
-                        end
-                        if strcmp(json{i}.PropertyName, 'assume')
-                            propertyJsonName = strcat(propertyJsonName, '.assume');
-                        end
-                        if isfield(json{i},'Index')
-                            propertyJsonName = strcat(propertyJsonName,'[', json{i}.Index ,']');
-                        end
-                    else
-                        propertyJsonName = json{i}.PropertyName;
-                    end
+                    
                     %ToDo: check the condition and removing colors
                     %if strcmp(propertyJsonName, jsonName)                           
-                    if contains(jsonName, propertyJsonName)   
+                    if contains(jsonName, json{i}.name)   
 
                         propertyStruct.originPath = json{i}.OriginPath;                            
 
