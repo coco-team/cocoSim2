@@ -51,6 +51,17 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
             json = num2cell(json);
         end
 
+        % extract only properties
+        
+        jsonProperties= {};
+        index = 1;
+        for i = 1 : length(json)        
+            if isfield(json{i}, 'PropertyName')
+                jsonProperties{index} = json{i};
+                index = index + 1;
+            end
+        end
+        
         verificationResults = {};
 
         if s.bytes ~= 0                
@@ -62,7 +73,7 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
                 analysisStruct.abstract = char(xmlAnalysis.getAttribute('abstract'));
                 analysisStruct.concrete= char(xmlAnalysis.getAttribute('concrete'));
                 analysisStruct.assumptions = char(xmlAnalysis.getAttribute('assumptions'));                    
-                analysisStruct = handleAnalysis(json, xmlAnalysis, date_value, ...
+                analysisStruct = handleAnalysis(jsonProperties, xmlAnalysis, date_value, ...
                            analysisStruct);
                 verificationResults.analysisResults{i+1} = analysisStruct;
             end
@@ -230,8 +241,8 @@ function [analysisStruct] = handleAnalysis(json, xml_analysis_start, date_value,
             if contains(jsonName,  '._one_mode_active')
                 % get the validator block
                 for i = 1 : length(json)
-                    if isfield(json{i,1},'ContractName')
-                        path = json{i,1}.OriginPath;
+                    if isfield(json{i},'ContractName')
+                        path = json{i}.OriginPath;
                         contractPath = fileparts(path);
                         originPath = strcat(contractPath, '/validator');
                         propertyStruct.originPath = originPath;
@@ -271,30 +282,31 @@ function [analysisStruct] = handleAnalysis(json, xml_analysis_start, date_value,
                 % check other properties
                 continue;
             end
+            
             for i = 1 : length(json)        
                 if isfield(json{i}, 'PropertyName')
-                    if isfield(json{i,1},'ContractName')
-                        propertyJsonName = json{i,1}.ContractName;
-                        if  strcmp(json{i,1}.PropertyName, 'guarantee')
+                    if isfield(json{i},'ContractName')
+                        propertyJsonName = json{i}.ContractName;
+                        if  strcmp(json{i}.PropertyName, 'guarantee')
                             propertyJsonName = strcat(propertyJsonName, '.guarantee');
                         end
-                        if strcmp(json{i,1}.PropertyName, 'ensure')
-                            propertyJsonName = strcat(propertyJsonName,'.', json{i,1}.ModeName ,'.ensure');
+                        if strcmp(json{i}.PropertyName, 'ensure')
+                            propertyJsonName = strcat(propertyJsonName,'.', json{i}.ModeName ,'.ensure');
                         end
-                        if strcmp(json{i,1}.PropertyName, 'assume')
+                        if strcmp(json{i}.PropertyName, 'assume')
                             propertyJsonName = strcat(propertyJsonName, '.assume');
                         end
-                        if isfield(json{i,1},'Index')
-                            propertyJsonName = strcat(propertyJsonName,'[', json{i,1}.Index ,']');
+                        if isfield(json{i},'Index')
+                            propertyJsonName = strcat(propertyJsonName,'[', json{i}.Index ,']');
                         end
                     else
-                        propertyJsonName = json{i,1}.PropertyName;
+                        propertyJsonName = json{i}.PropertyName;
                     end
                     %ToDo: check the condition and removing colors
                     %if strcmp(propertyJsonName, jsonName)                           
                     if contains(jsonName, propertyJsonName)   
 
-                        propertyStruct.originPath = json{i,1}.OriginPath;                            
+                        propertyStruct.originPath = json{i}.OriginPath;                            
 
                         if strcmp(propertyStruct.answer, 'SAFE')
                             set_param(propertyStruct.originPath, 'BackgroundColor', 'green');
@@ -303,14 +315,14 @@ function [analysisStruct] = handleAnalysis(json, xml_analysis_start, date_value,
                             set_param(propertyStruct.originPath, 'BackgroundColor', 'gray');
                             set_param(propertyStruct.originPath, 'ForegroundColor', 'gray');
                             % set the color of the contract
-                            if isfield(json{i,1},'ContractName') && strcmp(contractColor, 'green')
+                            if isfield(json{i},'ContractName') && strcmp(contractColor, 'green')
                                 contractColor = 'yellow';
                             end
                         elseif strcmp(propertyStruct.answer, 'UNKNOWN')
                             set_param(propertyStruct.originPath, 'BackgroundColor', 'yellow');
                             set_param(propertyStruct.originPath, 'ForegroundColor', 'yellow');
                              % set the color of the contract
-                            if isfield(json{i,1},'ContractName') && strcmp(contractColor, 'green')
+                            if isfield(json{i},'ContractName') && strcmp(contractColor, 'green')
                                 contractColor = 'yellow';
                             end
                         elseif strcmp(propertyStruct.answer, 'CEX')
@@ -318,7 +330,7 @@ function [analysisStruct] = handleAnalysis(json, xml_analysis_start, date_value,
                             set_param(propertyStruct.originPath, 'ForegroundColor', 'red');   
 
                              % set the color of the contract
-                            if isfield(json{i,1},'ContractName')
+                            if isfield(json{i},'ContractName')
                                 contractColor = 'red';                                                            
                             end
 
@@ -334,8 +346,8 @@ function [analysisStruct] = handleAnalysis(json, xml_analysis_start, date_value,
 
                         end
                         analysisStruct.properties{index} = propertyStruct;
-                        if isfield(json{i,1},'ContractName')                            
-                                contractBlock = fileparts(json{i,1}.OriginPath);
+                        if isfield(json{i},'ContractName')                            
+                                contractBlock = fileparts(json{i}.OriginPath);
                                 set_param(contractBlock, 'BackgroundColor', contractColor);
                                 ancestorBlock = fileparts(contractBlock);
                                 while contains(ancestorBlock, '/')
