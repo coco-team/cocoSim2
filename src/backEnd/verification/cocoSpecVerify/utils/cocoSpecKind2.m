@@ -51,31 +51,33 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
             json = num2cell(json);
         end
 
-        % extract only properties
-        
-        properties= {};
+        %build a map for properties        
+        propertiesMap= containers.Map;
         index = 1;
         for i = 1 : length(json)        
             if isfield(json{i}, 'PropertyName')
-                properties{index} = json{i};                
+                value = json{i};     
+                key = '';
                 if isfield(json{i},'ContractName')
-                    properties{index}.name = json{i}.ContractName;
+                    key = json{i}.ContractName;
                     if  strcmp(json{i}.PropertyName, 'guarantee')
-                        properties{index}.name = strcat(properties{index}.name, '.guarantee');
+                        key = strcat(key, '.guarantee');
                     end
                     if strcmp(json{i}.PropertyName, 'ensure')
-                        properties{index}.name = strcat(properties{index}.name,'.', json{i}.ModeName ,'.ensure');
+                        key = strcat(key,'.', json{i}.ModeName ,'.ensure');
                     end
                     if strcmp(json{i}.PropertyName, 'assume')
-                        properties{index}.name = strcat(properties{index}.name, '.assume');
+                        key = strcat(key, '.assume');
                     end
                     if isfield(json{i},'Index')
-                        properties{index}.name = strcat(properties{index}.name,'[', json{i}.Index ,']');
+                        key = strcat(key,'[', json{i}.Index ,']');
                     end
                 else
-                    properties{index}.name = json{i}.PropertyName;
+                    key = json{i}.PropertyName;
                 end
                 
+                %add the property to the map
+                propertiesMap(key) = value;                
                 index = index + 1;
             end
         end
@@ -91,7 +93,7 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
                 analysisStruct.abstract = char(xmlAnalysis.getAttribute('abstract'));
                 analysisStruct.concrete= char(xmlAnalysis.getAttribute('concrete'));
                 analysisStruct.assumptions = char(xmlAnalysis.getAttribute('assumptions'));                    
-                analysisStruct = handleAnalysis(properties, xmlAnalysis, date_value, ...
+                analysisStruct = handleAnalysis(propertiesMap, xmlAnalysis, date_value, ...
                            analysisStruct);
                 verificationResults.analysisResults{i+1} = analysisStruct;
             end
@@ -218,7 +220,7 @@ function [verificationResults, compositionalMap] = saveVerificationResults(verif
 end
 
 
-function [analysisStruct] = handleAnalysis(json, xml_analysis_start, date_value, ...
+function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, date_value, ...
                                analysisStruct)
     xml_element = xml_analysis_start;
     analysisStruct.properties ={};
@@ -258,6 +260,7 @@ function [analysisStruct] = handleAnalysis(json, xml_analysis_start, date_value,
             originPath = '';
             if contains(jsonName,  '._one_mode_active')
                 % get the validator block
+                %ToDo: handle one mode active in the map
                 for i = 1 : length(json)
                     if isfield(json{i},'ContractName')
                         path = json{i}.OriginPath;
@@ -297,75 +300,69 @@ function [analysisStruct] = handleAnalysis(json, xml_analysis_start, date_value,
                         break;
                     end
                 end
-                % check other properties
+                % check other analyses
                 continue;
             end
             
-            for i = 1 : length(json)        
-                if isfield(json{i}, 'PropertyName')
-                    
-                    %ToDo: check the condition and removing colors
-                    %if strcmp(propertyJsonName, jsonName)                           
-                    if contains(jsonName, json{i}.name)   
-
-                        propertyStruct.originPath = json{i}.OriginPath;                            
-
-                        if strcmp(propertyStruct.answer, 'SAFE')
-                            set_param(propertyStruct.originPath, 'BackgroundColor', 'green');
-                            set_param(propertyStruct.originPath, 'ForegroundColor', 'green');                                
-                        elseif strcmp(propertyStruct.answer, 'TIMEOUT')
-                            set_param(propertyStruct.originPath, 'BackgroundColor', 'gray');
-                            set_param(propertyStruct.originPath, 'ForegroundColor', 'gray');
-                            % set the color of the contract
-                            if isfield(json{i},'ContractName') && strcmp(contractColor, 'green')
-                                contractColor = 'yellow';
-                            end
-                        elseif strcmp(propertyStruct.answer, 'UNKNOWN')
-                            set_param(propertyStruct.originPath, 'BackgroundColor', 'yellow');
-                            set_param(propertyStruct.originPath, 'ForegroundColor', 'yellow');
-                             % set the color of the contract
-                            if isfield(json{i},'ContractName') && strcmp(contractColor, 'green')
-                                contractColor = 'yellow';
-                            end
-                        elseif strcmp(propertyStruct.answer, 'CEX')
-                            set_param(propertyStruct.originPath, 'BackgroundColor', 'red');
-                            set_param(propertyStruct.originPath, 'ForegroundColor', 'red');   
-
-                             % set the color of the contract
-                            if isfield(json{i},'ContractName')
-                                contractColor = 'red';                                                            
-                            end
-
-                            % get the counter example                                        
-                            counterExampleElement = xml_element.getElementsByTagName('CounterExample');                        
-                            if counterExampleElement.getLength > 0                            
-                                propertyStruct.counterExample = parseCounterExample(counterExampleElement.item(0));                    
-                            else
-                                msg = [solver ': FAILURE to get counter example: '];
-                                msg = [msg property_name '\n'];
-                                display_msg(msg, Constants.WARNING, 'Property Checking', '');
-                            end
-
-                        end
-                        analysisStruct.properties{index} = propertyStruct;
-                        if isfield(json{i},'ContractName')                            
-                                contractBlock = fileparts(json{i}.OriginPath);
-                                set_param(contractBlock, 'BackgroundColor', contractColor);
-                                ancestorBlock = fileparts(contractBlock);
-                                while contains(ancestorBlock, '/')
-                                    ancestorBlockColor = get_param(ancestorBlock, 'BackgroundColor');
-                                    if strcmp(ancestorBlockColor, 'white') || ...
-                                            (strcmp(ancestorBlockColor, 'green') && strcmp(ancestorBlockColor, 'yellow')) || ...
-                                            strcmp(contractColor, 'red')
-                                    set_param(ancestorBlock, 'BackgroundColor', contractColor);
-                                    end
-                                    ancestorBlock = fileparts(ancestorBlock);
-                                end
-                        end                    
+            
+            if isKey(propertiesMap, jsonName)
+                
+                property = propertiesMap(jsonName);
+                propertyStruct.originPath = property.OriginPath;                            
+                if strcmp(propertyStruct.answer, 'SAFE')
+                    set_param(propertyStruct.originPath, 'BackgroundColor', 'green');
+                    set_param(propertyStruct.originPath, 'ForegroundColor', 'green');                                
+                elseif strcmp(propertyStruct.answer, 'TIMEOUT')
+                    set_param(propertyStruct.originPath, 'BackgroundColor', 'gray');
+                    set_param(propertyStruct.originPath, 'ForegroundColor', 'gray');
+                    % set the color of the contract
+                    if isfield(property,'ContractName') && strcmp(contractColor, 'green')
+                        contractColor = 'yellow';
                     end
+                elseif strcmp(propertyStruct.answer, 'UNKNOWN')
+                    set_param(propertyStruct.originPath, 'BackgroundColor', 'yellow');
+                    set_param(propertyStruct.originPath, 'ForegroundColor', 'yellow');
+                     % set the color of the contract
+                    if isfield(property,'ContractName') && strcmp(contractColor, 'green')
+                        contractColor = 'yellow';
+                    end
+                elseif strcmp(propertyStruct.answer, 'CEX')
+                    set_param(propertyStruct.originPath, 'BackgroundColor', 'red');
+                    set_param(propertyStruct.originPath, 'ForegroundColor', 'red');   
+
+                     % set the color of the contract
+                    if isfield(property,'ContractName')
+                        contractColor = 'red';                                                            
+                    end
+
+                    % get the counter example                                        
+                    counterExampleElement = xml_element.getElementsByTagName('CounterExample');                        
+                    if counterExampleElement.getLength > 0                            
+                        propertyStruct.counterExample = parseCounterExample(counterExampleElement.item(0));                    
+                    else
+                        msg = [solver ': FAILURE to get counter example: '];
+                        msg = [msg property_name '\n'];
+                        display_msg(msg, Constants.WARNING, 'Property Checking', '');
+                    end
+
                 end
-            end
-        end
+                analysisStruct.properties{index} = propertyStruct;
+                if isfield(property,'ContractName')                            
+                        contractBlock = fileparts(property.OriginPath);
+                        set_param(contractBlock, 'BackgroundColor', contractColor);
+                        ancestorBlock = fileparts(contractBlock);
+                        while contains(ancestorBlock, '/')
+                            ancestorBlockColor = get_param(ancestorBlock, 'BackgroundColor');
+                            if strcmp(ancestorBlockColor, 'white') || ...
+                                    (strcmp(ancestorBlockColor, 'green') && strcmp(ancestorBlockColor, 'yellow')) || ...
+                                    strcmp(contractColor, 'red')
+                            set_param(ancestorBlock, 'BackgroundColor', contractColor);
+                            end
+                            ancestorBlock = fileparts(ancestorBlock);
+                        end
+                end                    
+            end %end if isKey(propertiesMap, jsonName)                        
+        end % end if strcmp(xml_element.getNodeName, 'Property')
     end
 end
 
