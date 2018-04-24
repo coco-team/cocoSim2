@@ -85,7 +85,7 @@ for i=1:numel(content)
     if strcmp(sub_type, 'SubSystem') || strcmp(get_param(content{i}, 'Mask'), 'on')
         S.(sub_name).Mask = get_param(content{i}, 'Mask');
         S.(sub_name).MaskType = mask_type;
-        if strcmp(S.(sub_name).SFBlockType, 'Chart') && ~isempty(stateflow_treatment)
+        if isfield(S.(sub_name), 'SFBlockType') && strcmp(S.(sub_name).SFBlockType, 'Chart') && ~isempty(stateflow_treatment)
             if iscell(stateflow_treatment)
                 fun_name = stateflow_treatment{1};
             else
