@@ -81,6 +81,14 @@ function [StateflowContentStruct] = chart_struct(chartPath)
     for index = 1 : length(chartFunctions)        
         StateflowContentStruct.GraphicalFunctions{index} = buildFunctionStruct(chartFunctions(index));
     end 
+    
+    %get the truth tables in the chart
+    chartTruthTables = chart.find('-isa','Stateflow.TruthTable'); 
+    % build the json struct for truth tables              
+    StateflowContentStruct.TruthTables = cell(length(chartTruthTables),1);
+    for index = 1 : length(chartTruthTables)        
+        StateflowContentStruct.TruthTables{index} = buildTruthTableStruct(chartTruthTables(index));
+    end 
 end
 
 function dataStruct = buildDataStruct(data)
@@ -244,6 +252,33 @@ function functionStruct =  buildFunctionStruct(functionObject)
     functionStruct.Data = cell(length(functionData),1);
     for index = 1 : length(functionData)       
         functionStruct.Data{index} = buildDataStruct(functionData(index));
+    end
+    
+end
+
+function truthTableStruct =  buildTruthTableStruct(truthTable)       
+    % set the truthTable path
+    truthTableStruct.Path = strcat (truthTable.Path, '/',truthTable.name);
+    
+    %set the id of the truthTable
+    truthTableStruct.Id = truthTable.id;       
+     
+    %set the name of the truthTable
+    truthTableStruct.Name = truthTable.name;      
+    
+    %set the signature of the truthTable
+    truthTableStruct.LabelString = truthTable.LabelString;    
+    
+    % set the tables of the truthTable
+    truthTableStruct.ConditionTable = truthTable.ConditionTable;
+    truthTableStruct.ActionTable = truthTable.ActionTable;
+    
+     % get the data of the truthTable
+    truthTableData = truthTable.find('-isa','Stateflow.Data');
+    % build the json struct for data
+    truthTableStruct.Data = cell(length(truthTableData),1);
+    for index = 1 : length(truthTableData)       
+        truthTableStruct.Data{index} = buildDataStruct(truthTableData(index));
     end
     
 end
