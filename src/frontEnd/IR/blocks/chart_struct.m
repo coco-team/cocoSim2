@@ -215,8 +215,8 @@ function transitionStruct = buildDestinationStruct(transition)
     transitionObject = edu.uiowa.chart.transition.TransitionParser.parse(transition.LabelString);   
     transitionStruct.Event = char(transitionObject.eventOrMessage);
     transitionStruct.Condition = char(transitionObject.condition);
-    transitionStruct.ConditionAction = cell(transitionObject.conditionActions);  
-    transitionStruct.TransitionAction = cell(transitionObject.transitionActions);  
+    transitionStruct.ConditionAction = cell(transitionObject.conditionAction);  
+    transitionStruct.TransitionAction = cell(transitionObject.transitionAction);  
     
     % check if the destination is a state or a junction
     if strcmp(destination.Type, 'CONNECTIVE') || ...
