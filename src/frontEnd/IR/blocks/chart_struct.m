@@ -190,6 +190,9 @@ function junctionStruct =  buildJunctionStruct(junction)
     % set the junction path
     junctionStruct.Path = strcat (junction.Path, '/Junction',int2str(junction.id));
     
+    % set the junction name
+    junctionStruct.name = strcat ('Junction',int2str(junction.id));
+    
     %set the id of the junction
     junctionStruct.Id = junction.id;
     
