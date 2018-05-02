@@ -116,6 +116,9 @@ function stateStruct =  buildStateStruct(state)
     %set the id of the state
     stateStruct.Id = state.id;
     
+    %set the name of the state
+    stateStruct.Name = state.name;
+    
     % parse the label string of the state
     stateAction = edu.uiowa.chart.state.StateParser.parse(state.LabelString);     
     
@@ -191,7 +194,7 @@ function junctionStruct =  buildJunctionStruct(junction)
     junctionStruct.Path = strcat (junction.Path, '/Junction',int2str(junction.id));
     
     % set the junction name
-    junctionStruct.name = strcat ('Junction',int2str(junction.id));
+    junctionStruct.Name = strcat ('Junction',int2str(junction.id));
     
     %set the id of the junction
     junctionStruct.Id = junction.id;
