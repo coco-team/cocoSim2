@@ -1,3 +1,10 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This file is part of CoCoSim.
+% Copyright (C) 2018  The university of Iowa
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Author: Mudathir
+
 function contract_callback(action,block)
 if evalin( 'base', '~exist(''ContractValidatorReady'',''var'')' ) == 1 || ...
         evalin( 'base', 'ContractValidatorReady' )  == 0
@@ -51,6 +58,12 @@ if ~ modelWorkspace.hasVariable('ContractValidatorBlocksMap')
 end
 
 ContractValidatorBlocksMap = modelWorkspace.getVariable('ContractValidatorBlocksMap');
+
+%if the validator block is not stored in the map
+if ~isKey(ContractValidatorBlocksMap,validatorBlock)
+    saveValidatorParameters(block);
+end
+
 ContractValidatorBlock = ContractValidatorBlocksMap(validatorBlock);
 
 % check if the previous ports are different than the current ports
