@@ -82,6 +82,9 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
             end
         end
         
+        
+        [nodeNameToBlockNameMap] = getBlocksMapping();
+        
         verificationResults = {};
 
         if s.bytes ~= 0                
@@ -94,12 +97,12 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
                 analysisStruct.concrete= char(xmlAnalysis.getAttribute('concrete'));
                 analysisStruct.assumptions = char(xmlAnalysis.getAttribute('assumptions'));                    
                 analysisStruct = handleAnalysis(propertiesMap, xmlAnalysis, date_value, ...
-                           analysisStruct);
+                           analysisStruct, nodeNameToBlockNameMap);
                 verificationResults.analysisResults{i+1} = analysisStruct;
             end
 
             %store the verification results in the model workspace
-            [verificationResults, compositionalMap] = saveVerificationResults(verificationResults);
+            [verificationResults, compositionalMap] = saveVerificationResults(verificationResults, nodeNameToBlockNameMap);
             displayVerificationResults(verificationResults, compositionalMap);
         end                        
     end    
@@ -107,10 +110,7 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
     %% for modular execution
 end
 
-function [verificationResults, compositionalMap] = saveVerificationResults(verificationResults)
-    
-    modelWorkspace = get_param(gcs,'ModelWorkspace');    
-    
+function [nodeNameToBlockNameMap] = getBlocksMapping()
     %get blocks names from nodes names
     %ToDo: refactor this process with the Java translator
     blockSet = find_system(gcs,'LookUnderMasks', 'on');
@@ -119,9 +119,15 @@ function [verificationResults, compositionalMap] = saveVerificationResults(verif
         nameSet{i} = Utils.name_format(blockSet{i});
         nameSet{i} = strrep(nameSet{i}, '/','_');
     end   
-    nodeNameToBlockNameMap = containers.Map(nameSet, blockSet);
+    nodeNameToBlockNameMap = containers.Map(nameSet, blockSet);    
+end
+function [verificationResults, compositionalMap] = saveVerificationResults(verificationResults, nodeNameToBlockNameMap)
+    
+    modelWorkspace = get_param(gcs,'ModelWorkspace');             
+    
+    
     %store the mapping in the model workspace
-    assignin(modelWorkspace,'nodeNameToBlockNameMap',nodeNameToBlockNameMap);    
+    assignin(modelWorkspace,'nodeNameToBlockNameMap',nodeNameToBlockNameMap);
     
     %replace the nodes names with blocks names
     for i = 1: length(verificationResults.analysisResults)        
@@ -221,7 +227,7 @@ end
 
 
 function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, date_value, ...
-                               analysisStruct)
+                               analysisStruct, nodeNameToBlockNameMap)
     xml_element = xml_analysis_start;
     analysisStruct.properties ={};
     contractColor = 'green';
@@ -240,8 +246,8 @@ function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, da
             if contains (propertyStruct.propertyName,'.assume')
                 propertyStruct.propertyName 
                 %ToDo delete this line
-                index = index - 1;
-                continue
+                %index = index - 1;
+                %continue
             end
             propertyStruct.answer = xml_element.getElementsByTagName('Answer').item(0).getTextContent;
             if strcmp(propertyStruct.answer, 'valid')  
@@ -317,6 +323,17 @@ function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, da
                 continue;
             end
             
+            % handle assume properties 
+            if contains(jsonName, 'assume')
+                propertyStruct = handleAssumeProperties(jsonName, propertyStruct, ...
+                                 nodeNameToBlockNameMap);
+                analysisStruct.properties{index} = propertyStruct;      
+                counterExampleElement = xml_element.getElementsByTagName('CounterExample');                        
+                    if counterExampleElement.getLength > 0                            
+                        propertyStruct.counterExample = parseCounterExample(counterExampleElement.item(0));                    
+                    end
+                continue;
+            end
             
             if isKey(propertiesMap, jsonName)
                 
@@ -377,6 +394,16 @@ function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, da
             end %end if isKey(propertiesMap, jsonName)                        
         end % end if strcmp(xml_element.getNodeName, 'Property')
     end
+end
+
+
+function propertyStruct = handleAssumeProperties(jsonName, propertyStruct, ...
+                 nodeNameToBlockNameMap)
+    % get the block name
+    blockName = regexprep(jsonName,'.assume\[\d*\]','');
+    % get the block path
+    propertyStruct.originPath = nodeNameToBlockNameMap(blockName);
+    propertyStruct.propertyType = 'assume';
 end
 
 function [counterExampleStruct] = parseCounterExample(counterExampleElement)

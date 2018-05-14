@@ -19,9 +19,12 @@ function displayVerificationResult(verificationResults,compositionalMap, analysi
     verificationResult = verificationResults.analysisResults{resultIndex};
     
     ancestorColor = 'green';
-    for i = 1 : length(verificationResult.properties)        
-        ancestorColor = displayPropertyResult(verificationResult.properties{i},ancestorColor, resultIndex, i);
-        
+    for i = 1 : length(verificationResult.properties) 
+        if isfield(verificationResult.properties{i},'propertyType')
+            ancestorColor = displayAssumptionResult(verificationResult.properties{i},ancestorColor, resultIndex, i);
+        else            
+            ancestorColor = displayPropertyResult(verificationResult.properties{i},ancestorColor, resultIndex, i);
+        end
         % color ancestor blocks
         ancestorBlock = fileparts(verificationResult.properties{i}.originPath);            
         while contains(ancestorBlock, '/')
@@ -30,6 +33,7 @@ function displayVerificationResult(verificationResults,compositionalMap, analysi
                     (strcmp(currentColor, 'green') && strcmp(ancestorColor, 'yellow')) || ...
                     strcmp(ancestorColor, 'red')
             set_param(ancestorBlock, 'BackgroundColor', ancestorColor);
+            set_param(ancestorBlock,'HiliteAncestors',ancestorColor)
             end
             ancestorBlock = fileparts(ancestorBlock);
         end          
@@ -73,6 +77,37 @@ function initializeVerificationVisualization(verificationResults)
         end
     end  
 end
+
+function [ancestorColor] = displayAssumptionResult(propertyStruct, ancestorColor, resultIndex, propertyIndex)
+    
+    ports = get_param(propertyStruct.originPath,'PortHandles');    
+    color = '';
+    
+    if strcmp(propertyStruct.answer, 'SAFE')
+        color = 'green';        
+    elseif strcmp(propertyStruct.answer, 'TIMEOUT')
+        color = 'gray';        
+        if strcmp(ancestorColor, 'green')
+            ancestorColor = 'yellow';
+        end
+    elseif strcmp(propertyStruct.answer, 'UNKNOWN')
+        color = 'yellow';        
+        if strcmp(ancestorColor, 'green')
+            ancestorColor = 'yellow';
+        end
+    elseif strcmp(propertyStruct.answer, 'CEX')
+        color = 'red';        
+        ancestorColor = 'red';
+        %To: display the assumption counter example
+        %addCounterExampleOptions(propertyStruct, resultIndex, propertyIndex);
+     end                        
+           
+    for i = 1 : length(ports.Inport)
+        line = get_param(ports.Inport(i),'Line');
+        set_param(line,'HiliteAncestors',color);
+    end    
+end
+
 
 function [ancestorColor] = displayPropertyResult(propertyStruct, ancestorColor, resultIndex, propertyIndex)
      if strcmp(propertyStruct.answer, 'SAFE')
