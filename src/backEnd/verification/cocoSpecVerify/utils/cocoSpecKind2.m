@@ -55,33 +55,16 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
         propertiesMap= containers.Map;
         index = 1;
         for i = 1 : length(json)        
-            if isfield(json{i}, 'PropertyName')
-                value = json{i};     
-                key = '';
-                if isfield(json{i},'ContractName')
-                    key = json{i}.ContractName;
-                    if  strcmp(json{i}.PropertyName, 'guarantee')
-                        key = strcat(key, '.guarantee');
-                    end
-                    if strcmp(json{i}.PropertyName, 'ensure')
-                        key = strcat(key,'.', json{i}.ModeName ,'.ensure');
-                    end
-                    if strcmp(json{i}.PropertyName, 'assume')
-                        key = strcat(key, '.assume');
-                    end
-                    if isfield(json{i},'Index')
-                        key = strcat(key,'[', json{i}.Index ,']');
-                    end
-                else
-                    key = json{i}.PropertyName;
-                end
-                
+            if isfield(json{i}, 'PropertyName')                
+                key = json{i}.PropertyName;                
+%                 if isfield(json{i},'Index')
+%                     key = strcat(key,'[', json{i}.Index ,']');
+%                 end                
                 %add the property to the map
-                propertiesMap(key) = value;                
+                propertiesMap(key) = json{i};                
                 index = index + 1;
             end
-        end
-        
+        end        
         
         [nodeNameToBlockNameMap] = getBlocksMapping();
         
@@ -243,11 +226,11 @@ function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, da
             propertyStruct.propertyName = char(xml_element.getAttribute('name'));
             %ToDo: fix the naming difference between kind2 xml file and
             %translator mapping file for compositional assume blocks
-            if contains (propertyStruct.propertyName,'.assume')
+            if contains (propertyStruct.propertyName,'assume')
                 propertyStruct.propertyName 
                 %ToDo delete this line
-                %index = index - 1;
-                %continue
+                index = index - 1;
+                continue;
             end
             propertyStruct.answer = xml_element.getElementsByTagName('Answer').item(0).getTextContent;
             if strcmp(propertyStruct.answer, 'valid')  
@@ -262,7 +245,8 @@ function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, da
             display_msg(msg, Constants.RESULT, 'Property checking', '');
 
             % get the json mapping
-            jsonName = regexprep(propertyStruct.propertyName,'\[l\S*?\]',''); 
+            jsonName = regexprep(propertyStruct.propertyName,'.*\[l\S*?\]\.',''); 
+            jsonName = regexprep(jsonName,'[.*\]',''); 
             originPath = '';
             if contains(jsonName,  '._one_mode_active')
                 %ToDo: find the contract block direclty when the json
@@ -323,48 +307,10 @@ function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, da
                 continue;
             end
             
-            % handle assume properties 
-            if contains(jsonName, 'assume')
-                propertyStruct = handleAssumeProperties(jsonName, propertyStruct, ...
-                                 nodeNameToBlockNameMap);
-                analysisStruct.properties{index} = propertyStruct;      
-                counterExampleElement = xml_element.getElementsByTagName('CounterExample');                        
-                    if counterExampleElement.getLength > 0                            
-                        propertyStruct.counterExample = parseCounterExample(counterExampleElement.item(0));                    
-                    end
-                continue;
-            end
-            
-            if isKey(propertiesMap, jsonName)
-                
+            if isKey(propertiesMap, jsonName)                
                 property = propertiesMap(jsonName);
                 propertyStruct.originPath = property.OriginPath;                            
-                if strcmp(propertyStruct.answer, 'SAFE')
-                    set_param(propertyStruct.originPath, 'BackgroundColor', 'green');
-                    set_param(propertyStruct.originPath, 'ForegroundColor', 'green');                                
-                elseif strcmp(propertyStruct.answer, 'TIMEOUT')
-                    set_param(propertyStruct.originPath, 'BackgroundColor', 'gray');
-                    set_param(propertyStruct.originPath, 'ForegroundColor', 'gray');
-                    % set the color of the contract
-                    if isfield(property,'ContractName') && strcmp(contractColor, 'green')
-                        contractColor = 'yellow';
-                    end
-                elseif strcmp(propertyStruct.answer, 'UNKNOWN')
-                    set_param(propertyStruct.originPath, 'BackgroundColor', 'yellow');
-                    set_param(propertyStruct.originPath, 'ForegroundColor', 'yellow');
-                     % set the color of the contract
-                    if isfield(property,'ContractName') && strcmp(contractColor, 'green')
-                        contractColor = 'yellow';
-                    end
-                elseif strcmp(propertyStruct.answer, 'CEX')
-                    set_param(propertyStruct.originPath, 'BackgroundColor', 'red');
-                    set_param(propertyStruct.originPath, 'ForegroundColor', 'red');   
-
-                     % set the color of the contract
-                    if isfield(property,'ContractName')
-                        contractColor = 'red';                                                            
-                    end
-
+                if strcmp(propertyStruct.answer, 'CEX') 
                     % get the counter example                                        
                     counterExampleElement = xml_element.getElementsByTagName('CounterExample');                        
                     if counterExampleElement.getLength > 0                            
@@ -374,36 +320,11 @@ function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, da
                         msg = [msg property_name '\n'];
                         display_msg(msg, Constants.WARNING, 'Property Checking', '');
                     end
-
                 end
                 analysisStruct.properties{index} = propertyStruct;
-                if isfield(property,'ContractName')                            
-                        contractBlock = fileparts(property.OriginPath);
-                        set_param(contractBlock, 'BackgroundColor', contractColor);
-                        ancestorBlock = fileparts(contractBlock);
-                        while contains(ancestorBlock, '/')
-                            ancestorBlockColor = get_param(ancestorBlock, 'BackgroundColor');
-                            if strcmp(ancestorBlockColor, 'white') || ...
-                                    (strcmp(ancestorBlockColor, 'green') && strcmp(ancestorBlockColor, 'yellow')) || ...
-                                    strcmp(contractColor, 'red')
-                            set_param(ancestorBlock, 'BackgroundColor', contractColor);
-                            end
-                            ancestorBlock = fileparts(ancestorBlock);
-                        end
-                end                    
             end %end if isKey(propertiesMap, jsonName)                        
         end % end if strcmp(xml_element.getNodeName, 'Property')
     end
-end
-
-
-function propertyStruct = handleAssumeProperties(jsonName, propertyStruct, ...
-                 nodeNameToBlockNameMap)
-    % get the block name
-    blockName = regexprep(jsonName,'.assume\[\d*\]','');
-    % get the block path
-    propertyStruct.originPath = nodeNameToBlockNameMap(blockName);
-    propertyStruct.propertyType = 'assume';
 end
 
 function [counterExampleStruct] = parseCounterExample(counterExampleElement)
