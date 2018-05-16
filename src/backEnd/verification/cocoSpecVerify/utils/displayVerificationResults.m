@@ -20,7 +20,7 @@ function displayVerificationResult(verificationResults,compositionalMap, analysi
     
     ancestorColor = 'green';
     for i = 1 : length(verificationResult.properties) 
-        if isfield(verificationResult.properties{i},'propertyType')
+        if strcmp(verificationResult.properties{i}.propertyType, 'assume')
             displayAssumptionResult(verificationResult.properties{i},resultIndex, i);
         else            
             ancestorColor = displayPropertyResult(verificationResult.properties{i},ancestorColor, resultIndex, i);
@@ -90,9 +90,8 @@ function displayAssumptionResult(propertyStruct, resultIndex, propertyIndex)
     elseif strcmp(propertyStruct.answer, 'UNKNOWN')
         color = 'yellow';                
     elseif strcmp(propertyStruct.answer, 'CEX')
-        color = 'red';                
-        %ToDo: display the assumption counter example
-        %addCounterExampleOptions(propertyStruct, resultIndex, propertyIndex);
+        color = 'red';                        
+        addCounterExampleOptions(propertyStruct, resultIndex, propertyIndex);
      end                        
            
     for i = 1 : length(ports.Inport)

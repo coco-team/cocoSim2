@@ -303,6 +303,7 @@ function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, ..
                         % (top value) as compositional analyses. To
                         % distinguish between the 2 cases, rename the top
                         analysisStruct.top = strcat(analysisStruct.top, '_one_mode_active');
+                        propertyStruct.propertyType = 'oneModeActive';
                         analysisStruct.properties{index} = propertyStruct;                        
                         break;
                     end
@@ -313,7 +314,19 @@ function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, ..
             
             if isKey(propertiesMap, jsonName)                
                 property = propertiesMap(jsonName);
-                propertyStruct.originPath = property.OriginPath;                            
+                propertyStruct.originPath = property.OriginPath;      
+                
+                maskValues = get_param(propertyStruct.originPath,'MaskValues');
+                if strcmp(maskValues{1}, 'ContractAssumeBlock')
+                    propertyStruct.propertyType = 'assume';
+                elseif strcmp(maskValues{1}, 'ContractGuaranteeBlock')
+                    propertyStruct.propertyType = 'guarantee';
+                elseif strcmp(maskValues{1}, 'ContractEnsureBlock')
+                    propertyStruct.propertyType = 'ensure';
+                else
+                    propertyStruct.propertyType = 'observer';
+                end
+                
                 if strcmp(propertyStruct.answer, 'CEX') 
                     % get the counter example                                        
                     counterExampleElement = xml_element.getElementsByTagName('CounterExample');                        
