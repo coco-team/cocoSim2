@@ -231,10 +231,10 @@ function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, ..
             %ToDo: fix the naming difference between kind2 xml file and
             %translator mapping file for compositional assume blocks
             if contains (propertyStruct.propertyName,'assume')
-                propertyStruct.propertyName 
-                %ToDo delete this line
-                index = index - 1;
-                continue;
+%                 propertyStruct.propertyName 
+%                 %ToDo delete this line
+%                 index = index - 1;
+%                 continue;
             end
             propertyStruct.answer = xml_element.getElementsByTagName('Answer').item(0).getTextContent;
             if strcmp(propertyStruct.answer, 'valid')  
