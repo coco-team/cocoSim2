@@ -24,19 +24,7 @@ function displayVerificationResult(verificationResults,compositionalMap, analysi
             displayAssumptionResult(verificationResult.properties{i},resultIndex, i);
         else            
             ancestorColor = displayPropertyResult(verificationResult.properties{i},ancestorColor, resultIndex, i);
-        end
-        % color ancestor blocks
-        ancestorBlock = fileparts(verificationResult.properties{i}.originPath);            
-        while contains(ancestorBlock, '/')
-            currentColor = get_param(ancestorBlock, 'BackgroundColor');
-            if strcmp(currentColor, 'white') || ...
-                    (strcmp(currentColor, 'green') && strcmp(ancestorColor, 'yellow')) || ...
-                    strcmp(ancestorColor, 'red')
-            set_param(ancestorBlock, 'BackgroundColor', ancestorColor);
-            %set_param(ancestorBlock,'HiliteAncestors',ancestorColor)
-            end
-            ancestorBlock = fileparts(ancestorBlock);
-        end          
+        end        
     end           
 end
 
@@ -90,10 +78,22 @@ function displayAssumptionResult(propertyStruct, resultIndex, propertyIndex)
     elseif strcmp(propertyStruct.answer, 'UNKNOWN')
         color = 'yellow';                
     elseif strcmp(propertyStruct.answer, 'CEX')
-        color = 'red';                        
+        color = 'orange';                        
+        
+        % color ancestor blocks
+        ancestorBlock = fileparts(propertyStruct.originPath);            
+        while contains(ancestorBlock, '/')            
+            set_param(ancestorBlock, 'ForegroundColor', 'orange');
+            %set_param(ancestorBlock,'HiliteAncestors',ancestorColor)            
+            ancestorBlock = fileparts(ancestorBlock);
+        end          
+        
         addCounterExampleOptions(propertyStruct, resultIndex, propertyIndex);
-     end                        
-           
+    end                        
+    
+    set_param(propertyStruct.originPath, 'BackgroundColor', color);
+	set_param(propertyStruct.originPath, 'ForegroundColor', color);
+    
     for i = 1 : length(ports.Inport)
         line = get_param(ports.Inport(i),'Line');
         %set_param(line,'HiliteAncestors',color);
@@ -122,7 +122,20 @@ function [ancestorColor] = displayPropertyResult(propertyStruct, ancestorColor, 
         set_param(propertyStruct.originPath, 'ForegroundColor', 'red');   
         ancestorColor = 'red';
         addCounterExampleOptions(propertyStruct, resultIndex, propertyIndex);
-     end                        
+     end  
+     
+    % color ancestor blocks
+    ancestorBlock = fileparts(propertyStruct.originPath);            
+    while contains(ancestorBlock, '/')
+        currentColor = get_param(ancestorBlock, 'BackgroundColor');
+        if strcmp(currentColor, 'white') || ...
+                (strcmp(currentColor, 'green') && strcmp(ancestorColor, 'yellow')) || ...
+                strcmp(ancestorColor, 'red')
+        set_param(ancestorBlock, 'BackgroundColor', ancestorColor);
+        %set_param(ancestorBlock,'HiliteAncestors',ancestorColor)
+        end
+        ancestorBlock = fileparts(ancestorBlock);
+    end 
 end
 
 function addCounterExampleOptions(propertyStruct,resultIndex, propertyIndex)
