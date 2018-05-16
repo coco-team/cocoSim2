@@ -24,9 +24,6 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
     % properties in the mapping file                        
     if exist(mapping_file, 'file') == 2
 
-        date_value = datestr(now, 'ddmmyyyyHHMMSS');
-        [file_path,file_name,extension] = fileparts(lustre_file_name);      
-
         kind2_out = Kind2Utils.verify(lustre_file_name, kind2_option, timeout);
         
         results_file_name = strrep(lustre_file_name,'.lus','.xml');
@@ -53,14 +50,22 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
 
         %build a map for properties        
         propertiesMap= containers.Map;
+        jsonMap = containers.Map; 
         index = 1;
         for i = 1 : length(json)        
+            variableKey = '';
+            if isfield(json{i}, 'NodeName')
+                variableKey = json{i}.NodeName;
+            else
+                variableKey = json{i}.ContractName;
+            end
+            
+            if isfield(json{i}, 'VariableName')
+                variableKey = [variableKey '_' json{i}.VariableName];
+            end
+            jsonMap(variableKey) = json{i};
             if isfield(json{i}, 'PropertyName')                
-                key = json{i}.PropertyName;                
-%                 if isfield(json{i},'Index')
-%                     key = strcat(key,'[', json{i}.Index ,']');
-%                 end                
-                %add the property to the map
+                key = json{i}.PropertyName;    
                 propertiesMap(key) = json{i};                
                 index = index + 1;
             end
@@ -79,8 +84,8 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
                 analysisStruct.abstract = char(xmlAnalysis.getAttribute('abstract'));
                 analysisStruct.concrete= char(xmlAnalysis.getAttribute('concrete'));
                 analysisStruct.assumptions = char(xmlAnalysis.getAttribute('assumptions'));                    
-                analysisStruct = handleAnalysis(propertiesMap, xmlAnalysis, date_value, ...
-                           analysisStruct, nodeNameToBlockNameMap);
+                analysisStruct = handleAnalysis(propertiesMap, xmlAnalysis, ...
+                    analysisStruct, nodeNameToBlockNameMap, jsonMap);
                 verificationResults.analysisResults{i+1} = analysisStruct;
             end
 
@@ -209,11 +214,10 @@ function [verificationResults, compositionalMap] = saveVerificationResults(verif
 end
 
 
-function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, date_value, ...
-                               analysisStruct, nodeNameToBlockNameMap)
+function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, ...
+                               analysisStruct, nodeNameToBlockNameMap, jsonMap)
     xml_element = xml_analysis_start;
-    analysisStruct.properties ={};
-    contractColor = 'green';
+    analysisStruct.properties ={};    
     index = 0;
     %ToDo: make sure the loop terminates when there are parsing errors
     while ~strcmp(xml_element.getNodeName,'AnalysisStop')
@@ -286,7 +290,7 @@ function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, da
                             % display the counter example box                                              
                             counterExampleElement = xml_element.getElementsByTagName('CounterExample');                        
                             if counterExampleElement.getLength > 0                                
-                                propertyStruct.counterExample = parseCounterExample(counterExampleElement.item(0));
+                                propertyStruct.counterExample = parseCounterExample(counterExampleElement.item(0), jsonMap);
                                 
                                 analysisStruct.properties{index} = propertyStruct;
                             else
@@ -314,7 +318,7 @@ function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, da
                     % get the counter example                                        
                     counterExampleElement = xml_element.getElementsByTagName('CounterExample');                        
                     if counterExampleElement.getLength > 0                            
-                        propertyStruct.counterExample = parseCounterExample(counterExampleElement.item(0));                    
+                        propertyStruct.counterExample = parseCounterExample(counterExampleElement.item(0), jsonMap);                    
                     else
                         msg = [solver ': FAILURE to get counter example: '];
                         msg = [msg property_name '\n'];
@@ -327,13 +331,13 @@ function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, da
     end
 end
 
-function [counterExampleStruct] = parseCounterExample(counterExampleElement)
+function [counterExampleStruct] = parseCounterExample(counterExampleElement, jsonMap)
     counterExampleStruct = {};    
     nodeElement = counterExampleElement.getElementsByTagName('Node').item(0); 
-    counterExampleStruct.node = parseCounterExampleNode(nodeElement);        
+    counterExampleStruct.node = parseCounterExampleNode(nodeElement, jsonMap);        
 end
 
-function [nodeStruct] = parseCounterExampleNode(nodeElement)
+function [nodeStruct] = parseCounterExampleNode(nodeElement, jsonMap)
     nodeStruct = {};
     nodeStruct.name = char(nodeElement.getAttribute('name'));  
     children = nodeElement.getChildNodes;        
@@ -346,7 +350,10 @@ function [nodeStruct] = parseCounterExampleNode(nodeElement)
         
         if strcmp(xmlElement.getNodeName,'Stream')                                              
             streamStruct = {};                     
-            streamStruct.name = char(xmlElement.getAttribute('name'));
+            name = char(xmlElement.getAttribute('name'));
+            name = [nodeStruct.name '_' name];
+            name = jsonMap(name).OriginPath;
+            [path streamStruct.name] = fileparts(name);
             streamStruct.type = char(xmlElement.getAttribute('type'));
             streamStruct.class = char(xmlElement.getAttribute('class'));             
             valueElements = xmlElement.getElementsByTagName('Value');
@@ -367,7 +374,7 @@ function [nodeStruct] = parseCounterExampleNode(nodeElement)
         elseif strcmp(xmlElement.getNodeName,'Node')   
             % for parsing nested nodes and their streams inside
             % the counter example            
-            nestedNodeStruct = parseCounterExampleNode(xmlElement);
+            nestedNodeStruct = parseCounterExampleNode(xmlElement, jsonMap);
             nodeIndex = nodeIndex + 1;
             nodeStruct.nodes{nodeIndex} = nestedNodeStruct;   
         end            
