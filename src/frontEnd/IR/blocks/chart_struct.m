@@ -275,15 +275,10 @@ function truthTableStruct =  buildTruthTableStruct(truthTable)
     %set the signature of the truthTable
     truthTableStruct.LabelString = truthTable.LabelString;    
     
-    % set the tables of the truthTable
-    truthTableStruct.ConditionTable = truthTable.ConditionTable;
-    truthTableStruct.ActionTable = truthTable.ActionTable;
-    
-    [conditionRows, conditionColumns] = size(truthTable.ConditionTable);
-    
+    % set the decisions of the truth table
+    [conditionRows, conditionColumns] = size(truthTable.ConditionTable);    
     % exclude the description and condition columns
-    truthTableStruct.Decisions = cell(conditionColumns - 2,1);    
-    
+    truthTableStruct.Decisions = cell(conditionColumns - 2,1);        
     for j = 3 : conditionColumns 
         truthTableStruct.Decisions{j-2}.Conditions = cell(conditionRows - 1,1);
         for i = 1 : conditionRows - 1
@@ -293,16 +288,14 @@ function truthTableStruct =  buildTruthTableStruct(truthTable)
         end
     end
     
-    [actionRows, ~] = size(truthTable.ActionTable);
-    
-    truthTableStruct.Actions = cell(actionRows,1);   
-    
+    % set the actions of the truth table
+    [actionRows, ~] = size(truthTable.ActionTable);    
+    truthTableStruct.Actions = cell(actionRows,1);       
     for i = 1 : actionRows 
         truthTableStruct.Actions{i}.Action = truthTable.ActionTable{i,2};
         truthTableStruct.Actions{i}.Index = i;
     end   
-	
-    
+	    
      % get the data of the truthTable
     truthTableData = truthTable.find('-isa','Stateflow.Data');
     % build the json struct for data
