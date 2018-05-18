@@ -79,7 +79,15 @@ function [StateflowContentStruct] = chart_struct(chartPath)
     % build the json struct for functions              
     StateflowContentStruct.GraphicalFunctions = cell(length(chartFunctions),1);
     for index = 1 : length(chartFunctions)        
-        StateflowContentStruct.GraphicalFunctions{index} = buildFunctionStruct(chartFunctions(index));
+        StateflowContentStruct.GraphicalFunctions{index} = buildGraphicalFunctionStruct(chartFunctions(index));
+    end 
+    
+    %get simulink functions in the chart
+    chartSimulinkFunctions = chart.find('-isa','Stateflow.SLFunction'); 
+    % build the json struct for simulink functions              
+    StateflowContentStruct.SimulinkFunctions = cell(length(chartSimulinkFunctions),1);
+    for index = 1 : length(chartSimulinkFunctions)        
+        StateflowContentStruct.SimulinkFunctions{index} = buildSimulinkFunctionStruct(chartSimulinkFunctions(index));
     end 
     
     %get the truth tables in the chart
@@ -237,7 +245,7 @@ function transitionStruct = buildDestinationStruct(transition)
     end                       
 end
 
-function functionStruct =  buildFunctionStruct(functionObject)    
+function functionStruct =  buildGraphicalFunctionStruct(functionObject)    
     % set the function path
     functionStruct.Path = strcat (functionObject.Path, '/',functionObject.name);
     
@@ -261,6 +269,32 @@ function functionStruct =  buildFunctionStruct(functionObject)
     end
     
 end
+
+
+function functionStruct =  buildSimulinkFunctionStruct(simulinkFunction)    
+    % set the function path
+    functionStruct.Path = strcat (simulinkFunction.Path, '/',simulinkFunction.name);
+    
+    %set the id of the function
+    functionStruct.Id = simulinkFunction.id;       
+     
+    %set the name of the function
+    functionStruct.Name = simulinkFunction.name;      
+    
+    %set the signature of the function
+    functionStruct.LabelString = simulinkFunction.LabelString;    
+    % set the content of the function
+    functionStruct.Content = subsystems_struct(functionStruct.Path);
+    
+     % get the data of the function
+    functionData = simulinkFunction.find('-isa','Stateflow.Data');
+    % build the json struct for data
+    functionStruct.Data = cell(length(functionData),1);
+    for index = 1 : length(functionData)       
+        functionStruct.Data{index} = buildDataStruct(functionData(index));
+    end    
+end
+
 
 function truthTableStruct =  buildTruthTableStruct(truthTable)       
     % set the truthTable path
