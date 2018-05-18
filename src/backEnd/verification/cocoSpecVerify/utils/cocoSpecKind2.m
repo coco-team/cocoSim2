@@ -92,6 +92,11 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
             %store the verification results in the model workspace
             [verificationResults, compositionalMap] = saveVerificationResults(verificationResults, nodeNameToBlockNameMap);
             displayVerificationResults(verificationResults, compositionalMap);
+            
+            %save the model 
+            if strcmp(get_param(gcs,'Dirty'),'on')
+                save_system;
+            end 
         end                        
     end    
     

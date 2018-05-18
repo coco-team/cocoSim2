@@ -12,11 +12,11 @@ classdef  CocosimMenu
             schema.statustip = 'Automated Analysis Framework';
             schema.autoDisableWhen = 'Busy';
 
-            modelWorkspace = get_param(callbackInfo.studio.App.blockDiagramHandle,'modelworkspace');
-            if modelWorkspace.hasVariable('isPreprocessedModel') && ...
-                    modelWorkspace.getVariable('isPreprocessedModel') == 1
-                schema.state = 'Disabled';
-            end
+%             modelWorkspace = get_param(callbackInfo.studio.App.blockDiagramHandle,'modelworkspace');
+%             if modelWorkspace.hasVariable('isPreprocessedModel') && ...
+%                     modelWorkspace.getVariable('isPreprocessedModel') == 1
+%                 schema.state = 'Disabled';
+%             end
 
             schema.childrenFcns = {...
                 @VerificationMenu.verify, ...
