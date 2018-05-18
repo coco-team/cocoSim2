@@ -13,8 +13,8 @@ classdef  CocosimMenu
             schema.autoDisableWhen = 'Busy';
 
             modelWorkspace = get_param(callbackInfo.studio.App.blockDiagramHandle,'modelworkspace');
-            if modelWorkspace.hasVariable('cocomSimMenuDisabled') && ...
-                    modelWorkspace.getVariable('cocomSimMenuDisabled') == 1
+            if modelWorkspace.hasVariable('isPreprocessedModel') && ...
+                    modelWorkspace.getVariable('isPreprocessedModel') == 1
                 schema.state = 'Disabled';
             end
 

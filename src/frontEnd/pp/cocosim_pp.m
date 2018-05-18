@@ -255,7 +255,7 @@ end
 %disable the cocosim menu for the new model
 info = Simulink.MDLInfo(new_file);
 modelWorkspace = get_param(info.BlockDiagramName,'modelworkspace'); 
-modelWorkspace.assignin('cocomSimMenuDisabled',1);
+modelWorkspace.assignin('isPreprocessedModel',1);
 
 display_msg('Done with the simplification', Constants.INFO, 'simplifier', '');
 end
