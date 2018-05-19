@@ -1,3 +1,10 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This file is part of CoCoSim.
+% Copyright (C) 2018  The university of Iowa
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Author: Mudathir
+
 function displayCexSignals(resultIndex, propertyIndex)
     %get the verification results
     modelWorkspace = get_param(bdroot(gcs),'ModelWorkspace');

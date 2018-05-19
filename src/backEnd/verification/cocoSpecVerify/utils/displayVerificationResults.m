@@ -1,3 +1,10 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This file is part of CoCoSim.
+% Copyright (C) 2018  The university of Iowa
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Author: Mudathir
+
 function displayVerificationResults(verificationResults, compositionalMap)    
     % display the verification result of each group
     initializeVerificationVisualization(verificationResults);
@@ -150,6 +157,10 @@ function addCounterExampleOptions(propertyStruct,resultIndex, propertyIndex)
     % display the counter example as a table
     cexTable = sprintf('displayCexTables(%d, %d);', resultIndex, propertyIndex);             
     createMaskAction('Display counter example as tables', cexTable, propertyStruct.originPath);
+    
+    % display the counter example as html table
+    cexTable = sprintf('displayCexHtmlTables(%d, %d);', resultIndex, propertyIndex);             
+    createMaskAction('Display counter example as HTML tables', cexTable, propertyStruct.originPath);
     
     %generate an outer model with signal builders (level = 2)
     cexOuterModel = sprintf('generateModelWithSignalBuilders(%d, %d, 2);', resultIndex, propertyIndex);             
