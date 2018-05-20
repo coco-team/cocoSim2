@@ -1,3 +1,12 @@
+/*
+ * This file is part of CoCoSim.
+ * Copyright (C) 2017-2018  The University of Iowa
+ */
+ 
+ /** 
+ * @author Mudathir Mahgoub
+ */
+ 
 import edu.uiowa.chart.state.StateAction;
 import edu.uiowa.chart.state.StateVisitor;
 import edu.uiowa.chart.state.antlr.*;

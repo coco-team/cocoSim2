@@ -1,3 +1,11 @@
+/*
+ * This file is part of CoCoSim.
+ * Copyright (C) 2017-2018  The University of Iowa
+ */
+ 
+ /** 
+ * @author Mudathir Mahgoub
+ */
 package edu.uiowa.chart.transition;
 
 public class Transition
