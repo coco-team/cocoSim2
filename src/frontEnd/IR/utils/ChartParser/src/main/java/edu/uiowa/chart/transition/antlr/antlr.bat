@@ -1,0 +1,1 @@
+java -jar antlr-4.7.1-complete.jar TransitionLabel.g4 -visitor -package edu.uiowa.chart.transition.antlr
