@@ -312,23 +312,64 @@ function truthTableStruct =  buildTruthTableStruct(truthTable)
     % set the decisions of the truth table
     [conditionRows, conditionColumns] = size(truthTable.ConditionTable);    
     % exclude the description and condition columns
-    truthTableStruct.Decisions = cell(conditionColumns - 2,1);        
+    truthTableStruct.Decisions = cell(conditionColumns - 2,1);    
+    
+    % pattern to extract the label from conditions and actions
+    labelPattern = '^[a-zA-Z][a-zA-Z0-9_]*:'; 
+    
+    % set the actions of the truth table
+    [actionRows, ~] = size(truthTable.ActionTable);        
+    truthTableStruct.Actions = cell(actionRows,1);     
+    
+    % map to store action labels and indices
+    actionLabelsMap = containers.Map;    
+    for i = 1 : actionRows 
+        actionLabel = regexp(truthTable.ActionTable{i,2}, labelPattern, 'match');
+        if isempty(actionLabel) 
+            truthTableStruct.Actions{i}.Action = truthTable.ActionTable{i,2};
+            truthTableStruct.Actions{i}.Label = '';
+        else
+            action = truthTable.ActionTable{i,2};            
+            actionLabel = char(actionLabel);
+            truthTableStruct.Actions{i}.Action = strrep(action, actionLabel, '');
+            actionLabel = strrep(actionLabel, ':', '');
+            truthTableStruct.Actions{i}.Label = actionLabel;
+            actionLabelsMap(actionLabel) = i;
+        end
+        truthTableStruct.Actions{i}.Index = i;
+    end   
+    
     for j = 3 : conditionColumns 
         truthTableStruct.Decisions{j-2}.Conditions = cell(conditionRows - 1,1);
         for i = 1 : conditionRows - 1
-            truthTableStruct.Decisions{j-2}.Conditions{i}.Condition = truthTable.ConditionTable{i,2};
-            truthTableStruct.Decisions{j-2}.Conditions{i}.ConditionValue = truthTable.ConditionTable{i,j};            
-            truthTableStruct.Decisions{j-2}.Action = truthTable.ConditionTable{conditionRows,j};   
+            conditionLabel = regexp(truthTable.ConditionTable{i,2}, labelPattern, 'match');
+            if isempty(conditionLabel)                
+                truthTableStruct.Decisions{j-2}.Conditions{i}.Condition = truthTable.ConditionTable{i,2};
+                truthTableStruct.Decisions{j-2}.Conditions{i}.Label = '';
+            else
+                conditionLabel = char(conditionLabel);
+                condition = truthTable.ConditionTable{i,2};
+                truthTableStruct.Decisions{j-2}.Conditions{i}.Condition = strrep(condition, conditionLabel, '');
+                conditionLabel = strrep(conditionLabel, ':', '');
+                truthTableStruct.Decisions{j-2}.Conditions{i}.Label = conditionLabel;
+            end
+            truthTableStruct.Decisions{j-2}.Conditions{i}.ConditionValue = truthTable.ConditionTable{i,j};                        
         end
+        
+        % decision actions
+        actionsString = truthTable.ConditionTable{conditionRows,j}; 
+        actions = strsplit(actionsString,'[,;\s]+', 'DelimiterType','RegularExpression');
+        for actionIndex = 1 : length(actions)
+            actionString = char(actions(actionIndex));
+            if isKey(actionLabelsMap, actionString)                    
+                truthTableStruct.Decisions{j-2}.Actions{actionIndex} = actionLabelsMap(actionString);
+            else
+                truthTableStruct.Decisions{j-2}.Actions{actionIndex} = str2num(actionString);
+            end
+        end        
     end
     
-    % set the actions of the truth table
-    [actionRows, ~] = size(truthTable.ActionTable);    
-    truthTableStruct.Actions = cell(actionRows,1);       
-    for i = 1 : actionRows 
-        truthTableStruct.Actions{i}.Action = truthTable.ActionTable{i,2};
-        truthTableStruct.Actions{i}.Index = i;
-    end   
+    
 	    
      % get the data of the truthTable
     truthTableData = truthTable.find('-isa','Stateflow.Data');
