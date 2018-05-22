@@ -82,7 +82,7 @@ function displayCexHtmlTables(resultIndex, propertyIndex)
     end
     filePath = fileparts(mfilename('fullpath'));
     html = fileread(fullfile(filePath, 'html', 'cexTemplate.html'));
-    json = jsonencode(property);    
+    json = json_encode(property);    
     html = strrep(html, '[(property)]', json);
     htmlFile = strcat(tempname, '.html');
     fid = fopen(htmlFile, 'w');

@@ -42,7 +42,7 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
         raw = fread(fid, inf);                
         str = char(raw');  
         fclose(fid); 
-        json = jsondecode(str);
+        json = json_decode(str);
         %convert to cell if its json is struct 
         if isstruct(json)
             json = num2cell(json);
