@@ -123,7 +123,7 @@ function [verificationResults, compositionalMap] = saveVerificationResults(verif
     assignin(modelWorkspace,'nodeNameToBlockNameMap',nodeNameToBlockNameMap);
     
     if ~ isfield(verificationResults, 'analysisResults')
-       display_msg('No property found in kind2 XML output file', Constants.DEBUG, '', '');   
+       display_msg('No property found in kind2 XML output file', Constants.RESULT, '', '');   
        error('No property found in kind2 XML output file');
     end
     
