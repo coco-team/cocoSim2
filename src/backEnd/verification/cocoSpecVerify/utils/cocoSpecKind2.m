@@ -122,6 +122,11 @@ function [verificationResults, compositionalMap] = saveVerificationResults(verif
     %store the mapping in the model workspace
     assignin(modelWorkspace,'nodeNameToBlockNameMap',nodeNameToBlockNameMap);
     
+    if ~ isfield(verificationResults, 'analysisResults')
+       display_msg('No property found in kind2 XML output file', Constants.DEBUG, '', '');   
+       error('No property found in kind2 XML output file');
+    end
+    
     %replace the nodes names with blocks names
     for i = 1: length(verificationResults.analysisResults)        
         % replace the analysis name (top) with the corresponding block path
