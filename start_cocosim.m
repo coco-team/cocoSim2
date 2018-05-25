@@ -16,11 +16,28 @@ addpath(genpath(fullfile(cocoSim_path, 'libs')));
 
 cocosim_config;
 
-PWD = pwd;
-cd(fullfile(cocoSim_path, 'src', 'frontEnd', 'IR', 'utils'));
-make;
-cd(PWD);
 
+ir_utils_path = fullfile(cocoSim_path, 'src', 'frontEnd', 'IR', 'utils');
+
+if ismac
+    json_encode_file = fullfile(ir_utils_path, 'json_encode.?');
+    json_decode_file = fullfile(ir_utils_path, 'json_decode.?');
+elseif isunix
+    json_encode_file = fullfile(ir_utils_path, 'json_encode.mexa64');
+    json_decode_file = fullfile(ir_utils_path, 'json_decode.mexa64');
+elseif ispc
+    json_encode_file = fullfile(ir_utils_path, 'json_encode.mexw64');
+    json_decode_file = fullfile(ir_utils_path, 'json_decode.mexw64');
+end
+
+
+
+if ~ exist(json_encode_file, 'file') || ~ exist(json_decode_file, 'file')
+    PWD = pwd;
+    cd(fullfile(cocoSim_path, 'src', 'frontEnd', 'IR', 'utils'));
+    make;
+    cd(PWD);
+end
 if strcmp(ZUSTRE, 'PATH')
     disp('Warning: Path to Zustre is NOT configured in src/config.m')
 end
