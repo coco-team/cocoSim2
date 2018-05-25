@@ -89,6 +89,25 @@ function displayCexHtmlTables(resultIndex, propertyIndex)
     fprintf(fid,'%s', html);
     fclose(fid);    
     
+    % check css and js files
+    
+    tempFolder = fileparts(tempname);
+    
+    if ~ exist(fullfile(tempFolder, 'jquery.dataTables.min.css'), 'file')
+        copyfile(fullfile(filePath, 'html', 'css', 'jquery.dataTables.min.css'), ...
+        fullfile(tempFolder, 'jquery.dataTables.min.css')); 
+    end
+    
+    if ~ exist(fullfile(tempFolder, 'jquery.min.js'), 'file')
+        copyfile(fullfile(filePath, 'html', 'js', 'jquery.min.js'), ...
+        fullfile(tempFolder, 'jquery.min.js')); 
+    end
+    
+    if ~ exist(fullfile(tempFolder, 'jquery.dataTables.min.js'), 'file')
+        copyfile(fullfile(filePath, 'html', 'js', 'jquery.dataTables.min.js'), ...
+        fullfile(tempFolder, 'jquery.dataTables.min.js')); 
+    end
+    
     url = ['file:///',htmlFile];
     web(url);
 end
