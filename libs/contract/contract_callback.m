@@ -158,9 +158,6 @@ portConnectivity = get_param(validatorBlock, 'PortConnectivity');
 gapWidth = 30;
 gapHeight = 20;
 
-createRequireEnsureCheckbox = char(values(6));
-requireEnsureCheckbox = strcmp(createRequireEnsureCheckbox, 'on');
-
 for i = 1 : length(portConnectivity)
     
     requireBlock = -1;
@@ -175,11 +172,9 @@ for i = 1 : length(portConnectivity)
             if i <= assumePorts + guaranteePorts
                 blockHandle =  add_block('Kind/guarantee',strcat(blockModel,'/','guarantee'),'MakeNameUnique','on');
             else
-                blockHandle =  add_block('Kind/mode',strcat(blockModel,'/','mode'),'MakeNameUnique','on');
-                if requireEnsureCheckbox == 1
-                    requireBlock = add_block('Kind/require',strcat(blockModel,'/','require'),'MakeNameUnique','on');
-                    ensureBlock = add_block('Kind/ensure',strcat(blockModel,'/','ensure'),'MakeNameUnique','on');
-                end
+                blockHandle =  add_block('Kind/mode',strcat(blockModel,'/','mode'),'MakeNameUnique','on');                
+                requireBlock = add_block('Kind/require',strcat(blockModel,'/','require'),'MakeNameUnique','on');
+                ensureBlock = add_block('Kind/ensure',strcat(blockModel,'/','ensure'),'MakeNameUnique','on');                
             end
         end
         % move the new block closer to its port
@@ -262,12 +257,12 @@ assignin(modelWorkspace,'ContractValidatorBlocksMap',ContractValidatorBlocksMap)
 createInportsValue = char(values(5));
 if strcmp(createInportsValue, 'on')
     createInports(blockModel, validatorBlock, assumePorts, ...
-        guaranteePorts, modeBlocksPorts, requireEnsureCheckbox);
+        guaranteePorts, modeBlocksPorts);
 end
 end
 
 function createInports(blockModel, validatorBlock, assumePorts,...
-    guaranteePorts, modeBlocksPorts, requireEnsureCheckbox)
+    guaranteePorts, modeBlocksPorts)
     %% connect input blocks with assume, guarantee, requires and ensure blocks
 
     blockPaths = find_system(blockModel,'SearchDepth',1, 'LookUnderMasks', 'all','Type','Block');
@@ -311,64 +306,61 @@ function createInports(blockModel, validatorBlock, assumePorts,...
                     add_line(blockModel, input{1,1}.Outport ,targetBlockPorts.Inport(length(targetBlockPorts.Inport)), 'autorouting','on');
                 end
             end
+            
+            for j = (assumePorts + guaranteePorts +1) : (assumePorts + guaranteePorts+ modeBlocksPorts)
 
-            if requireEnsureCheckbox == 1
-                for j = (assumePorts + guaranteePorts +1) : (assumePorts + guaranteePorts+ modeBlocksPorts)
+                % get the mode ports
+                modePorts = get_param(portConnectivity(j).SrcBlock, 'PortHandles');
 
-                    % get the mode ports
-                    modePorts = get_param(portConnectivity(j).SrcBlock, 'PortHandles');
+                % get the block of the require port
+                requireLine = get_param(modePorts.Inport(1), 'Line');
+                requireBlockHandle = get_param(requireLine, 'SrcBlockHandle');
+                if ~ismember(requireBlockHandle, destinationBlockHandles)
 
-                    % get the block of the require port
-                    requireLine = get_param(modePorts.Inport(1), 'Line');
-                    requireBlockHandle = get_param(requireLine, 'SrcBlockHandle');
-                    if ~ismember(requireBlockHandle, destinationBlockHandles)
-
-                        % disable the library links for the target block
-                        % for the first time, the SrcBlock is -1, invalid.
-                        set_param(portConnectivity(j).SrcBlock, 'LinkStatus', 'inactive');
-                        modePorts =  get_param(portConnectivity(j).SrcBlock, 'PortHandles');
+                    % disable the library links for the target block
+                    % for the first time, the SrcBlock is -1, invalid.
+                    set_param(portConnectivity(j).SrcBlock, 'LinkStatus', 'inactive');
+                    modePorts =  get_param(portConnectivity(j).SrcBlock, 'PortHandles');
 
 
-                        % disable the library links for the target block
-                        % for the first time, the SrcBlock is -1, invalid.
-                        set_param(requireBlockHandle, 'LinkStatus', 'inactive');
+                    % disable the library links for the target block
+                    % for the first time, the SrcBlock is -1, invalid.
+                    set_param(requireBlockHandle, 'LinkStatus', 'inactive');
 
-                        % get the target block name
-                        targetBlockName = get_param(requireBlockHandle, 'Name');
+                    % get the target block name
+                    targetBlockName = get_param(requireBlockHandle, 'Name');
 
-                        destinationPath = strcat(blockModel,'/',targetBlockName,'/',inportBlockName);
-                        % add new port inside that block
-                        inportBlock = add_block('built-in/Inport', char(destinationPath),'MakeNameUnique','on');
-                        set_param(inportBlock, 'Position', inportPosition{1,1});
+                    destinationPath = strcat(blockModel,'/',targetBlockName,'/',inportBlockName);
+                    % add new port inside that block
+                    inportBlock = add_block('built-in/Inport', char(destinationPath),'MakeNameUnique','on');
+                    set_param(inportBlock, 'Position', inportPosition{1,1});
 
-                        targetBlockPorts = get_param(requireBlockHandle, 'PortHandles');
-                        %connect the inport with the block
-                        add_line(blockModel, input{1,1}.Outport ,targetBlockPorts.Inport(length(targetBlockPorts.Inport)), 'autorouting','on');
-                    end
-
-                    % get the block of the ensure port
-                    ensureLine = get_param(modePorts.Inport(2), 'Line');
-                    ensureBlockHandle = get_param(ensureLine, 'SrcBlockHandle');
-                    if ~ismember(ensureBlockHandle, destinationBlockHandles)
-
-                        % disable the library links for the target block
-                        % for the first time, the SrcBlock is -1, invalid.
-                        set_param(ensureBlockHandle, 'LinkStatus', 'inactive');
-
-                        % get the target block name
-                        targetBlockName = get_param(ensureBlockHandle, 'Name');
-                        destinationPath = strcat(blockModel,'/',targetBlockName,'/',inportBlockName);
-                        % add new port inside that block
-                        inportBlock = add_block('built-in/Inport', char(destinationPath),'MakeNameUnique','on');
-                        set_param(inportBlock, 'Position', inportPosition{1,1});
-
-                        targetBlockPorts = get_param(ensureBlockHandle, 'PortHandles');
-                        %connect the inport with the block
-                        add_line(blockModel, input{1,1}.Outport ,targetBlockPorts.Inport(length(targetBlockPorts.Inport)), 'autorouting','on');
-                    end
-
+                    targetBlockPorts = get_param(requireBlockHandle, 'PortHandles');
+                    %connect the inport with the block
+                    add_line(blockModel, input{1,1}.Outport ,targetBlockPorts.Inport(length(targetBlockPorts.Inport)), 'autorouting','on');
                 end
-            end
+
+                % get the block of the ensure port
+                ensureLine = get_param(modePorts.Inport(2), 'Line');
+                ensureBlockHandle = get_param(ensureLine, 'SrcBlockHandle');
+                if ~ismember(ensureBlockHandle, destinationBlockHandles)
+
+                    % disable the library links for the target block
+                    % for the first time, the SrcBlock is -1, invalid.
+                    set_param(ensureBlockHandle, 'LinkStatus', 'inactive');
+
+                    % get the target block name
+                    targetBlockName = get_param(ensureBlockHandle, 'Name');
+                    destinationPath = strcat(blockModel,'/',targetBlockName,'/',inportBlockName);
+                    % add new port inside that block
+                    inportBlock = add_block('built-in/Inport', char(destinationPath),'MakeNameUnique','on');
+                    set_param(inportBlock, 'Position', inportPosition{1,1});
+
+                    targetBlockPorts = get_param(ensureBlockHandle, 'PortHandles');
+                    %connect the inport with the block
+                    add_line(blockModel, input{1,1}.Outport ,targetBlockPorts.Inport(length(targetBlockPorts.Inport)), 'autorouting','on');
+                end
+            end            
         end
     end
 end
