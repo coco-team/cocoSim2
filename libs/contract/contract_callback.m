@@ -6,11 +6,17 @@
 %Author: Mudathir
 
 function contract_callback(action,block)
-if evalin( 'base', '~exist(''ContractValidatorReady'',''var'')' ) == 1 || ...
-        evalin( 'base', 'ContractValidatorReady' )  == 0
-    feval(action,block);
-    saveValidatorParameters(block);
-end
+    
+    % exit if the current model is a library
+    if bdIsLibrary(bdroot(block))
+        return;
+    end
+
+    if evalin( 'base', '~exist(''ContractValidatorReady'',''var'')' ) == 1 || ...
+            evalin( 'base', 'ContractValidatorReady' )  == 0
+        feval(action,block);
+        saveValidatorParameters(block);
+    end
 end
 
 function inputs_callback(block)
