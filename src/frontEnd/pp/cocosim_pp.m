@@ -1,3 +1,10 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This file is part of CoCoSim.
+% Copyright (C) 2014-2016  Carnegie Mellon University
+% Copyright (C) 2018  The university of Iowa
+% Author: Mudathir Mahgoub
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 function new_file = cocosim_pp(file_name, constant_file, varargin)
 % PP processes a Simulink model in order to make it CoCoSim friendly.
 %   It changes the differents blocks into their equivalent that is 

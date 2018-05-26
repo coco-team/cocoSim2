@@ -1,8 +1,12 @@
-function [ S, all_blocks, subsyst_blocks, handle_struct_map ] = subsystems_struct( block_path, is_subsystem, model_ref_parent )
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This file is part of CoCoSim.
 % Copyright (C) 2014-2016  Carnegie Mellon University
+% Copyright (C) 2018  The university of Iowa
+% Author: Mudathir Mahgoub
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+function [ S, all_blocks, subsyst_blocks, handle_struct_map ] = subsystems_struct( block_path, is_subsystem, model_ref_parent )
+
 % SUBSYSTEMS_STRUCT - internal representation of subsystems
 %
 %   This function construct recursivly the internal representation of

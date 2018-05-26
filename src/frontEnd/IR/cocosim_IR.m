@@ -1,8 +1,12 @@
-function [ir_struct, all_blocks, subsyst_blocks, ir_handle_struct_map] = cocosim_IR( simulink_model_path, df_export, output_dir )
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This file is part of CoCoSim.
 % Copyright (C) 2014-2016  Carnegie Mellon University
+% Copyright (C) 2018  The university of Iowa
+% Authors: Hamza Bourbouh, Mudathir Mahgoub
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+function [ir_struct, all_blocks, subsyst_blocks, ir_handle_struct_map] = cocosim_IR( simulink_model_path, df_export, output_dir )
+
 % COCOSIM_IR - create the internal representation of a Simulink model for cocoSim
 %
 %   This function create a json file of the internal representation of the
