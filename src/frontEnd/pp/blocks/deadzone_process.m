@@ -11,11 +11,14 @@ if not(isempty(deadzone_list))
         display_msg(deadzone_list{i}, Constants.INFO, 'deadzone_process', '');
         lower_value = get_param(deadzone_list{i},'LowerValue');
         upper_value = get_param(deadzone_list{i},'UpperValue');
+        SaturateOnIntegerOverflow = get_param(deadzone_list{i},'SaturateOnIntegerOverflow');
         replace_one_block(deadzone_list{i},'gal_lib/deadzone');
         set_param(strcat(deadzone_list{i},'/lower_value'),...
             'Value',lower_value);
         set_param(strcat(deadzone_list{i},'/upper_value'),...
             'Value',upper_value);
+        set_param(strcat(deadzone_list{i},'/Add'),...
+            'SaturateOnIntegerOverflow',SaturateOnIntegerOverflow);
     end
     display_msg('Done\n\n', Constants.INFO, 'deadzone_process', ''); 
 end

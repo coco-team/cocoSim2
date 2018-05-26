@@ -85,8 +85,10 @@ for i=1:numel(content)
         ||  (  strcmp(get_param(content{i}, 'Mask'), 'on' ) ... % validatr has type 'M-S-Function'
             && ~strcmp(get_param(content{i}, 'MaskType'), 'KindContractValidator'))
         S.(sub_name).Mask = get_param(content{i}, 'Mask');
-        S.(sub_name).MaskType = mask_type;        
-        if strcmp(S.(sub_name).SFBlockType, 'Chart') && ~isempty(stateflow_treatment)
+
+        S.(sub_name).MaskType = mask_type;
+        if isfield(S.(sub_name), 'SFBlockType') && strcmp(S.(sub_name).SFBlockType, 'Chart') && ~isempty(stateflow_treatment)
+            
             if iscell(stateflow_treatment)
                 fun_name = stateflow_treatment{1};
             else

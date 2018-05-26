@@ -17,6 +17,7 @@ if not(isempty(discrete_intr_list))
         end
         ICS = get_param(discrete_intr_list{i},'InitialConditionSource');
         ER = get_param(discrete_intr_list{i},'ExternalReset');
+        SaturateOnIntegerOverflow = get_param(discrete_intr_list{i},'SaturateOnIntegerOverflow');
         % Handle internal/external initial value
         if strcmp(ICS,'internal')
             x0 = get_param(discrete_intr_list{i},'InitialCondition');
@@ -69,6 +70,8 @@ if not(isempty(discrete_intr_list))
             'Gain',sample_tmp);
         set_param(strcat(discrete_intr_list{i},'/UnitDelay'),...
             'SampleTime',sample_tmp);
+        set_param(strcat(discrete_intr_list{i},'/Sum6'),...
+            'SaturateOnIntegerOverflow',SaturateOnIntegerOverflow);
     end
     display_msg('Done\n\n', Constants.INFO, 'discrete_integrator_process', ''); 
 end
