@@ -113,6 +113,49 @@ classdef VerificationMenu
         end % get_file_name
         
         
+        function schema = displayHtmlVerificationResults(callbackInfo)
+            schema = sl_action_schema;            
+            schema.label = 'Verification Results' ;      
+            schema.statustip = 'Verification Results';
+            schema.autoDisableWhen = 'Busy';            
+            schema.callback = @VerificationMenu.displayHtmlVerificationResultsCallback;
+        end
+        
+        function displayHtmlVerificationResultsCallback(callbackInfo)
+             % get the verification results from the model workspace
+            modelWorkspace = get_param(callbackInfo.studio.App.blockDiagramHandle,'modelworkspace');   
+            verificationResults = modelWorkspace.getVariable('verificationResults');    
+            
+            modelPath = get_param(callbackInfo.studio.App.blockDiagramHandle, 'FileName');
+            
+            modelPath = strrep(modelPath, '\', '\\');
+            modelPath
+
+            filePath = fileparts(mfilename('fullpath'));
+            filePath = fullfile(filePath, 'cocoSpecVerify', 'utils', 'html');
+            html = fileread(fullfile(filePath, 'verificationResultsTemplate.html'));
+            json = json_encode(verificationResults);    
+            html = strrep(html, '[(verificationResults)]', json);
+            html = strrep(html, '[(modelPath)]', modelPath);
+            htmlFile = strcat(tempname, '.html');
+            fid = fopen(htmlFile, 'w');
+            fprintf(fid,'%s', html);
+            fclose(fid);    
+
+            % check css and js files
+
+            tempFolder = fileparts(tempname);
+            
+            if ~ exist(fullfile(tempFolder, 'jquery.min.js'), 'file')
+                copyfile(fullfile(filePath, 'html', 'js', 'jquery.min.js'), ...
+                fullfile(tempFolder, 'jquery.min.js')); 
+            end
+            
+            % open the web page in matlab browser
+            url = ['file:///',htmlFile];
+            web(url);
+            
+        end
         
         function schema = compositionalOptions(callbackInfo)
             schema = sl_container_schema;
