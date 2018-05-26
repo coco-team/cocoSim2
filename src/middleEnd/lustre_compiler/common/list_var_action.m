@@ -8,7 +8,7 @@ lo ={};
 if strcmp(type, 'Action')
 	for idx=1:numel(unbloc.action)
         action_block = get_struct(ir_struct, unbloc.action(idx));
-		preceding_block_full_name = regexp(action_block.Path, filesep, 'split');
+		preceding_block_full_name = regexp(action_block.Path, '/', 'split');
 		pre_block_level = action_block.name_level;
 		preceding_block_name = Utils.concat_delim(preceding_block_full_name(end - pre_block_level : end), '_');
 		[dim_r dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Ifaction, 1);
@@ -20,7 +20,7 @@ if strcmp(type, 'Action')
 elseif strcmp(type, 'Trigger')
 	for idx=1:numel(unbloc.trigger)
         trigger_block = get_struct(ir_struct, unbloc.trigger(idx));
-		preceding_block_full_name = regexp(trigger_block.Path, filesep, 'split');
+		preceding_block_full_name = regexp(trigger_block.Path, '/', 'split');
 		pre_block_level = trigger_block.name_level;
 		preceding_block_name = Utils.concat_delim(preceding_block_full_name(end - pre_block_level : end), '_');
 		[dim_r dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Trigger, 1);
@@ -32,7 +32,7 @@ elseif strcmp(type, 'Trigger')
 elseif strcmp(type, 'Enable')
 	for idx=1:numel(unbloc.enable)
         enable_block = get_struct(ir_struct, unbloc.enable(idx));
-		preceding_block_full_name = regexp(enable_block.Path, filesep, 'split');
+		preceding_block_full_name = regexp(enable_block.Path, '/', 'split');
 		pre_block_level = enable_block.name_level;
 		preceding_block_name = Utils.concat_delim(preceding_block_full_name(end - pre_block_level : end), '_');
 		[dim_r dim_c] = Utils.get_port_dims_simple(unbloc.CompiledPortDimensions.Enable, 1);

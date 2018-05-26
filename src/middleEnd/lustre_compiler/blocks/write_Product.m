@@ -111,7 +111,7 @@ if block.CompiledPortComplexSignals.Outport(1)
     end
 end
 
-block_full_name = regexp(block.Path, filesep, 'split');
+block_full_name = regexp(block.Path, '/', 'split');
 block_name = Utils.concat_delim(block_full_name(end - block.name_level : end), '_');
 
 if strcmp(multiplication, 'Element-wise(.*)')

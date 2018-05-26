@@ -55,6 +55,7 @@ end
 %% Saving the json ir
 json_model = json_encode(ir_struct); %faire en sorte qu'il y ait des sauts de ligne dans la réécriture de la fonction json_encode
 json_model = strrep(json_model,'\/','/');
+json_model = strrep(json_model,'"X0"','"InitialCondition"');
 % essayer d'enlever le escape des slash si possible pour l'esthétique
 
 % To save the json in a file :
@@ -62,23 +63,23 @@ if nargin < 3
     output_dir = parent;
 end
 if df_export
-    file_json = [file_name '_IR_tmp.json'];
+    file_json = [file_name '_IR.json'];
     % Open or create the file
     file_path = fullfile(output_dir, file_json);
     fid = fopen(file_path, 'w');
     % Write in the file
     fprintf(fid, '%s\n', json_model);
     fclose(fid);
-
-new_path = fullfile(output_dir, [file_name '_IR.json']);
-cmd = ['cat ' file_path ' | python -mjson.tool > ' new_path];
-try
-    
-    [status, output] = system(cmd);
-    if status==0
-        system(['rm ' file_path]);
-    end
-catch
-end
+% The code below doesn't work in windows
+%     new_path = fullfile(output_dir, [file_name '_IR.json']);
+%     cmd = ['cat ' file_path ' | python -mjson.tool > ' new_path];
+%     try
+% 
+%         [status, output] = system(cmd);
+%         if status==0
+%             system(['rm ' file_path]);
+%         end
+%     catch
+%     end
 end
 end

@@ -50,7 +50,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
                    try
                      display_cex(cex, property_node_names{idx_prop}, ...
                                   ir_struct, date_value, ...
-                                   lustre_file_name, idx_prop, xml_trace);
+                                   lustre_file_name, idx_prop, xml_trace, ir_struct);
                     catch ME
                         display_msg(ME.message, Constants.ERROR, 'JKind', '');
                    end
@@ -63,7 +63,7 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
     end
 end
 
-function [status] = display_cex(cex, prop, model, date_value, lustre_file_name, idx_prop,xml_trace)
+function [status] = display_cex(cex, prop, model, date_value, lustre_file_name, idx_prop,xml_trace, ir_struct)
    status = 1;
   [path, lustre_file, ext] = fileparts(lustre_file_name);
    mat_file_name = ['config_' prop.prop_name '_' date_value '.mat'];
@@ -92,7 +92,7 @@ function [status] = display_cex(cex, prop, model, date_value, lustre_file_name, 
        if config_created
            try
                % Create the annotation with the links to setup and launch the simulation
-               createAnnotation(lustre_file_name, prop, IO_struct, mat_full_file, path);
+               createAnnotation(lustre_file_name, prop, IO_struct, mat_full_file, path, ir_struct);
            catch ERR
                msg = ['FAILURE to create the Simulink CEX replay annotation\n' getReport(ERR)];
                display_msg(msg, Constants.INFO, 'Kind2', '');
@@ -108,11 +108,11 @@ function IO_struct = mk_IO_struct(model_inter_blk, prop_node_name)
 	cpt_out = 1;
     
 	parent_block_name = prop_node_name.parent_block_name;
-	if numel(regexp(parent_block_name, filesep, 'split')) == 1
+	if numel(regexp(parent_block_name, '/', 'split')) == 1
 		main_model_name = parent_block_name;
         sub_blk = model_inter_blk;
 	else
-		par_name_comp = regexp(parent_block_name, filesep, 'split');
+		par_name_comp = regexp(parent_block_name, '/', 'split');
 		main_model_name = par_name_comp{1};
         sub_blk = get_struct(model_inter_blk, Utils.name_format(parent_block_name));
 	end
@@ -121,13 +121,20 @@ function IO_struct = mk_IO_struct(model_inter_blk, prop_node_name)
 	warning off;
 	code_compile = sprintf('%s([], [], [], ''compile'')', main_model_name);
 	eval(code_compile);
-
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Bug fix for sub_blk.Content which is null
+    sub_blk_fields = fieldnames(sub_blk);
+    % modify sub_blk to be its model which is the second field
+    sub_blk = getfield(sub_blk, char(sub_blk_fields(2)));
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
     fields = fieldnames(sub_blk.Content);
     fields(cellfun('isempty', regexprep(fields, '^Annotation.*', ''))) = [];
 	for idx_blk=1:numel(fields)
         ablock = sub_blk.Content.(fields{idx_blk});
 		if strcmp(ablock.BlockType, 'Inport')
-			block_full_name = regexp(ablock.Origin_path, filesep, 'split');
+			block_full_name = regexp(ablock.Origin_path, '/', 'split');
 			block_name = block_full_name{end};
 			block_name = strrep(block_name, ' ', '_');
 			IO_struct.inputs{cpt_in}.name = block_name;
@@ -139,7 +146,7 @@ function IO_struct = mk_IO_struct(model_inter_blk, prop_node_name)
 			IO_struct.inputs{cpt_in}.dt = inpu_ports_compiled_dt.Outport;
 			cpt_in = cpt_in + 1;
 		elseif strcmp(ablock.BlockType, 'Outport')
-			block_full_name = regexp(ablock.Origin_path, filesep, 'split');
+			block_full_name = regexp(ablock.Origin_path, '/', 'split');
 			block_name = block_full_name{end};
 			block_name = strrep(block_name, ' ', '_');
 			IO_struct.outputs{cpt_out}.name = block_name;
@@ -311,9 +318,13 @@ function IO_struct = create_configuration(IO_struct, file, prop_node_name, mat_f
 end
 
 % Add an annotation to display the Counter example replay/config
-function createAnnotation(lustre_file_name, property_node_names, IO_struct, config_mat_full_file, path)
+function createAnnotation(lustre_file_name, property_node_names, IO_struct, config_mat_full_file, path, ir_struct)
 	% Load cocoSim_path variable
-	load 'tmp_data'
+	%load 'tmp_data'   
+    pathParts = strsplit(mfilename('fullpath'),'/');
+    %set cocoSim_path to be ~/CoCoSim/src
+    cocoSim_path = strjoin(pathParts(1 :end - 5), '/');
+    
 
 	property_node_name = property_node_names.origin_block_name;
     
@@ -359,9 +370,11 @@ function createAnnotation(lustre_file_name, property_node_names, IO_struct, conf
 
 	% Find correct position for the annotation
 	blocks = find_system(file_name, 'SearchDepth', 1, 'FindAll', 'on', 'Type', 'Block');
-    for i=1:numel(blocks)
-        blocks(i) = Utils.name_format(blocks(i));
-    end
+    
+    % blocks is array of doubles, not strings
+    %for i=1:numel(blocks)
+    %   blocks(i) = Utils.name_format(blocks(i));
+    %end
 	positions = cocoget_param(ir_struct, blocks, 'Position');
 	max_x = 0;
 	min_x = 0;
@@ -518,7 +531,7 @@ function action = createAction(title, content, cocoSim_path)
 end
 
 function add_plotting_function(cocoSim_path, path)
-	src = [cocoSim_path filesep 'backEnd' filesep 'templates' filesep 'plotting.m'];
+	src = [cocoSim_path filesep 'backEnd' filesep 'common' filesep 'plotting.m'];
 	copyfile(src, path);
 end
 

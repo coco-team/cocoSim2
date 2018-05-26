@@ -62,7 +62,7 @@ if strcmp(show_port, 'on')
             str_val{idx_dim} = ['-1' str_val_post];
         end
     elseif strcmp(trigger_type, 'either')
-        name_cell = regexp(block.Path, filesep, 'split');
+        name_cell = regexp(block.Path, '/', 'split');
         name = Utils.concat_delim(name_cell, '_');
         trigger_input_dt = LusUtils.get_lustre_dt(inter_blk.CompiledPortDataTypes.Trigger{1});
         for idx_dim=1:numel(list_out)

@@ -6,7 +6,7 @@
 function [list_out_final] = list_var_input(inter_blk, xml_trace, block_type)
 list_out_final = {};
 % Writing outputs declarations
-block_full_name = regexp(inter_blk.Path, filesep, 'split');
+block_full_name = regexp(inter_blk.Path, '/', 'split');
 %TODO : search what name_level is for
 if inter_blk.name_level >= numel(block_full_name{1})
     block_name = Utils.concat_delim(block_full_name, '_');

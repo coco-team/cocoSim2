@@ -42,7 +42,6 @@ if ~exist('default_Ts', 'var')
     end
 end
 addpath(genpath(fullfile(cocoSim_path, 'backEnd')));
-addpath(genpath(fullfile(cocoSim_path, 'middleEnd')));
 addpath(genpath(fullfile(cocoSim_path, 'frontEnd')));
 addpath(fullfile(cocoSim_path, 'utils'));
 addpath(fullfile(cocoSim_path, '.'));
@@ -311,7 +310,7 @@ for idx_subsys=nb_subs:-1:1
                     property_node_name{idx_prop_names}.parent_node_name = file_name;
                     property_node_name{idx_prop_names}.parent_block_name = file_name;
                 else
-                    res = regexp(sub_blk.Path, filesep, 'split');
+                    res = regexp(sub_blk.Path, '/', 'split');
                     property_node_name{idx_prop_names}.parent_node_name = Utils.concat_delim(res, '_');
                     property_node_name{idx_prop_names}.parent_block_name = sub_blk.Origin_path;
                 end

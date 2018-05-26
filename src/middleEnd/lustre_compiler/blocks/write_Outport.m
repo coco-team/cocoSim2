@@ -19,7 +19,7 @@ output_string = '';
 [list_in] = list_var_entree(block, ir_struct);
 list_out = '';
 
-block_full_name = regexp(block.Path, filesep, 'split');
+block_full_name = regexp(block.Path, '/', 'split');
 block_name = Utils.concat_delim(block_full_name(end - block.name_level : end), '_');
 for idx_dim_in=1:block.CompiledPortWidths.Inport
 	%list_out{idx_dim_in} = ['out' num2str(unbloc.portnumber) '_' num2str(idx_dim_in) '_'];
