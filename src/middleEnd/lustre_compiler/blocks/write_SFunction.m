@@ -26,7 +26,7 @@ output_string = '';
 [list_out] = list_var_sortie(block);
 [list_in] = list_var_entree(block, ir_struct);
 
-block_full_name = regexp(block.Path, filesep, 'split');
+block_full_name = regexp(block.Path, '/', 'split');
 node_name = block_full_name{end};
 
 % Format list_in and list_out as string

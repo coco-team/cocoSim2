@@ -108,11 +108,11 @@ function IO_struct = mk_IO_struct(model_inter_blk, prop_node_name)
 	cpt_out = 1;
     
 	parent_block_name = prop_node_name.parent_block_name;
-	if numel(regexp(parent_block_name, filesep, 'split')) == 1
+	if numel(regexp(parent_block_name, '/', 'split')) == 1
 		main_model_name = parent_block_name;
         sub_blk = model_inter_blk;
 	else
-		par_name_comp = regexp(parent_block_name, filesep, 'split');
+		par_name_comp = regexp(parent_block_name, '/', 'split');
 		main_model_name = par_name_comp{1};
         sub_blk = get_struct(model_inter_blk, Utils.name_format(parent_block_name));
 	end
@@ -134,7 +134,7 @@ function IO_struct = mk_IO_struct(model_inter_blk, prop_node_name)
 	for idx_blk=1:numel(fields)
         ablock = sub_blk.Content.(fields{idx_blk});
 		if strcmp(ablock.BlockType, 'Inport')
-			block_full_name = regexp(ablock.Origin_path, filesep, 'split');
+			block_full_name = regexp(ablock.Origin_path, '/', 'split');
 			block_name = block_full_name{end};
 			block_name = strrep(block_name, ' ', '_');
 			IO_struct.inputs{cpt_in}.name = block_name;
@@ -146,7 +146,7 @@ function IO_struct = mk_IO_struct(model_inter_blk, prop_node_name)
 			IO_struct.inputs{cpt_in}.dt = inpu_ports_compiled_dt.Outport;
 			cpt_in = cpt_in + 1;
 		elseif strcmp(ablock.BlockType, 'Outport')
-			block_full_name = regexp(ablock.Origin_path, filesep, 'split');
+			block_full_name = regexp(ablock.Origin_path, '/', 'split');
 			block_name = block_full_name{end};
 			block_name = strrep(block_name, ' ', '_');
 			IO_struct.outputs{cpt_out}.name = block_name;
@@ -531,7 +531,7 @@ function action = createAction(title, content, cocoSim_path)
 end
 
 function add_plotting_function(cocoSim_path, path)
-	src = [cocoSim_path filesep 'backEnd' filesep 'templates' filesep 'plotting.m'];
+	src = [cocoSim_path filesep 'backEnd' filesep 'common' filesep 'plotting.m'];
 	copyfile(src, path);
 end
 

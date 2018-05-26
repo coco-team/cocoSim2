@@ -37,14 +37,14 @@ nblk = numel(blks);
 %%%%%%%%%%% Node header declaration
 
 % Get the current SubSystem hierarchy
-blk_path_elems = regexp(blk, filesep, 'split');
+blk_path_elems = regexp(blk, '/', 'split');
 
 % If we are at the last pass (main System)
 if idx_subsys == 1    
 	newinit= 1;
-    blk_path_elems = regexp(blk, filesep, 'split');
+    blk_path_elems = regexp(blk, '/', 'split');
 	node_name = Utils.concat_delim(blk_path_elems(1:(end-1)), '_');
-	xml_trace.create_Node_Element(Utils.concat_delim(blk_path_elems(1:(end-1)), filesep), node_name);
+	xml_trace.create_Node_Element(Utils.concat_delim(blk_path_elems(1:(end-1)), '/'), node_name);
 else
 	newinit= 2;
 	node_name = Utils.concat_delim(blk_path_elems, '_');
@@ -71,7 +71,7 @@ for idx_block=1:nblk
 	% Add the inputs for the trigger block if it is of 'either' type and it shows its output port
 	elseif strcmp(sub_blk.BlockType, 'TriggerPort')
 		if strcmp(sub_blk.TriggerType, 'either') && strcmp(sub_blk.ShowOutputPort, 'on')
-			trigger_name_cell = regexp(sub_blk.Path, filesep, 'split');
+			trigger_name_cell = regexp(sub_blk.Path, '/', 'split');
 			trigger_name = Utils.concat_delim(trigger_name_cell, '_');
 			str_in_trigg = '';
 			str_in_trigg_pre = '';
@@ -86,7 +86,7 @@ for idx_block=1:nblk
 	% Add the inputs for the enable block if it is of 'either' type
 	elseif strcmp(sub_blk.BlockType, 'EnablePort')
 		if strcmp(sub_blk.ShowOutputPort, 'on')
-			enable_name_cell = regexp(sub_blk.Path, filesep, 'split');
+			enable_name_cell = regexp(sub_blk.Path, '/', 'split');
 			enable_name = Utils.concat_delim(enable_name_cell, '_');
 			str_in_enable = '';
 			out_dt = LusUtils.get_lustre_dt(subsys.CompiledPortDataTypes.Enable);
@@ -138,7 +138,7 @@ for idx_block=1:nblk
 			xml_trace.create_Outputs_Element();
 		end
 		cpt_outports = cpt_outports + 1;
-		block_name = regexp(sub_blk.Path, filesep, 'split');
+		block_name = regexp(sub_blk.Path, '/', 'split');
 		outport_dt = LusUtils.get_lustre_dt(sub_blk.CompiledPortDataTypes.Inport(1));
 		if sub_blk.CompiledPortComplexSignals.Inport(1)
 			outport_dt = ['complex_' outport_dt];

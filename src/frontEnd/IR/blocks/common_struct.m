@@ -21,7 +21,7 @@ unwanted_params = block_param_map('UnwantedParameters');
 S = struct();
 
 if ~isempty(model_ref_parent)
-    full_path_model_ref = regexp(block_path, filesep, 'split');
+    full_path_model_ref = regexp(block_path, '/', 'split');
     full_path_model_ref{1} = model_ref_parent;
     S.Path = IRUtils.name_format(fullfile(full_path_model_ref{1}, full_path_model_ref{2:end}));
 else

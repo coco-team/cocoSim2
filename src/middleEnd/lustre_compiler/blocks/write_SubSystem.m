@@ -59,7 +59,7 @@ display_msg('Classical Susbsystem', Constants.DEBUG, 'write_code', '');
 %if block.isref
 %    node_call_name = block.ModelName;
 %else
-blk_path_elems = regexp(block.Path, filesep, 'split');
+blk_path_elems = regexp(block.Path, '/', 'split');
 node_call_name = Utils.concat_delim(blk_path_elems, '_');
 %end
 

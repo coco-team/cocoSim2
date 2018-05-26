@@ -34,7 +34,7 @@ for i=1:numel(models)
             display('Done');
         end
     catch ME
-        dsplay(ME.getReport())
+        display(ME.getReport())
         continue;
     end
     

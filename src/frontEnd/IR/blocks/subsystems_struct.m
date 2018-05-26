@@ -33,7 +33,7 @@ if is_subsystem && strcmp(get_param(block_path, 'Mask'), 'on')
     % Masked subsystems
     content = find_system(block_path, 'LookUnderMasks', 'all', 'FollowLinks', 'on', 'SearchDepth', '1');
     content(1) = []; %the first one is file_name, we already have it
-    comment = find_system(block_path, 'FindAll', 'on', 'LookUnderMasks', 'all', 'Type', 'Annotation', 'SearchDepth', '1');
+    comment = find_system(block_path,'SearchDepth', '1', 'FindAll', 'on', 'LookUnderMasks', 'all', 'Type', 'Annotation');
 else
     % subsystems not masked or block_diagram
     content = find_system(block_path, 'SearchDepth', '1');
@@ -82,8 +82,8 @@ for i=1:numel(content)
     
     % Inner SubSystems/model struct
     if strcmp(sub_type, 'SubSystem') ...
-        ||  (   ~strcmp(sub_type,'M-S-Function' ) ... % validatr has type 'M-S-Function'
-            && strcmp(get_param(content{i}, 'Mask'), 'on'))
+        ||  (  strcmp(get_param(content{i}, 'Mask'), 'on' ) ... % validatr has type 'M-S-Function'
+            && ~strcmp(get_param(content{i}, 'MaskType'), 'KindContractValidator'))
         S.(sub_name).Mask = get_param(content{i}, 'Mask');
         S.(sub_name).MaskType = mask_type;        
         if strcmp(S.(sub_name).SFBlockType, 'Chart') && ~isempty(stateflow_treatment)
@@ -98,9 +98,9 @@ for i=1:numel(content)
                 if ~isempty(parent); cd(parent); end
                 func_handle = str2func(file_name);
                 if ~isempty(parent); cd(PWD); end
-                S.(sub_name).SFContent = func_handle(content{i});
+                S.(sub_name).StateflowContent = func_handle(content{i});
             else
-                S.(sub_name).SFContent = struct();
+                S.(sub_name).StateflowContent = struct();
             end
             S.(sub_name).Content = struct();
         else            
