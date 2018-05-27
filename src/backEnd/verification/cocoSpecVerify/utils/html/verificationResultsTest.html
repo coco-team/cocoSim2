@@ -1,0 +1,1172 @@
+<!-- 
+ This file is part of CoCoSim.
+ Copyright (C) 2018  The university of Iowa
+ Author: Mudathir Mahgoub 
+-->
+
+<html lang="en">
+<head>
+    <script src="jquery.min.js"></script>
+    <link href="fa-svg-with-js.css" rel="stylesheet">
+    <script src="fontawesome-all.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+<div id="verificationResults">
+
+</div>
+
+    <script>
+        $(document).ready(function () {
+
+            var verificationResults = {
+                "analysisResults": [
+                    {
+                        "top": "DoorLockCompositional_PP\/Lock\/Control",
+                        "abstract": "",
+                        "concrete": "DoorLockCompositional_PP_Lock_ControlSpec_guaranteetrue",
+                        "assumptions": "(DoorLockCompositional_PP_Lock_ControlSpec_guaranteetrue,1)",
+                        "properties": {
+                            "propertyName": "DoorLockCompositional_PP_Lock_ControlSpec[l408c12].DoorLockCompositional_PP_Lock_ControlSpec_guarantee_true[1]",
+                            "answer": "SAFE",
+                            "originPath": "DoorLockCompositional_PP\/Lock\/ControlSpec\/guarantee true",
+                            "propertyType": "guarantee"
+                        }
+                    }
+                    , {
+                        "top": "DoorLockCompositional_PP\/Lock\/Keypad\/code",
+                        "abstract": "",
+                        "concrete": "DoorLockCompositional_PP_Lock_Keypad_CodeSpec_guaranteecode__minus_5,DoorLockCompositional_PP_Lock_Keypad_CodeSpec_assume0__equal_DigitandDigit__equal_9",
+                        "assumptions": "(DoorLockCompositional_PP_Lock_Keypad_CodeSpec_assume0__equal_DigitandDigit__equal_9,1)",
+                        "properties": {
+                            "propertyName": "DoorLockCompositional_PP_Lock_Keypad_CodeSpec[l364c12].DoorLockCompositional_PP_Lock_Keypad_CodeSpec_guarantee_code____5[1]",
+                            "answer": "SAFE",
+                            "originPath": "DoorLockCompositional_PP\/Lock\/Keypad\/CodeSpec\/guarantee code > -5",
+                            "propertyType": "guarantee"
+                        }
+                    }, {
+                        "top": "DoorLockCompositional_PP\/Lock\/Keypad",
+                        "abstract": "Abstract code",
+                        "concrete": "DoorLockCompositional_PP_Lock_Keypad_PressedDigits,DoorLockCompositional_PP_Lock_Keypad_IncompleteCode,DoorLockCompositional_PP_Lock_Keypad_ElapsedTime,DoorLockCompositional_PP_Lock_Keypad_CodeSpec_guaranteecode__minus_5,DoorLockCompositional_PP_Lock_Keypad_CodeSpec_assume0__equal_DigitandDigit__equal_9,DoorLockCompositional_PP_Lock_KeypadSpec_guaranteetrue_minus__Request_equal__notPreRequestandnotprePreRequest,DoorLockCompositional_PP_Lock_KeypadSpec_guarantee_lpar_notRequest_rpar__minus___lpar_notPreRequest_rpar__minus__true,DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeRequest_equal___lpar_0__equal_CodeandCode__equal_999_rpar_,DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeRequest_equal__Press,DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeCode__equal_0,DoorLockCompositional_PP_Lock_KeypadSpec_assume0__equal_DigitandDigit__equal_9,DoorLockCompositional_PP_Lock_KeypadSpec_PreRequest",
+                        "assumptions": "(DoorLockCompositional_PP_Lock_KeypadSpec_assume0__equal_DigitandDigit__equal_9,1)",
+                        "properties": [{
+                            "propertyName": "DoorLockCompositional_PP_Lock_KeypadSpec[l382c12].DoorLockCompositional_PP_Lock_KeypadSpec_guarantee_Code____0[1]",
+                            "answer": "CEX",
+                            "originPath": "DoorLockCompositional_PP\/Lock\/KeypadSpec\/guarantee Code >= 0",
+                            "propertyType": "guarantee",
+                            "counterExample": {
+                                "node": {
+                                    "name": "DoorLockCompositional_PP_Lock_Keypad",
+                                    "timeSteps": 1,
+                                    "streams": [{
+                                        "name": "Digit",
+                                        "type": "int",
+                                        "class": "input",
+                                        "values": 0
+                                    }, {
+                                        "name": "Press",
+                                        "type": "bool",
+                                        "class": "input",
+                                        "values": 0
+                                    }, {
+                                        "name": "Code",
+                                        "type": "int",
+                                        "class": "output",
+                                        "values": -1
+                                    }, {
+                                        "name": "Code",
+                                        "type": "int",
+                                        "class": "local",
+                                        "values": -1
+                                    }, {
+                                        "name": "PressedDigits",
+                                        "type": "int",
+                                        "class": "local",
+                                        "values": 0
+                                    }, {
+                                        "name": "ElapsedTime",
+                                        "type": "int",
+                                        "class": "local",
+                                        "values": 0
+                                    }, {"name": "IncompleteCode", "type": "bool", "class": "local", "values": 0}],
+                                    "nodes": [{
+                                        "name": "DoorLockCompositional_PP_Lock_Keypad_IncompleteCode",
+                                        "timeSteps": 1,
+                                        "streams": [{
+                                            "name": "PressedDigits",
+                                            "type": "int",
+                                            "class": "input",
+                                            "values": 0
+                                        }, {
+                                            "name": "IncompleteCode",
+                                            "type": "bool",
+                                            "class": "output",
+                                            "values": 0
+                                        }, {"name": "prePressedDigits", "type": "int", "class": "local", "values": 0}]
+                                    }, {
+                                        "name": "DoorLockCompositional_PP_Lock_Keypad_ElapsedTime",
+                                        "timeSteps": 1,
+                                        "streams": [{
+                                            "name": "Press",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": 0
+                                        }, {
+                                            "name": "ExpirationTime",
+                                            "type": "int",
+                                            "class": "input",
+                                            "values": 9
+                                        }, {
+                                            "name": "IncompleteCode",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": 0
+                                        }, {
+                                            "name": "ElapsedTime",
+                                            "type": "int",
+                                            "class": "output",
+                                            "values": 0
+                                        }, {"name": "preElapsedTime", "type": "int", "class": "local", "values": 0}]
+                                    }, {
+                                        "name": "DoorLockCompositional_PP_Lock_Keypad_PressedDigits",
+                                        "timeSteps": 1,
+                                        "streams": [{
+                                            "name": "Press",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": 0
+                                        }, {
+                                            "name": "ExpirationTime",
+                                            "type": "int",
+                                            "class": "input",
+                                            "values": 9
+                                        }, {
+                                            "name": "ElapsedTime",
+                                            "type": "int",
+                                            "class": "input",
+                                            "values": 0
+                                        }, {
+                                            "name": "PressedDigits",
+                                            "type": "int",
+                                            "class": "output",
+                                            "values": 0
+                                        }, {"name": "prePressedDigits", "type": "int", "class": "local", "values": 0}]
+                                    }, {
+                                        "name": "DoorLockCompositional_PP_Lock_Keypad_code",
+                                        "timeSteps": 1,
+                                        "streams": [{
+                                            "name": "PressedDigits",
+                                            "type": "int",
+                                            "class": "input",
+                                            "values": 0
+                                        }, {
+                                            "name": "Press",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": 0
+                                        }, {
+                                            "name": "Digit",
+                                            "type": "int",
+                                            "class": "input",
+                                            "values": 0
+                                        }, {"name": "Code", "type": "int", "class": "output", "values": -1}]
+                                    }, {
+                                        "name": "DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeCode__equal_0",
+                                        "timeSteps": 1,
+                                        "streams": [{
+                                            "name": "Code",
+                                            "type": "int",
+                                            "class": "input",
+                                            "values": -1
+                                        }, {"name": "guarantee", "type": "bool", "class": "output", "values": 0}]
+                                    }]
+                                }
+                            }
+                        }, {
+                            "propertyName": "DoorLockCompositional_PP_Lock_KeypadSpec[l382c12].DoorLockCompositional_PP_Lock_KeypadSpec_guarantee_Request_____0____Code_and_Code____999_[4]",
+                            "answer": "CEX",
+                            "originPath": "DoorLockCompositional_PP\/Lock\/KeypadSpec\/guarantee Request => (0 <= Code and Code <= 999)",
+                            "propertyType": "guarantee",
+                            "counterExample": {
+                                "node": {
+                                    "name": "DoorLockCompositional_PP_Lock_Keypad",
+                                    "timeSteps": 3,
+                                    "streams": [{
+                                        "name": "Digit",
+                                        "type": "int",
+                                        "class": "input",
+                                        "values": [0, 0, 0]
+                                    }, {
+                                        "name": "Press",
+                                        "type": "bool",
+                                        "class": "input",
+                                        "values": [1, 1, 1]
+                                    }, {
+                                        "name": "Request",
+                                        "type": "bool",
+                                        "class": "output",
+                                        "values": [0, 0, 1]
+                                    }, {
+                                        "name": "Code",
+                                        "type": "int",
+                                        "class": "output",
+                                        "values": [-1, 0, 1000]
+                                    }, {
+                                        "name": "PressedDigits",
+                                        "type": "int",
+                                        "class": "local",
+                                        "values": [1, 2, 3]
+                                    }, {
+                                        "name": "ElapsedTime",
+                                        "type": "int",
+                                        "class": "local",
+                                        "values": [0, 0, 0]
+                                    }, {
+                                        "name": "IncompleteCode",
+                                        "type": "bool",
+                                        "class": "local",
+                                        "values": [0, 1, 1]
+                                    }, {"name": "Code", "type": "int", "class": "local", "values": [-1, 0, 1000]}],
+                                    "nodes": [{
+                                        "name": "DoorLockCompositional_PP_Lock_Keypad_code",
+                                        "timeSteps": 3,
+                                        "streams": [{
+                                            "name": "PressedDigits",
+                                            "type": "int",
+                                            "class": "input",
+                                            "values": [1, 2, 3]
+                                        }, {
+                                            "name": "Press",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": [1, 1, 1]
+                                        }, {
+                                            "name": "Digit",
+                                            "type": "int",
+                                            "class": "input",
+                                            "values": [0, 0, 0]
+                                        }, {"name": "Code", "type": "int", "class": "output", "values": [-1, 0, 1000]}]
+                                    }, {
+                                        "name": "DoorLockCompositional_PP_Lock_Keypad_IncompleteCode",
+                                        "timeSteps": 3,
+                                        "streams": [{
+                                            "name": "PressedDigits",
+                                            "type": "int",
+                                            "class": "input",
+                                            "values": [1, 2, 3]
+                                        }, {
+                                            "name": "IncompleteCode",
+                                            "type": "bool",
+                                            "class": "output",
+                                            "values": [0, 1, 1]
+                                        }, {
+                                            "name": "prePressedDigits",
+                                            "type": "int",
+                                            "class": "local",
+                                            "values": [0, 1, 2]
+                                        }]
+                                    }, {
+                                        "name": "DoorLockCompositional_PP_Lock_Keypad_ElapsedTime",
+                                        "timeSteps": 3,
+                                        "streams": [{
+                                            "name": "Press",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": [1, 1, 1]
+                                        }, {
+                                            "name": "ExpirationTime",
+                                            "type": "int",
+                                            "class": "input",
+                                            "values": [9, 9, 9]
+                                        }, {
+                                            "name": "IncompleteCode",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": [0, 1, 1]
+                                        }, {
+                                            "name": "ElapsedTime",
+                                            "type": "int",
+                                            "class": "output",
+                                            "values": [0, 0, 0]
+                                        }, {
+                                            "name": "preElapsedTime",
+                                            "type": "int",
+                                            "class": "local",
+                                            "values": [0, 0, 0]
+                                        }]
+                                    }, {
+                                        "name": "DoorLockCompositional_PP_Lock_Keypad_PressedDigits",
+                                        "timeSteps": 3,
+                                        "streams": [{
+                                            "name": "Press",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": [1, 1, 1]
+                                        }, {
+                                            "name": "ExpirationTime",
+                                            "type": "int",
+                                            "class": "input",
+                                            "values": [9, 9, 9]
+                                        }, {
+                                            "name": "ElapsedTime",
+                                            "type": "int",
+                                            "class": "input",
+                                            "values": [0, 0, 0]
+                                        }, {
+                                            "name": "PressedDigits",
+                                            "type": "int",
+                                            "class": "output",
+                                            "values": [1, 2, 3]
+                                        }, {
+                                            "name": "prePressedDigits",
+                                            "type": "int",
+                                            "class": "local",
+                                            "values": [0, 1, 2]
+                                        }]
+                                    }, {
+                                        "name": "DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeRequest_equal___lpar_0__equal_CodeandCode__equal_999_rpar_",
+                                        "timeSteps": 3,
+                                        "streams": [{
+                                            "name": "Request",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": [0, 0, 1]
+                                        }, {
+                                            "name": "Code",
+                                            "type": "int",
+                                            "class": "input",
+                                            "values": [-1, 0, 1000]
+                                        }, {
+                                            "name": "guarantee",
+                                            "type": "bool",
+                                            "class": "output",
+                                            "values": [1, 1, 0]
+                                        }]
+                                    }]
+                                }
+                            }
+                        }, {
+                            "propertyName": "DoorLockCompositional_PP_Lock_Keypad_code[l395c14].DoorLockCompositional_PP_Lock_Keypad_CodeSpec_assume_0____Digit_and_Digit____9[1]",
+                            "answer": "SAFE",
+                            "originPath": "DoorLockCompositional_PP\/Lock\/Keypad\/CodeSpec\/assume 0 <= Digit and Digit <= 9",
+                            "propertyType": "assume"
+                        }, {
+                            "propertyName": "DoorLockCompositional_PP_Lock_KeypadSpec[l382c12].DoorLockCompositional_PP_Lock_KeypadSpec_guarantee_Request____Press[3]",
+                            "answer": "SAFE",
+                            "originPath": "DoorLockCompositional_PP\/Lock\/KeypadSpec\/guarantee Request => Press",
+                            "propertyType": "guarantee"
+                        }, {
+                            "propertyName": "DoorLockCompositional_PP_Lock_KeypadSpec[l382c12].DoorLockCompositional_PP_Lock_KeypadSpec_guarantee__not_Request______not_PreRequest_____true[2]",
+                            "answer": "SAFE",
+                            "originPath": "DoorLockCompositional_PP\/Lock\/KeypadSpec\/guarantee (not Request) -> (not PreRequest) -> true",
+                            "propertyType": "guarantee"
+                        }, {
+                            "propertyName": "DoorLockCompositional_PP_Lock_KeypadSpec[l382c12].DoorLockCompositional_PP_Lock_KeypadSpec_guarantee_true____Request____not_PreRequest_and_not_pre_PreRequest[5]",
+                            "answer": "SAFE",
+                            "originPath": "DoorLockCompositional_PP\/Lock\/KeypadSpec\/guarantee true -> Request => not PreRequest and not pre PreRequest",
+                            "propertyType": "guarantee"
+                        }]
+                    }, {
+                        "top": "DoorLockCompositional_PP\/Lock\/Keypad",
+                        "abstract": "",
+                        "concrete": "DoorLockCompositional_PP_Lock_Keypad_code,DoorLockCompositional_PP_Lock_Keypad_PressedDigits,DoorLockCompositional_PP_Lock_Keypad_IncompleteCode,DoorLockCompositional_PP_Lock_Keypad_ElapsedTime,DoorLockCompositional_PP_Lock_Keypad_CodeSpec_guaranteecode__minus_5,DoorLockCompositional_PP_Lock_Keypad_CodeSpec_assume0__equal_DigitandDigit__equal_9,DoorLockCompositional_PP_Lock_KeypadSpec_guaranteetrue_minus__Request_equal__notPreRequestandnotprePreRequest,DoorLockCompositional_PP_Lock_KeypadSpec_guarantee_lpar_notRequest_rpar__minus___lpar_notPreRequest_rpar__minus__true,DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeRequest_equal___lpar_0__equal_CodeandCode__equal_999_rpar_,DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeRequest_equal__Press,DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeCode__equal_0,DoorLockCompositional_PP_Lock_KeypadSpec_assume0__equal_DigitandDigit__equal_9,DoorLockCompositional_PP_Lock_KeypadSpec_PreRequest",
+                        "assumptions": "(DoorLockCompositional_PP_Lock_Keypad,1),(DoorLockCompositional_PP_Lock_KeypadSpec_PreRequest,1),(DoorLockCompositional_PP_Lock_KeypadSpec_assume0__equal_DigitandDigit__equal_9,1),(DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeCode__equal_0,1),(DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeRequest_equal__Press,1),(DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeRequest_equal___lpar_0__equal_CodeandCode__equal_999_rpar_,1),(DoorLockCompositional_PP_Lock_KeypadSpec_guarantee_lpar_notRequest_rpar__minus___lpar_notPreRequest_rpar__minus__true,1),(DoorLockCompositional_PP_Lock_KeypadSpec_guaranteetrue_minus__Request_equal__notPreRequestandnotprePreRequest,1),(DoorLockCompositional_PP_Lock_Keypad_CodeSpec_assume0__equal_DigitandDigit__equal_9,1),(DoorLockCompositional_PP_Lock_Keypad_CodeSpec_guaranteecode__minus_5,1),(DoorLockCompositional_PP_Lock_Keypad_ElapsedTime,1),(DoorLockCompositional_PP_Lock_Keypad_IncompleteCode,1),(DoorLockCompositional_PP_Lock_Keypad_PressedDigits,1),(DoorLockCompositional_PP_Lock_Keypad_code,1)",
+                        "properties": [{
+                            "propertyName": "DoorLockCompositional_PP_Lock_KeypadSpec[l382c12].DoorLockCompositional_PP_Lock_KeypadSpec_guarantee_Code____0[1]",
+                            "answer": "SAFE",
+                            "originPath": "DoorLockCompositional_PP\/Lock\/KeypadSpec\/guarantee Code >= 0",
+                            "propertyType": "guarantee"
+                        }, {
+                            "propertyName": "DoorLockCompositional_PP_Lock_KeypadSpec[l382c12].DoorLockCompositional_PP_Lock_KeypadSpec_guarantee_Request_____0____Code_and_Code____999_[4]",
+                            "answer": "SAFE",
+                            "originPath": "DoorLockCompositional_PP\/Lock\/KeypadSpec\/guarantee Request => (0 <= Code and Code <= 999)",
+                            "propertyType": "guarantee"
+                        }, {
+                            "propertyName": "DoorLockCompositional_PP_Lock_Keypad_code[l395c14].DoorLockCompositional_PP_Lock_Keypad_CodeSpec_assume_0____Digit_and_Digit____9[1]",
+                            "answer": "SAFE",
+                            "originPath": "DoorLockCompositional_PP\/Lock\/Keypad\/CodeSpec\/assume 0 <= Digit and Digit <= 9",
+                            "propertyType": "assume"
+                        }, {
+                            "propertyName": "DoorLockCompositional_PP_Lock_KeypadSpec[l382c12].DoorLockCompositional_PP_Lock_KeypadSpec_guarantee_Request____Press[3]",
+                            "answer": "SAFE",
+                            "originPath": "DoorLockCompositional_PP\/Lock\/KeypadSpec\/guarantee Request => Press",
+                            "propertyType": "guarantee"
+                        }, {
+                            "propertyName": "DoorLockCompositional_PP_Lock_KeypadSpec[l382c12].DoorLockCompositional_PP_Lock_KeypadSpec_guarantee__not_Request______not_PreRequest_____true[2]",
+                            "answer": "SAFE",
+                            "originPath": "DoorLockCompositional_PP\/Lock\/KeypadSpec\/guarantee (not Request) -> (not PreRequest) -> true",
+                            "propertyType": "guarantee"
+                        }, {
+                            "propertyName": "DoorLockCompositional_PP_Lock_KeypadSpec[l382c12].DoorLockCompositional_PP_Lock_KeypadSpec_guarantee_true____Request____not_PreRequest_and_not_pre_PreRequest[5]",
+                            "answer": "SAFE",
+                            "originPath": "DoorLockCompositional_PP\/Lock\/KeypadSpec\/guarantee true -> Request => not PreRequest and not pre PreRequest",
+                            "propertyType": "guarantee"
+                        }]
+                    }, {
+                        "top": "DoorLockCompositional_PP\/Lock",
+                        "abstract": "Abstract Keypad, Abstract Control",
+                        "concrete": "DoorLockCompositional_PP_Lock_Timer,DoorLockCompositional_PP_Lock_KeypadSpec_guaranteetrue_minus__Request_equal__notPreRequestandnotprePreRequest,DoorLockCompositional_PP_Lock_KeypadSpec_guarantee_lpar_notRequest_rpar__minus___lpar_notPreRequest_rpar__minus__true,DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeRequest_equal___lpar_0__equal_CodeandCode__equal_999_rpar_,DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeRequest_equal__Press,DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeCode__equal_0,DoorLockCompositional_PP_Lock_KeypadSpec_assume0__equal_DigitandDigit__equal_9,DoorLockCompositional_PP_Lock_KeypadSpec_PreRequest,DoorLockCompositional_PP_Lock_ControlSpec_guaranteetrue,DoorLockCompositional_PP_LockSpec_guarantee_lpar_C__equal_4_rpar_,DoorLockCompositional_PP_LockSpec_guaranteeSince_lpar_Locks_comma_notPress_rpar__equal__notUnlocking_Since,DoorLockCompositional_PP_LockSpec_guaranteeSince_lpar_Locks_comma_notPress_rpar__equal__notUnlocking,DoorLockCompositional_PP_LockSpec_assume,DoorLockCompositional_PP_LockSpec_Locks,DoorLockCompositional_PP_LockSpec_C",
+                        "assumptions": "(DoorLockCompositional_PP_LockSpec_assume,1)",
+                        "properties": [{
+                            "propertyName": "DoorLockCompositional_PP_Lock_Keypad[l437c34].DoorLockCompositional_PP_Lock_KeypadSpec_assume_0____Digit_and_Digit____9[1]",
+                            "answer": "SAFE",
+                            "originPath": "DoorLockCompositional_PP\/Lock\/KeypadSpec\/assume 0 <= Digit and Digit <= 9",
+                            "propertyType": "assume"
+                        }, {
+                            "propertyName": "DoorLockCompositional_PP_LockSpec[l427c12].DoorLockCompositional_PP_LockSpec_guarantee_Since_Locks__not_Press_____not_Unlocking[2]",
+                            "answer": "CEX",
+                            "originPath": "DoorLockCompositional_PP\/LockSpec\/guarantee Since(Locks, not Press) => not Unlocking",
+                            "propertyType": "guarantee",
+                            "counterExample": {
+                                "node": {
+                                    "name": "DoorLockCompositional_PP_Lock",
+                                    "timeSteps": 7,
+                                    "streams": [{
+                                        "name": "Digit",
+                                        "type": "int",
+                                        "class": "input",
+                                        "values": [0, 0, 0, 0, 0, 0, 0]
+                                    }, {
+                                        "name": "Press",
+                                        "type": "bool",
+                                        "class": "input",
+                                        "values": [1, 1, 1, 0, 1, 1, 0]
+                                    }, {
+                                        "name": "MasterKey",
+                                        "type": "bool",
+                                        "class": "input",
+                                        "values": [0, 0, 0, 0, 0, 0, 0]
+                                    }, {
+                                        "name": "Unlocking",
+                                        "type": "bool",
+                                        "class": "output",
+                                        "values": [0, 1, 1, 1, 1, 0, 1]
+                                    }, {
+                                        "name": "Timer",
+                                        "type": "int",
+                                        "class": "local",
+                                        "values": [0, 4, 3, 2, 1, 0, 4]
+                                    }, {
+                                        "name": "Granted",
+                                        "type": "bool",
+                                        "class": "local",
+                                        "values": [0, 1, 0, 0, 1, 0, 1]
+                                    }, {
+                                        "name": "Request",
+                                        "type": "bool",
+                                        "class": "local",
+                                        "values": [0, 0, 0, 0, 0, 0, 0]
+                                    }, {
+                                        "name": "Code",
+                                        "type": "int",
+                                        "class": "local",
+                                        "values": [0, 0, 0, 0, 0, 0, 0]
+                                    }],
+                                    "nodes": [{
+                                        "name": "DoorLockCompositional_PP_LockSpec_Locks",
+                                        "timeSteps": 7,
+                                        "streams": [{
+                                            "name": "Unlocking",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": [0, 1, 1, 1, 1, 0, 1]
+                                        }, {
+                                            "name": "Locks",
+                                            "type": "bool",
+                                            "class": "output",
+                                            "values": [0, 0, 0, 0, 0, 1, 0]
+                                        }, {
+                                            "name": "preUnlocking",
+                                            "type": "bool",
+                                            "class": "local",
+                                            "values": [0, 0, 1, 1, 1, 1, 0]
+                                        }]
+                                    }, {
+                                        "name": "DoorLockCompositional_PP_Lock_Keypad",
+                                        "timeSteps": 7,
+                                        "streams": [{
+                                            "name": "Digit",
+                                            "type": "int",
+                                            "class": "input",
+                                            "values": [0, 0, 0, 0, 0, 0, 0]
+                                        }, {
+                                            "name": "Press",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": [1, 1, 1, 0, 1, 1, 0]
+                                        }, {
+                                            "name": "Request",
+                                            "type": "bool",
+                                            "class": "output",
+                                            "values": [0, 0, 0, 0, 0, 0, 0]
+                                        }, {
+                                            "name": "Code",
+                                            "type": "int",
+                                            "class": "output",
+                                            "values": [0, 0, 0, 0, 0, 0, 0]
+                                        }]
+                                    }, {
+                                        "name": "DoorLockCompositional_PP_Lock_Control",
+                                        "timeSteps": 7,
+                                        "streams": [{
+                                            "name": "Request",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": [0, 0, 0, 0, 0, 0, 0]
+                                        }, {
+                                            "name": "Code",
+                                            "type": "int",
+                                            "class": "input",
+                                            "values": [0, 0, 0, 0, 0, 0, 0]
+                                        }, {
+                                            "name": "MasterKey",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": [0, 0, 0, 0, 0, 0, 0]
+                                        }, {
+                                            "name": "CurrentCode",
+                                            "type": "int",
+                                            "class": "output",
+                                            "values": [0, 0, 0, 0, 0, 0, 0]
+                                        }, {
+                                            "name": "Granted",
+                                            "type": "bool",
+                                            "class": "output",
+                                            "values": [0, 1, 0, 0, 1, 0, 1]
+                                        }]
+                                    }, {
+                                        "name": "DoorLockCompositional_PP_Lock_Timer",
+                                        "timeSteps": 7,
+                                        "streams": [{
+                                            "name": "Unlocking",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": [0, 1, 1, 1, 1, 0, 1]
+                                        }, {
+                                            "name": "Granted",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": [0, 1, 0, 0, 1, 0, 1]
+                                        }, {
+                                            "name": "Timer",
+                                            "type": "int",
+                                            "class": "output",
+                                            "values": [0, 4, 3, 2, 1, 0, 4]
+                                        }, {
+                                            "name": "preUnlocking",
+                                            "type": "bool",
+                                            "class": "local",
+                                            "values": [0, 0, 1, 1, 1, 1, 0]
+                                        }, {
+                                            "name": "preTimer",
+                                            "type": "int",
+                                            "class": "local",
+                                            "values": [0, 0, 4, 3, 2, 1, 0]
+                                        }]
+                                    }, {
+                                        "name": "DoorLockCompositional_PP_LockSpec_guaranteeSince_lpar_Locks_comma_notPress_rpar__equal__notUnlocking",
+                                        "timeSteps": 7,
+                                        "streams": [{
+                                            "name": "Press",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": [1, 1, 1, 0, 1, 1, 0]
+                                        }, {
+                                            "name": "Unlocking",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": [0, 1, 1, 1, 1, 0, 1]
+                                        }, {
+                                            "name": "Locks",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": [0, 0, 0, 0, 0, 1, 0]
+                                        }, {
+                                            "name": "guarantee",
+                                            "type": "bool",
+                                            "class": "output",
+                                            "values": [1, 1, 1, 1, 1, 1, 0]
+                                        }, {
+                                            "name": "SinceXY",
+                                            "type": "bool",
+                                            "class": "local",
+                                            "values": [0, 0, 0, 0, 0, 1, 1]
+                                        }],
+                                        "nodes": {
+                                            "name": "DoorLockCompositional_PP_LockSpec_guaranteeSince_lpar_Locks_comma_notPress_rpar__equal__notUnlocking_Since",
+                                            "timeSteps": 7,
+                                            "streams": [{
+                                                "name": "X",
+                                                "type": "bool",
+                                                "class": "input",
+                                                "values": [0, 0, 0, 0, 0, 1, 0]
+                                            }, {
+                                                "name": "Y",
+                                                "type": "bool",
+                                                "class": "input",
+                                                "values": [0, 0, 0, 1, 0, 0, 1]
+                                            }, {
+                                                "name": "SinceXY",
+                                                "type": "bool",
+                                                "class": "output",
+                                                "values": [0, 0, 0, 0, 0, 1, 1]
+                                            }, {
+                                                "name": "preSinceXY",
+                                                "type": "bool",
+                                                "class": "local",
+                                                "values": [0, 0, 0, 0, 0, 0, 1]
+                                            }]
+                                        }
+                                    }]
+                                }
+                            }
+                        }, {
+                            "propertyName": "DoorLockCompositional_PP_LockSpec[l427c12].DoorLockCompositional_PP_LockSpec_guarantee__C____4_[1]",
+                            "answer": "SAFE",
+                            "originPath": "DoorLockCompositional_PP\/LockSpec\/guarantee (C <= 4)",
+                            "propertyType": "guarantee"
+                        }]
+                    }, {
+                        "top": "DoorLockCompositional_PP\/Lock",
+                        "abstract": "Abstract Control",
+                        "concrete": "DoorLockCompositional_PP_Lock_Timer,DoorLockCompositional_PP_Lock_Keypad_code,DoorLockCompositional_PP_Lock_Keypad_PressedDigits,DoorLockCompositional_PP_Lock_Keypad_IncompleteCode,DoorLockCompositional_PP_Lock_Keypad_ElapsedTime,DoorLockCompositional_PP_Lock_Keypad_CodeSpec_guaranteecode__minus_5,DoorLockCompositional_PP_Lock_Keypad_CodeSpec_assume0__equal_DigitandDigit__equal_9,DoorLockCompositional_PP_Lock_KeypadSpec_guaranteetrue_minus__Request_equal__notPreRequestandnotprePreRequest,DoorLockCompositional_PP_Lock_KeypadSpec_guarantee_lpar_notRequest_rpar__minus___lpar_notPreRequest_rpar__minus__true,DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeRequest_equal___lpar_0__equal_CodeandCode__equal_999_rpar_,DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeRequest_equal__Press,DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeCode__equal_0,DoorLockCompositional_PP_Lock_KeypadSpec_assume0__equal_DigitandDigit__equal_9,DoorLockCompositional_PP_Lock_KeypadSpec_PreRequest,DoorLockCompositional_PP_Lock_Keypad,DoorLockCompositional_PP_Lock_ControlSpec_guaranteetrue,DoorLockCompositional_PP_LockSpec_guarantee_lpar_C__equal_4_rpar_,DoorLockCompositional_PP_LockSpec_guaranteeSince_lpar_Locks_comma_notPress_rpar__equal__notUnlocking_Since,DoorLockCompositional_PP_LockSpec_guaranteeSince_lpar_Locks_comma_notPress_rpar__equal__notUnlocking,DoorLockCompositional_PP_LockSpec_assume,DoorLockCompositional_PP_LockSpec_Locks,DoorLockCompositional_PP_LockSpec_C",
+                        "assumptions": "(DoorLockCompositional_PP_Lock,1),(DoorLockCompositional_PP_LockSpec_C,1),(DoorLockCompositional_PP_LockSpec_Locks,1),(DoorLockCompositional_PP_LockSpec_assume,1),(DoorLockCompositional_PP_LockSpec_guaranteeSince_lpar_Locks_comma_notPress_rpar__equal__notUnlocking,1),(DoorLockCompositional_PP_LockSpec_guaranteeSince_lpar_Locks_comma_notPress_rpar__equal__notUnlocking_Since,1),(DoorLockCompositional_PP_LockSpec_guarantee_lpar_C__equal_4_rpar_,1),(DoorLockCompositional_PP_Lock_Control,1),(DoorLockCompositional_PP_Lock_ControlSpec_guaranteetrue,1),(DoorLockCompositional_PP_Lock_Keypad,1),(DoorLockCompositional_PP_Lock_KeypadSpec_PreRequest,1),(DoorLockCompositional_PP_Lock_KeypadSpec_assume0__equal_DigitandDigit__equal_9,1),(DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeCode__equal_0,1),(DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeRequest_equal__Press,1),(DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeRequest_equal___lpar_0__equal_CodeandCode__equal_999_rpar_,1),(DoorLockCompositional_PP_Lock_KeypadSpec_guarantee_lpar_notRequest_rpar__minus___lpar_notPreRequest_rpar__minus__true,1),(DoorLockCompositional_PP_Lock_KeypadSpec_guaranteetrue_minus__Request_equal__notPreRequestandnotprePreRequest,1),(DoorLockCompositional_PP_Lock_Timer,1)",
+                        "properties": [{
+                            "propertyName": "DoorLockCompositional_PP_LockSpec[l427c12].DoorLockCompositional_PP_LockSpec_guarantee_Since_Locks__not_Press_____not_Unlocking[2]",
+                            "answer": "CEX",
+                            "originPath": "DoorLockCompositional_PP\/LockSpec\/guarantee Since(Locks, not Press) => not Unlocking",
+                            "propertyType": "guarantee",
+                            "counterExample": {
+                                "node": {
+                                    "name": "DoorLockCompositional_PP_Lock",
+                                    "timeSteps": 7,
+                                    "streams": [{
+                                        "name": "Digit",
+                                        "type": "int",
+                                        "class": "input",
+                                        "values": [0, 1, 9, 1, 0, 0, 0]
+                                    }, {
+                                        "name": "Press",
+                                        "type": "bool",
+                                        "class": "input",
+                                        "values": [0, 0, 0, 1, 1, 0, 0]
+                                    }, {
+                                        "name": "MasterKey",
+                                        "type": "bool",
+                                        "class": "input",
+                                        "values": [0, 0, 0, 0, 0, 0, 0]
+                                    }, {
+                                        "name": "Unlocking",
+                                        "type": "bool",
+                                        "class": "output",
+                                        "values": [0, 1, 1, 1, 1, 0, 1]
+                                    }, {
+                                        "name": "Timer",
+                                        "type": "int",
+                                        "class": "local",
+                                        "values": [0, 4, 3, 2, 1, 0, 4]
+                                    }, {
+                                        "name": "Granted",
+                                        "type": "bool",
+                                        "class": "local",
+                                        "values": [0, 1, 1, 0, 0, 0, 1]
+                                    }, {
+                                        "name": "Request",
+                                        "type": "bool",
+                                        "class": "local",
+                                        "values": [0, 0, 0, 0, 0, 0, 0]
+                                    }, {
+                                        "name": "Code",
+                                        "type": "int",
+                                        "class": "local",
+                                        "values": [0, 0, 0, 1, 10, 10, 10]
+                                    }],
+                                    "nodes": [{
+                                        "name": "DoorLockCompositional_PP_LockSpec_Locks",
+                                        "timeSteps": 7,
+                                        "streams": [{
+                                            "name": "Unlocking",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": [0, 1, 1, 1, 1, 0, 1]
+                                        }, {
+                                            "name": "Locks",
+                                            "type": "bool",
+                                            "class": "output",
+                                            "values": [0, 0, 0, 0, 0, 1, 0]
+                                        }, {
+                                            "name": "preUnlocking",
+                                            "type": "bool",
+                                            "class": "local",
+                                            "values": [0, 0, 1, 1, 1, 1, 0]
+                                        }]
+                                    }, {
+                                        "name": "DoorLockCompositional_PP_Lock_Keypad",
+                                        "timeSteps": 7,
+                                        "streams": [{
+                                            "name": "Digit",
+                                            "type": "int",
+                                            "class": "input",
+                                            "values": [0, 1, 9, 1, 0, 0, 0]
+                                        }, {
+                                            "name": "Press",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": [0, 0, 0, 1, 1, 0, 0]
+                                        }, {
+                                            "name": "Request",
+                                            "type": "bool",
+                                            "class": "output",
+                                            "values": [0, 0, 0, 0, 0, 0, 0]
+                                        }, {
+                                            "name": "Code",
+                                            "type": "int",
+                                            "class": "output",
+                                            "values": [0, 0, 0, 1, 10, 10, 10]
+                                        }, {
+                                            "name": "PressedDigits",
+                                            "type": "int",
+                                            "class": "local",
+                                            "values": [0, 0, 0, 1, 2, 2, 2]
+                                        }, {
+                                            "name": "ElapsedTime",
+                                            "type": "int",
+                                            "class": "local",
+                                            "values": [0, 0, 0, 0, 0, 1, 2]
+                                        }, {
+                                            "name": "IncompleteCode",
+                                            "type": "bool",
+                                            "class": "local",
+                                            "values": [0, 0, 0, 0, 1, 1, 1]
+                                        }, {
+                                            "name": "Code",
+                                            "type": "int",
+                                            "class": "local",
+                                            "values": [0, 0, 0, 1, 10, 10, 10]
+                                        }],
+                                        "nodes": [{
+                                            "name": "DoorLockCompositional_PP_Lock_Keypad_code",
+                                            "timeSteps": 7,
+                                            "streams": [{
+                                                "name": "PressedDigits",
+                                                "type": "int",
+                                                "class": "input",
+                                                "values": [0, 0, 0, 1, 2, 2, 2]
+                                            }, {
+                                                "name": "Press",
+                                                "type": "bool",
+                                                "class": "input",
+                                                "values": [0, 0, 0, 1, 1, 0, 0]
+                                            }, {
+                                                "name": "Digit",
+                                                "type": "int",
+                                                "class": "input",
+                                                "values": [0, 1, 9, 1, 0, 0, 0]
+                                            }, {
+                                                "name": "Code",
+                                                "type": "int",
+                                                "class": "output",
+                                                "values": [0, 0, 0, 1, 10, 10, 10]
+                                            }, {
+                                                "name": "preCode",
+                                                "type": "int",
+                                                "class": "local",
+                                                "values": [0, 0, 0, 0, 1, 10, 10]
+                                            }]
+                                        }, {
+                                            "name": "DoorLockCompositional_PP_Lock_Keypad_IncompleteCode",
+                                            "timeSteps": 7,
+                                            "streams": [{
+                                                "name": "PressedDigits",
+                                                "type": "int",
+                                                "class": "input",
+                                                "values": [0, 0, 0, 1, 2, 2, 2]
+                                            }, {
+                                                "name": "IncompleteCode",
+                                                "type": "bool",
+                                                "class": "output",
+                                                "values": [0, 0, 0, 0, 1, 1, 1]
+                                            }, {
+                                                "name": "prePressedDigits",
+                                                "type": "int",
+                                                "class": "local",
+                                                "values": [0, 0, 0, 0, 1, 2, 2]
+                                            }]
+                                        }, {
+                                            "name": "DoorLockCompositional_PP_Lock_Keypad_ElapsedTime",
+                                            "timeSteps": 7,
+                                            "streams": [{
+                                                "name": "Press",
+                                                "type": "bool",
+                                                "class": "input",
+                                                "values": [0, 0, 0, 1, 1, 0, 0]
+                                            }, {
+                                                "name": "ExpirationTime",
+                                                "type": "int",
+                                                "class": "input",
+                                                "values": [9, 9, 9, 9, 9, 9, 9]
+                                            }, {
+                                                "name": "IncompleteCode",
+                                                "type": "bool",
+                                                "class": "input",
+                                                "values": [0, 0, 0, 0, 1, 1, 1]
+                                            }, {
+                                                "name": "ElapsedTime",
+                                                "type": "int",
+                                                "class": "output",
+                                                "values": [0, 0, 0, 0, 0, 1, 2]
+                                            }, {
+                                                "name": "preElapsedTime",
+                                                "type": "int",
+                                                "class": "local",
+                                                "values": [0, 0, 0, 0, 0, 0, 1]
+                                            }]
+                                        }, {
+                                            "name": "DoorLockCompositional_PP_Lock_Keypad_PressedDigits",
+                                            "timeSteps": 7,
+                                            "streams": [{
+                                                "name": "Press",
+                                                "type": "bool",
+                                                "class": "input",
+                                                "values": [0, 0, 0, 1, 1, 0, 0]
+                                            }, {
+                                                "name": "ExpirationTime",
+                                                "type": "int",
+                                                "class": "input",
+                                                "values": [9, 9, 9, 9, 9, 9, 9]
+                                            }, {
+                                                "name": "ElapsedTime",
+                                                "type": "int",
+                                                "class": "input",
+                                                "values": [0, 0, 0, 0, 0, 1, 2]
+                                            }, {
+                                                "name": "PressedDigits",
+                                                "type": "int",
+                                                "class": "output",
+                                                "values": [0, 0, 0, 1, 2, 2, 2]
+                                            }, {
+                                                "name": "prePressedDigits",
+                                                "type": "int",
+                                                "class": "local",
+                                                "values": [0, 0, 0, 0, 1, 2, 2]
+                                            }]
+                                        }]
+                                    }, {
+                                        "name": "DoorLockCompositional_PP_Lock_Control",
+                                        "timeSteps": 7,
+                                        "streams": [{
+                                            "name": "Request",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": [0, 0, 0, 0, 0, 0, 0]
+                                        }, {
+                                            "name": "Code",
+                                            "type": "int",
+                                            "class": "input",
+                                            "values": [0, 0, 0, 1, 10, 10, 10]
+                                        }, {
+                                            "name": "MasterKey",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": [0, 0, 0, 0, 0, 0, 0]
+                                        }, {
+                                            "name": "CurrentCode",
+                                            "type": "int",
+                                            "class": "output",
+                                            "values": [0, 0, 0, 0, 0, 0, 0]
+                                        }, {
+                                            "name": "Granted",
+                                            "type": "bool",
+                                            "class": "output",
+                                            "values": [0, 1, 1, 0, 0, 0, 1]
+                                        }]
+                                    }, {
+                                        "name": "DoorLockCompositional_PP_Lock_Timer",
+                                        "timeSteps": 7,
+                                        "streams": [{
+                                            "name": "Unlocking",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": [0, 1, 1, 1, 1, 0, 1]
+                                        }, {
+                                            "name": "Granted",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": [0, 1, 1, 0, 0, 0, 1]
+                                        }, {
+                                            "name": "Timer",
+                                            "type": "int",
+                                            "class": "output",
+                                            "values": [0, 4, 3, 2, 1, 0, 4]
+                                        }, {
+                                            "name": "preUnlocking",
+                                            "type": "bool",
+                                            "class": "local",
+                                            "values": [0, 0, 1, 1, 1, 1, 0]
+                                        }, {
+                                            "name": "preTimer",
+                                            "type": "int",
+                                            "class": "local",
+                                            "values": [0, 0, 4, 3, 2, 1, 0]
+                                        }]
+                                    }, {
+                                        "name": "DoorLockCompositional_PP_LockSpec_guaranteeSince_lpar_Locks_comma_notPress_rpar__equal__notUnlocking",
+                                        "timeSteps": 7,
+                                        "streams": [{
+                                            "name": "Press",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": [0, 0, 0, 1, 1, 0, 0]
+                                        }, {
+                                            "name": "Unlocking",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": [0, 1, 1, 1, 1, 0, 1]
+                                        }, {
+                                            "name": "Locks",
+                                            "type": "bool",
+                                            "class": "input",
+                                            "values": [0, 0, 0, 0, 0, 1, 0]
+                                        }, {
+                                            "name": "guarantee",
+                                            "type": "bool",
+                                            "class": "output",
+                                            "values": [1, 1, 1, 1, 1, 1, 0]
+                                        }, {
+                                            "name": "SinceXY",
+                                            "type": "bool",
+                                            "class": "local",
+                                            "values": [0, 0, 0, 0, 0, 1, 1]
+                                        }],
+                                        "nodes": {
+                                            "name": "DoorLockCompositional_PP_LockSpec_guaranteeSince_lpar_Locks_comma_notPress_rpar__equal__notUnlocking_Since",
+                                            "timeSteps": 7,
+                                            "streams": [{
+                                                "name": "X",
+                                                "type": "bool",
+                                                "class": "input",
+                                                "values": [0, 0, 0, 0, 0, 1, 0]
+                                            }, {
+                                                "name": "Y",
+                                                "type": "bool",
+                                                "class": "input",
+                                                "values": [1, 1, 1, 0, 0, 1, 1]
+                                            }, {
+                                                "name": "SinceXY",
+                                                "type": "bool",
+                                                "class": "output",
+                                                "values": [0, 0, 0, 0, 0, 1, 1]
+                                            }, {
+                                                "name": "preSinceXY",
+                                                "type": "bool",
+                                                "class": "local",
+                                                "values": [0, 0, 0, 0, 0, 0, 1]
+                                            }]
+                                        }
+                                    }]
+                                }
+                            }
+                        }, {
+                            "propertyName": "DoorLockCompositional_PP_Lock_Keypad[l437c34].DoorLockCompositional_PP_Lock_KeypadSpec_assume_0____Digit_and_Digit____9[1]",
+                            "answer": "SAFE",
+                            "originPath": "DoorLockCompositional_PP\/Lock\/KeypadSpec\/assume 0 <= Digit and Digit <= 9",
+                            "propertyType": "assume"
+                        }, {
+                            "propertyName": "DoorLockCompositional_PP_LockSpec[l427c12].DoorLockCompositional_PP_LockSpec_guarantee__C____4_[1]",
+                            "answer": "SAFE",
+                            "originPath": "DoorLockCompositional_PP\/LockSpec\/guarantee (C <= 4)",
+                            "propertyType": "guarantee"
+                        }]
+                    }, {
+                        "top": "DoorLockCompositional_PP\/Lock",
+                        "abstract": "",
+                        "concrete": "DoorLockCompositional_PP_Lock_Timer,DoorLockCompositional_PP_Lock_Keypad_code,DoorLockCompositional_PP_Lock_Keypad_PressedDigits,DoorLockCompositional_PP_Lock_Keypad_IncompleteCode,DoorLockCompositional_PP_Lock_Keypad_ElapsedTime,DoorLockCompositional_PP_Lock_Keypad_CodeSpec_guaranteecode__minus_5,DoorLockCompositional_PP_Lock_Keypad_CodeSpec_assume0__equal_DigitandDigit__equal_9,DoorLockCompositional_PP_Lock_KeypadSpec_guaranteetrue_minus__Request_equal__notPreRequestandnotprePreRequest,DoorLockCompositional_PP_Lock_KeypadSpec_guarantee_lpar_notRequest_rpar__minus___lpar_notPreRequest_rpar__minus__true,DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeRequest_equal___lpar_0__equal_CodeandCode__equal_999_rpar_,DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeRequest_equal__Press,DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeCode__equal_0,DoorLockCompositional_PP_Lock_KeypadSpec_assume0__equal_DigitandDigit__equal_9,DoorLockCompositional_PP_Lock_KeypadSpec_PreRequest,DoorLockCompositional_PP_Lock_Keypad,DoorLockCompositional_PP_Lock_ControlSpec_guaranteetrue,DoorLockCompositional_PP_Lock_Control,DoorLockCompositional_PP_LockSpec_guarantee_lpar_C__equal_4_rpar_,DoorLockCompositional_PP_LockSpec_guaranteeSince_lpar_Locks_comma_notPress_rpar__equal__notUnlocking_Since,DoorLockCompositional_PP_LockSpec_guaranteeSince_lpar_Locks_comma_notPress_rpar__equal__notUnlocking,DoorLockCompositional_PP_LockSpec_assume,DoorLockCompositional_PP_LockSpec_Locks,DoorLockCompositional_PP_LockSpec_C",
+                        "assumptions": "(DoorLockCompositional_PP_Lock,1),(DoorLockCompositional_PP_LockSpec_C,1),(DoorLockCompositional_PP_LockSpec_Locks,1),(DoorLockCompositional_PP_LockSpec_assume,1),(DoorLockCompositional_PP_LockSpec_guaranteeSince_lpar_Locks_comma_notPress_rpar__equal__notUnlocking,1),(DoorLockCompositional_PP_LockSpec_guaranteeSince_lpar_Locks_comma_notPress_rpar__equal__notUnlocking_Since,1),(DoorLockCompositional_PP_LockSpec_guarantee_lpar_C__equal_4_rpar_,1),(DoorLockCompositional_PP_Lock_Control,1),(DoorLockCompositional_PP_Lock_ControlSpec_guaranteetrue,1),(DoorLockCompositional_PP_Lock_Keypad,1),(DoorLockCompositional_PP_Lock_KeypadSpec_PreRequest,1),(DoorLockCompositional_PP_Lock_KeypadSpec_assume0__equal_DigitandDigit__equal_9,1),(DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeCode__equal_0,1),(DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeRequest_equal__Press,1),(DoorLockCompositional_PP_Lock_KeypadSpec_guaranteeRequest_equal___lpar_0__equal_CodeandCode__equal_999_rpar_,1),(DoorLockCompositional_PP_Lock_KeypadSpec_guarantee_lpar_notRequest_rpar__minus___lpar_notPreRequest_rpar__minus__true,1),(DoorLockCompositional_PP_Lock_KeypadSpec_guaranteetrue_minus__Request_equal__notPreRequestandnotprePreRequest,1),(DoorLockCompositional_PP_Lock_Keypad_CodeSpec_assume0__equal_DigitandDigit__equal_9,1),(DoorLockCompositional_PP_Lock_Keypad_CodeSpec_guaranteecode__minus_5,1),(DoorLockCompositional_PP_Lock_Keypad_ElapsedTime,1),(DoorLockCompositional_PP_Lock_Keypad_IncompleteCode,1),(DoorLockCompositional_PP_Lock_Keypad_PressedDigits,1),(DoorLockCompositional_PP_Lock_Keypad_code,1),(DoorLockCompositional_PP_Lock_Timer,1)",
+                        "properties": [{
+                            "propertyName": "DoorLockCompositional_PP_LockSpec[l427c12].DoorLockCompositional_PP_LockSpec_guarantee_Since_Locks__not_Press_____not_Unlocking[2]",
+                            "answer": "SAFE",
+                            "originPath": "DoorLockCompositional_PP\/LockSpec\/guarantee Since(Locks, not Press) => not Unlocking",
+                            "propertyType": "guarantee"
+                        }, {
+                            "propertyName": "DoorLockCompositional_PP_Lock_Keypad[l437c34].DoorLockCompositional_PP_Lock_KeypadSpec_assume_0____Digit_and_Digit____9[1]",
+                            "answer": "SAFE",
+                            "originPath": "DoorLockCompositional_PP\/Lock\/KeypadSpec\/assume 0 <= Digit and Digit <= 9",
+                            "propertyType": "assume"
+                        }, {
+                            "propertyName": "DoorLockCompositional_PP_LockSpec[l427c12].DoorLockCompositional_PP_LockSpec_guarantee__C____4_[1]",
+                            "answer": "SAFE",
+                            "originPath": "DoorLockCompositional_PP\/LockSpec\/guarantee (C <= 4)",
+                            "propertyType": "guarantee"
+                        }]
+                    }], "sampleTime": 0.2
+            };
+
+            var modelPath = 'C:\\temp\\matlab\\cocoSim2\\examples\\contract\\DoorLockCompositionalHtml.slx';
+
+            // make sure analysisResults is an array
+            if (! Array.isArray(verificationResults.analysisResults)){
+                verificationResults.analysisResults = [verificationResults.analysisResults];
+            }
+
+            // group contracts per analysis result
+            var summary = {};
+
+            verificationResults.analysisResults.forEach(function (result, index) {
+                // split subnodes
+                result.subnodes = result.abstract.split(',');
+                result.subnodes = result.subnodes.map(function(node){
+                    return node.trim();
+                });
+
+                if(!summary[result.top]){
+                    summary[result.top] = {};
+                    summary[result.top].analyses = [result];
+                    summary[result.top].subnodes = result.subnodes.slice();
+                }
+                else {
+                    summary[result.top].analyses.push(result);
+
+                    result.subnodes.forEach(function (node){
+                        if(! summary[result.top].subnodes.includes(node)){
+                            summary[result.top].subnodes.push(node);
+                        }
+                    });
+                }
+
+                $('#verificationResults').append('<br/>');
+                $('#verificationResults').append('<h2>' + result.top + '</h2>');
+                $('#verificationResults').append('<h3>' + result.abstract + '</h3>');
+
+                // make sure properties is an array
+                if (! Array.isArray(result.properties)){
+                    result.properties = [result.properties];
+                }
+
+                // overall default answer is safe
+                result.answer = 'SAFE';
+
+                var table = $.parseHTML(
+                    '<table class="table table-striped">' +
+                        '<thead><tr>' +
+                            '<th>Property</th>' +
+                            '<th>Answer</th>' +
+                        '</tr></thead>' +
+                    '</table>');
+
+                var tbody = $.parseHTML('<tbody></tbody>');
+
+                $(table).append(tbody);
+
+                $('#verificationResults').append(table);
+
+                result.properties.forEach(function(property, propertyIndex){
+
+                    var row = $.parseHTML('<tr></tr>');
+
+                    $(tbody).append(row);
+
+                    if(property.answer == 'SAFE'){
+                        $(row).append('<td>' + property.originPath + '</td>');
+                        $(row).append('<td><i style="color: green" class="fas fa-check-circle"></i></td>');
+                    }
+                    else if(property.answer === "CEX"){
+
+                        result.answer = 'CEX';
+
+                        var matlabCommands = 'open(\'' + modelPath + '\');' +
+                            'displayCexHtmlTables(' + (index+1) + ','+ (propertyIndex +1) + ');';
+
+                        $(row).append(
+                            '<td>'+
+                                '<a href="matlab:'+matlabCommands+'">' +
+                                    property.originPath +
+                                '</a>' +
+                            '</td>');
+
+                        $(row).append(
+                            '<td>'+
+                            '<a href="matlab:'+matlabCommands+'">' +
+                                '<i style="color: orangered" class="fas fa-times-circle"></i>' +
+                            '</a>' +
+                            '</td>');
+                    }
+                    else {
+                        $(row).append('<td>' + property.originPath + '</td>');
+                        $(row).append('<td><i style="color: yellow" class="fas fa-exclamation-circle"></i></td>');
+                        if(property.answer === 'UNKNOWN' && result.answer === 'SAFE'){
+                            result.answer = 'UNKNOWN';
+                        }
+                    }
+
+                });
+            });
+
+            console.log(summary);
+
+            $('#verificationResults').prepend('<div id="summary"></div>');
+
+            Object.keys(summary).forEach(function(key, keyIndex){
+
+                $('#summary').append('<h2> ' + key + ' </h2>');
+
+                var table = $.parseHTML('<table class="table table-striped"></table>');
+                var thead = $.parseHTML('<thead></thead>');
+                var head = $.parseHTML('<tr></tr>');
+
+                $(table).append(thead);
+                $(thead).append(head);
+
+                // remove empty strings
+                summary[key].subnodes = summary[key].subnodes.filter(function (node) {
+                    return node != '';
+                });
+
+                // table head
+                summary[key].subnodes.forEach(function (node, nodeIndex){
+                    $(head).append('<th>'+ node + '</th>');
+                });
+
+                $(head).append('<th>Result</th>');
+
+                var tbody = $.parseHTML('<tbody></tbody>');
+                $(table).append(tbody);
+
+                // table rows
+                for(var i = 0 ; i < summary[key].analyses.length; i++) {
+                    var row = $.parseHTML('<tr></tr>');
+                    var analysis = summary[key].analyses[i];
+
+                    for(var j = 0; j < summary[key].subnodes.length; j++) {
+                        var node = summary[key].subnodes[j];
+                        if(analysis.subnodes.includes(node)){
+                            $(row).append('<td><i class="fas fa-check"></i></td>');
+                        }
+                        else {
+                            $(row).append('<td><i class="fas fa-times"></i></td>');
+                        }
+                    }
+
+                    var answer =  analysis.answer;
+                    if(answer === 'SAFE') {
+                        $(row).append('<td><i style="color: green" class="fas fa-check-circle"></i></td>');
+                    }
+                    else if(answer === 'CEX') {
+                        $(row).append('<td><i style="color: orangered" class="fas fa-times-circle"></i></td>');
+                    }
+                    else{
+                        $(row).append('<td><i style="color: yellow" class="fas fa-exclamation-circle"></i></td>');
+                    }
+
+                    $(tbody).append(row);
+                }
+
+                $('#summary').append(table);
+
+            });
+        });
+    </script>
+</body>
+</html>
