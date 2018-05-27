@@ -12,13 +12,24 @@
     <link rel="stylesheet" href="bootstrap.min.css"/>
     <script src="popper.min.js"></script>
     <script src="bootstrap.min.js"></script>
+    <style>
+        h1 {
+            color:#337ab7;
+            text-align: center;
+        }
+        body{
+            padding: 20px;
+        }
+    </style>
 </head>
-
 <body>
-<div id="verificationResults">
-
-</div>
-
+    <h1>Verification Summary</h1>
+    <br/>
+    <div id="summary"></div>
+    <br/>
+    <h1>Verification Results</h1>
+    <br/>
+    <div id="verificationResults"></div>
     <script>
         $(document).ready(function () {
 
@@ -1036,9 +1047,14 @@
                     });
                 }
 
-                $('#verificationResults').append('<br/>');
                 $('#verificationResults').append('<h2>' + result.top + '</h2>');
-                $('#verificationResults').append('<h3>' + result.abstract + '</h3>');
+
+                if(result.abstract === '') {
+                    $('#verificationResults').append('<h3>No abstract</h3>');
+                }
+                else {
+                    $('#verificationResults').append('<h3>' + result.abstract + '</h3>');
+                }
 
                 // make sure properties is an array
                 if (! Array.isArray(result.properties)){
@@ -1105,8 +1121,6 @@
             });
 
             console.log(summary);
-
-            $('#verificationResults').prepend('<div id="summary"></div>');
 
             Object.keys(summary).forEach(function(key, keyIndex){
 
