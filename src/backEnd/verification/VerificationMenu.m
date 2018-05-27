@@ -128,8 +128,7 @@ classdef VerificationMenu
             
             modelPath = get_param(callbackInfo.studio.App.blockDiagramHandle, 'FileName');
             
-            modelPath = strrep(modelPath, '\', '\\');
-            modelPath
+            modelPath = strrep(modelPath, '\', '\\');            
 
             filePath = fileparts(mfilename('fullpath'));
             filePath = fullfile(filePath, 'cocoSpecVerify', 'utils', 'html');
@@ -147,13 +146,38 @@ classdef VerificationMenu
             tempFolder = fileparts(tempname);
             
             if ~ exist(fullfile(tempFolder, 'jquery.min.js'), 'file')
-                copyfile(fullfile(filePath, 'html', 'js', 'jquery.min.js'), ...
+                copyfile(fullfile(filePath, 'js', 'jquery.min.js'), ...
                 fullfile(tempFolder, 'jquery.min.js')); 
+            end
+            
+            if ~ exist(fullfile(tempFolder, 'fa-svg-with-js.css'), 'file')
+                copyfile(fullfile(filePath, 'css', 'fa-svg-with-js.css'), ...
+                fullfile(tempFolder, 'fa-svg-with-js.css')); 
+            end
+            
+            if ~ exist(fullfile(tempFolder, 'fontawesome-all.js'), 'file')
+                copyfile(fullfile(filePath, 'js', 'fontawesome-all.js'), ...
+                fullfile(tempFolder, 'fontawesome-all.js')); 
+            end
+            
+            if ~ exist(fullfile(tempFolder, 'bootstrap.min.css'), 'file')
+                copyfile(fullfile(filePath, 'css', 'bootstrap.min.css'), ...
+                fullfile(tempFolder, 'bootstrap.min.css')); 
+            end
+            
+            if ~ exist(fullfile(tempFolder, 'popper.min.js'), 'file')
+                copyfile(fullfile(filePath, 'js', 'popper.min.js'), ...
+                fullfile(tempFolder, 'popper.min.js')); 
+            end
+            
+            if ~ exist(fullfile(tempFolder, 'bootstrap.min.js'), 'file')
+                copyfile(fullfile(filePath, 'js', 'bootstrap.min.js'), ...
+                fullfile(tempFolder, 'bootstrap.min.js')); 
             end
             
             % open the web page in matlab browser
             url = ['file:///',htmlFile];
-            web(url);
+            web(url, '-browser');
             
         end
         
