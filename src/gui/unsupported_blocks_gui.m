@@ -66,19 +66,19 @@ masks = unique(masks);
 if numel(unsupported)>0 || numel(preprocessed)>0
     
 
-    annot_text = fileread(fullfile(cocoSim_path, 'backEnd', 'html_templates', 'header.html'));
-    title = fileread(fullfile(cocoSim_path, 'backEnd', 'html_templates', 'title2.html'));
+    annot_text = fileread(fullfile(cocoSim_path, 'backEnd', 'templates', 'header.html'));
+    title = fileread(fullfile(cocoSim_path, 'backEnd', 'templates', 'title2.html'));
     title = strrep(title, '[observer_full_name]', 'Unsupported blocks or blocks that can be preprocessed by CocoSim:');
     annot_text = [annot_text title];
     %blocks can be preprocessed
     if numel(preprocessed)>0
-        list_title = fileread(fullfile(cocoSim_path , 'backEnd' , 'html_templates' , 'list_title.html'));
+        list_title = fileread(fullfile(cocoSim_path , 'backEnd' , 'templates' , 'list_title.html'));
         list_title = strrep(list_title, '[Title]', 'Blocks can be pre-processed by CocoSim');
         
         actions = '';
         for idx=1:numel(preprocessed)
             title = sprintf('Block %s',char(preprocessed{idx}));
-            action = fileread(fullfile(cocoSim_path , 'backEnd' , 'html_templates' , 'list_item_mat_code.html'));
+            action = fileread(fullfile(cocoSim_path , 'backEnd' , 'templates' , 'list_item_mat_code.html'));
             action = strrep(action, '[Item]', title);
             content = sprintf('open_system(''%s'',''tab'')\n',preprocessed{idx});
             action = strrep(action, '[Matlab_code]', content);
@@ -90,13 +90,13 @@ if numel(unsupported)>0 || numel(preprocessed)>0
     end
     %unsupported blocks
     if numel(unsupported)>0
-        list_title = fileread(fullfile(cocoSim_path , 'backEnd' , 'html_templates' , 'list_title.html'));
+        list_title = fileread(fullfile(cocoSim_path , 'backEnd' , 'templates' , 'list_title.html'));
         list_title = strrep(list_title, '[Title]', 'Unsupported blocks');
         
         actions = '';
         for idx=1:numel(unsupported)
             title = sprintf('Block %s',char(unsupported{idx}));
-            action = fileread(fullfile(cocoSim_path , 'backEnd' , 'html_templates' , 'list_item_mat_code.html'));
+            action = fileread(fullfile(cocoSim_path , 'backEnd' , 'templates' , 'list_item_mat_code.html'));
             action = strrep(action, '[Item]', title);
             content = sprintf('open_system(''%s'',''tab'')\n',unsupported{idx});
             action = strrep(action, '[Matlab_code]', content);
