@@ -20,8 +20,9 @@ Download the [CoCoSim ToolBox](https://github.com/coco-team/cocoSim/releases)
 
 ## Installation
 
-## Windows (Docker)
+## Windows (Kind2 web service)
 
+## Windows (Docker)
 
 CoCoSim can be installed and used as follows:
 
