@@ -21,7 +21,7 @@ Download the [CoCoSim ToolBox](https://github.com/coco-team/cocoSim/releases)
 ## Installation
 
 ## Windows (Docker)
-[![ScreenCast of CoCoSim]](https://github.com/coco-team/cocoSim2/blob/uiowa_cocosim/doc/videos/docker.mp4)
+
 
 CoCoSim can be installed and used as follows:
 
