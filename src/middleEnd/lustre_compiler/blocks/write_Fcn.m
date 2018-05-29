@@ -40,7 +40,7 @@ add_vars = '';
 [list_in] = list_var_entree(block, ir_sturct);
 
 % Prepare node header
-blk_path_elems = regexp(block.Path, filesep, 'split');
+blk_path_elems = regexp(block.Path, '/', 'split');
 node_call_name = Utils.concat_delim(blk_path_elems, '_');
 
 in_dt = LusUtils.get_lustre_dt(block.CompiledPortDataTypes.Inport(1));

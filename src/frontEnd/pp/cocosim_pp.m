@@ -1,3 +1,10 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This file is part of CoCoSim.
+% Copyright (C) 2014-2016  Carnegie Mellon University
+% Copyright (C) 2018  The university of Iowa
+% Authors: Christelle Dambreville, Pierre-Loic Garoche, Mudathir Mahgoub
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 function new_file = cocosim_pp(file_name, constant_file, varargin)
 % PP processes a Simulink model in order to make it CoCoSim friendly.
 %   It changes the differents blocks into their equivalent that is 
@@ -21,8 +28,23 @@ evalin('base','global verif;');
 
 % Get the model file info
 [model_path, model, ext] = fileparts(file_name);
-new_file = fullfile(model_path,strcat(model, '_PP', ext));
-new_model = strcat(model,'_PP');
+
+% check to see if the current model is a preprocessed model 
+modelWorkspace = get_param(gcs,'modelworkspace');
+
+isPreprocessedModel = false;
+
+if modelWorkspace.hasVariable('isPreprocessedModel') && ...
+        modelWorkspace.getVariable('isPreprocessedModel') == 1
+    isPreprocessedModel = true;
+    new_file = file_name;
+    new_model = model;
+else
+    new_file = fullfile(model_path,strcat(model, '_PP', ext));
+    new_model = strcat(model,'_PP');
+end
+
+
 addpath(model_path);
 if nargin > 2
     if strcmp(varargin{1},'verif')
@@ -38,7 +60,7 @@ if nargin > 2
 end
 
 % Check if the file already exists and delete it if it does
-if exist(new_file,'file') == 4
+if exist(new_file,'file') == 4 && isPreprocessedModel == 0
     % If it does then check whether it is open
     if bdIsLoaded(new_model)
         % If it is then close it (without saving!)
@@ -53,15 +75,16 @@ end
 % script_path = strrep(script_path,'/pp.m','');
 % % Add all subfolders of Processes into Matlab path
 % addpath(genpath(strcat(script_path,'/lib')));
-addpath(fullfile(pp_path, 'pp', 'lib', 'common'));
-addpath(fullfile(pp_path, 'pp', 'lib', 'blocks'));
-addpath(fullfile(pp_path, 'pp', 'lib', 'math'));
+addpath(fullfile(pp_path, 'lib', 'common'));
+addpath(fullfile(pp_path, 'lib', 'blocks'));
+addpath(fullfile(pp_path, 'lib', 'math'));
 addpath(fullfile(pp_path, 'utils'));
 % Creating a cache copy to process
 
 display_msg(['Copying ' model ], Constants.INFO, 'simplifier', '');
-
-copyfile(file_name, new_file);
+if ~ isPreprocessedModel
+    copyfile(file_name, new_file);
+end
 display_msg(['Loading ' new_file ], Constants.INFO, 'simplifier', '');
 load_system(new_file);
 display_msg('Loading library', Constants.INFO, 'simplifier', '');
@@ -252,6 +275,10 @@ end
 % Clean the workspace
 % evalin('base','clear all');
 
+%add a flag to indicate the new model is a preprocessed model
+info = Simulink.MDLInfo(new_file);
+modelWorkspace = get_param(info.BlockDiagramName,'modelworkspace'); 
+modelWorkspace.assignin('isPreprocessedModel',1);
 
 display_msg('Done with the simplification', Constants.INFO, 'simplifier', '');
 end

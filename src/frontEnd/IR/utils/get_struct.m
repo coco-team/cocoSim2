@@ -7,7 +7,7 @@ elseif isempty(ir_handle_struct_map)
 end
 Object_struct = [];
 if isa(Object, 'char')
-    path = strsplit(Object, filesep);
+    path = strsplit(Object, '/');
     Object_search = ir_struct;
     for i=1:numel(path)-1
         try

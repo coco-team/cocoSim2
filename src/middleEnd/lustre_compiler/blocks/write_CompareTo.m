@@ -112,7 +112,7 @@ end
 dim = block.CompiledPortWidths.Outport(1);
 if is_cpx
     unique_const_val = false;
-    block_name_split = regexp(block.Path, filesep, 'split');
+    block_name_split = regexp(block.Path, '/', 'split');
     block_name = Utils.concat_delim(block_name_split{1}, '_');
     dt = LusUtils.get_lustre_dt(block.CompiledPortDataTypes.Inport(1));
     if numel(unique(list_const)) == 1

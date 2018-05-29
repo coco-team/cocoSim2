@@ -27,7 +27,7 @@ if strcmp(show_port, 'on')
     
     out_dt = LusUtils.get_lustre_dt(unbloc.CompiledPortDataTypes.Outport);
     
-    name_cell = regexp(unbloc.Path, filesep, 'split');
+    name_cell = regexp(unbloc.Path, '/', 'split');
     name = Utils.concat_delim(name_cell, '_');
     for idx_dim=1:numel(list_out)
         str_val{idx_dim} = sprintf('%s_1_%d', name, idx_dim);

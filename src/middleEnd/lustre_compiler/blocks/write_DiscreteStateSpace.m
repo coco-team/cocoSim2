@@ -39,7 +39,7 @@ add_vars = '';
 [list_out] = list_var_sortie(block);
 [list_in] = list_var_entree(block, ir_struct);
 
-block_full_name = regexp(block.Path, filesep, 'split');
+block_full_name = regexp(block.Path, '/', 'split');
 block_name = Utils.concat_delim(block_full_name(end - block.name_level : end), '_');
 tmp_var_prefix = [block_name '_tmp_'];
 

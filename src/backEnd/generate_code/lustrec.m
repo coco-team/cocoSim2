@@ -7,7 +7,7 @@
 function lustrec(lustre_file_name)
 
 [path file ext] = fileparts(lustre_file_name);
-config;
+cocosim_config;
 new_dir = [path '/' file '_cgen'];
   if ~exist(new_dir, 'dir')
       mkdir(new_dir);

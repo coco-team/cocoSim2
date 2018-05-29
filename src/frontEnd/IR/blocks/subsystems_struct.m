@@ -1,8 +1,12 @@
-function [ S, all_blocks, subsyst_blocks, handle_struct_map ] = subsystems_struct( block_path, is_subsystem, model_ref_parent )
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This file is part of CoCoSim.
 % Copyright (C) 2014-2016  Carnegie Mellon University
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Copyright (C) 2018  The university of Iowa
+% Authors: Christelle Dambreville, Hamza Bourbouh, Mudathir Mahgoub
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+function [ S, all_blocks, subsyst_blocks, handle_struct_map ] = subsystems_struct( block_path, is_subsystem, model_ref_parent )
+
 % SUBSYSTEMS_STRUCT - internal representation of subsystems
 %
 %   This function construct recursivly the internal representation of
@@ -33,7 +37,7 @@ if is_subsystem && strcmp(get_param(block_path, 'Mask'), 'on')
     % Masked subsystems
     content = find_system(block_path, 'LookUnderMasks', 'all', 'FollowLinks', 'on', 'SearchDepth', '1');
     content(1) = []; %the first one is file_name, we already have it
-    comment = find_system(block_path, 'FindAll', 'on', 'LookUnderMasks', 'all', 'Type', 'Annotation', 'SearchDepth', '1');
+    comment = find_system(block_path,'SearchDepth', '1', 'FindAll', 'on', 'LookUnderMasks', 'all', 'Type', 'Annotation');
 else
     % subsystems not masked or block_diagram
     content = find_system(block_path, 'SearchDepth', '1');
@@ -56,8 +60,7 @@ for i=1:numel(content)
     all_blocks = [all_blocks, IRUtils.name_format(content(i))];
     [parent, sub_name, ~] = fileparts(content{i});
     sub_name = IRUtils.name_format(sub_name); %modified name to be a valid field name
-    sub_type = get_param(content{i}, 'BlockType');
-    
+    sub_type = get_param(content{i}, 'BlockType');    
     % Common IR
     Common = common_struct(content{i}, model_ref_parent);
     
@@ -82,10 +85,14 @@ for i=1:numel(content)
     handle_struct_map(get_param(content{i}, 'Handle')) = S.(sub_name);
     
     % Inner SubSystems/model struct
-    if strcmp(sub_type, 'SubSystem') || strcmp(get_param(content{i}, 'Mask'), 'on')
+    if strcmp(sub_type, 'SubSystem') ...
+        ||  (  strcmp(get_param(content{i}, 'Mask'), 'on' ) ... % validatr has type 'M-S-Function'
+            && ~strcmp(get_param(content{i}, 'MaskType'), 'KindContractValidator'))
         S.(sub_name).Mask = get_param(content{i}, 'Mask');
+
         S.(sub_name).MaskType = mask_type;
         if isfield(S.(sub_name), 'SFBlockType') && strcmp(S.(sub_name).SFBlockType, 'Chart') && ~isempty(stateflow_treatment)
+            
             if iscell(stateflow_treatment)
                 fun_name = stateflow_treatment{1};
             else
@@ -97,12 +104,12 @@ for i=1:numel(content)
                 if ~isempty(parent); cd(parent); end
                 func_handle = str2func(file_name);
                 if ~isempty(parent); cd(PWD); end
-                S.(sub_name).SFContent = func_handle(content{i});
+                S.(sub_name).StateflowContent = func_handle(content{i});
             else
-                S.(sub_name).SFContent = struct();
+                S.(sub_name).StateflowContent = struct();
             end
             S.(sub_name).Content = struct();
-        else
+        else            
             [S.(sub_name).Content, next_blocks, next_subsyst, handle_struct_map_next] = subsystems_struct(content{i}, true);
             all_blocks = [all_blocks, next_blocks];
             subsyst_blocks = [subsyst_blocks, next_subsyst];
@@ -134,4 +141,3 @@ for i=1:numel(content)
     end
 end
 end
-

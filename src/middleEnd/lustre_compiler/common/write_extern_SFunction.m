@@ -130,7 +130,7 @@ else
 end
 buffer = '';
 cpt_output_vars = 1;
-match = regexp(unbloc.Path, filesep, 'split');
+match = regexp(unbloc.Path, '/', 'split');
 block_name = match{1}(end);
 for idx_output=1:unbloc.Ports(2)
     for idx_dim_out=1:unbloc.CompiledPortWidths.Outport(idx_output)
@@ -158,7 +158,7 @@ function [output_string] = stub_lustrec(unbloc, list_out, list_in, list_param)
 output_string = '';
 buffer = '';
 cpt_output_vars = 1;
-match = regexp(unbloc.Path, filesep, 'split');
+match = regexp(unbloc.Path, '/', 'split');
 block_name = match{1}(end);
 for idx_output=1:unbloc.Ports(2)
     for idx_dim_out=1:unbloc.CompiledPortWidths.Outport(idx_output)

@@ -1,1 +1,0 @@
-Add your cocoSpec verifier here

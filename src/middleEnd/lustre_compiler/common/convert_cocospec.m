@@ -9,7 +9,7 @@ for idx_block=1:numel(fields)
     if strcmp(ablock.BlockType, 'Inport')
         list_inport{cpt_in} = ablock;
         list_inport_names{cpt_in} = ablock.Origin_path;
-        in_name_as_list = regexp(ablock.Origin_path, filesep, 'split');
+        in_name_as_list = regexp(ablock.Origin_path, '/', 'split');
         list_inport_assert_var_names{cpt_in} = in_name_as_list{end};
         [inport_dims{cpt_in}.rows inport_dims{cpt_in}.cols] = Utils.get_port_dims_simple(ablock.CompiledPortDimensions.Outport, 1);
         cpt_in = cpt_in + 1;

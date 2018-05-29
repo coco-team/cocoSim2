@@ -1,0 +1,53 @@
+<!-- 
+ This file is part of CoCoSim.
+ Copyright (C) 2018  The university of Iowa
+ Author: Mudathir Mahgoub 
+-->
+
+<html lang="en">
+
+<head>
+    <script src="jquery.min.js"></script>	
+    <script src="jquery.dataTables.min.js"></script>	
+    <link rel="stylesheet" href="jquery.dataTables.min.css"/>
+</head>
+
+<body>
+	<div id="property" class="table-responsive">
+	</div>
+	<br/>
+	<script>		
+
+		$(document).ready(function () {
+
+			var property = [(property)];
+
+			$('#property').append('<h1 style="font-weight: bold;">' + property.originPath + '</h1>');
+
+			property.tables.forEach(function (table, index) {
+				for (var i = 0; i < table.columnNames.length; i++) {
+					table.columnNames[i] = { title: table.columnNames[i] };
+				}
+
+				$('#property').append('<br/>');
+				$('#property').append('<h2 style="margin-left:10px;">' + property.tables[index].name + '</h2>');
+				$('#property').append('<table id="table' + index + '" class="display" width="100%"></table>');
+				$('#table' + index).DataTable({
+					data: property.tables[index].data,
+					columns: property.tables[index].columnNames,
+					"paging": false,
+					"ordering": false,
+					"searching": false,
+					"info": false,
+					"columnDefs": [
+   					 	{ className: "dt-left", targets: '_all'}
+					]
+				});
+			});
+		});
+
+
+	</script>
+</body>
+
+</html>

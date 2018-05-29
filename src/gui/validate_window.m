@@ -1,3 +1,10 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This file is part of CoCoSim.
+% Copyright (C) 2014-2016  Carnegie Mellon University
+% Copyright (C) 2018  The university of Iowa
+% Authors: Christelle Dambreville, Hamza Bourbouh, Mudathir Mahgoub
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 function [valid, validation_compute,lustrec_failed, ...
     lustrec_binary_failed, sim_failed, lus_file_path, ...
     sf2lus_time, Query_time] = validate_window(model_full_path,cocoSim_path, show_models,L)
@@ -150,22 +157,36 @@ nb_argin = nargin;
         try
             min_max_constraints = construct_min_max_struct(text_fields);
             initialize_fields(cocosim_display_tgroup, 5);
-            if nb_argin==1
-                [valid, validation_compute,lustrec_failed, ...
-                    lustrec_binary_failed, sim_failed, lus_file_path, ...
-                    sf2lus_time, Query_time] = validate_lustre(model_full_path);
-            elseif nb_argin==2
-                [valid, validation_compute,lustrec_failed, ...
-                    lustrec_binary_failed, sim_failed, lus_file_path, ...
-                    sf2lus_time, Query_time] = validate_lustre(model_full_path,cocoSim_path);
-            elseif nb_argin==3
-                [valid, validation_compute,lustrec_failed, ...
-                    lustrec_binary_failed, sim_failed, lus_file_path, ...
-                    sf2lus_time, Query_time] = validate_lustre(model_full_path,cocoSim_path, show_models);
-            elseif nb_argin==4
-                [valid, validation_compute,lustrec_failed, ...
-                    lustrec_binary_failed, sim_failed, lus_file_path, ...
-                    sf2lus_time, Query_time] = validate_lustre(model_full_path,cocoSim_path, show_models,L,min_max_constraints);
+            
+            % load preferences
+            CoCoSimPreferences = loadCoCoSimPreferences();
+
+            %determine which compiler to use
+            if CoCoSimPreferences.javaToLustreCompiler   
+                 [valid, validation_compute,sim_failed, lus_file_path, ...
+                    sf2lus_time] = cocoSpecValidate(model_full_path, min_max_constraints);
+                  
+                  % kind2 doesn't use lustrec
+                  lustrec_failed = 0;
+                  lustrec_binary_failed = 0;
+            else
+                if nb_argin==1
+                    [valid, validation_compute,lustrec_failed, ...
+                        lustrec_binary_failed, sim_failed, lus_file_path, ...
+                        sf2lus_time, Query_time] = validate_lustre(model_full_path);
+                elseif nb_argin==2
+                    [valid, validation_compute,lustrec_failed, ...
+                        lustrec_binary_failed, sim_failed, lus_file_path, ...
+                        sf2lus_time, Query_time] = validate_lustre(model_full_path,cocoSim_path);
+                elseif nb_argin==3
+                    [valid, validation_compute,lustrec_failed, ...
+                        lustrec_binary_failed, sim_failed, lus_file_path, ...
+                        sf2lus_time, Query_time] = validate_lustre(model_full_path,cocoSim_path, show_models);
+                elseif nb_argin==4
+                    [valid, validation_compute,lustrec_failed, ...
+                        lustrec_binary_failed, sim_failed, lus_file_path, ...
+                        sf2lus_time, Query_time] = validate_lustre(model_full_path,cocoSim_path, show_models,L,min_max_constraints);
+                end
             end
             [~, file_name, ~] = fileparts(lus_file_path);
             open(file_name);

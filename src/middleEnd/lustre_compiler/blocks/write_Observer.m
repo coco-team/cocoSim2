@@ -62,7 +62,7 @@ try
     end
     % Get parent subsystem
     parent_subsystem = inter_blk;
-    full_observer_name = regexp(block.Origin_path, filesep, 'split');
+    full_observer_name = regexp(block.Origin_path, '/', 'split');
     if numel(full_observer_name(1:end-1)) == 1%%
         %	parent_subsystem = myblk;
         [~, parent_node_name, ~] = fileparts(nom_lustre_file);
@@ -80,7 +80,7 @@ try
     end
     
     % Prepare observer node header
-    blk_path_elems = regexp(block.Path, filesep, 'split');
+    blk_path_elems = regexp(block.Path, '/', 'split');
     node_call_name = Utils.concat_delim(blk_path_elems, '_');
     
     header = sprintf('node %s (',node_call_name);
@@ -102,7 +102,7 @@ try
         inport_block = block.Content.(fields{idx_in});
         pre_block = get_struct(ir_struct, block.Pre(idx_in));
         in_type = pre_block.BlockType;
-        inport_block_full_name = regexp(inport_block.Path, filesep, 'split');
+        inport_block_full_name = regexp(inport_block.Path, '/', 'split');
         pre_block_level = pre_block.name_level;
         preceding_block_name = Utils.concat_delim(inport_block_full_name(end - pre_block_level : end), '_');
         
@@ -145,7 +145,7 @@ try
             
             input_dt = LusUtils.get_lustre_dt(block.CompiledPortDataTypes.Inport(idx_in));
             input_block = block.Content.(fields{idx_in});
-            input_block_full_name = regexp(input_block.Path, filesep, 'split');
+            input_block_full_name = regexp(input_block.Path, '/', 'split');
             input_block_level = LusUtils.get_pre_block_level(input_block.Path, inter_blk);
             input_block_name = Utils.concat_delim(input_block_full_name(end - input_block_level : end), '_');
             
@@ -179,7 +179,7 @@ try
             outport = parent_subsystem.Content.(fields{idx_parent_blocks});
             number = str2num(outport.Port);
             if numel(obs_inputs_pre_as_outport) < number || numel(obs_inputs_pre_as_outport{number}) == 0
-                outport_block_full_name = regexp(outport.Path, filesep, 'split');
+                outport_block_full_name = regexp(outport.Path, '/', 'split');
                 outport_block_name = Utils.concat_delim(outport_block_full_name(end - 1 : end), '_');
                 outport_dt = LusUtils.get_lustre_dt(outport.CompiledPortDataTypes.Inport(1));
                 for idx_dim=1:outport.CompiledPortWidths.Inport(1)
@@ -210,7 +210,7 @@ try
                 xml_trace.create_Outputs_Element();
             end
             cpt_outports = cpt_outports + 1;
-            block_name = regexp(ablock.Path, filesep, 'split');
+            block_name = regexp(ablock.Path, '/', 'split');
             for k2=1:ablock.CompiledPortWidths.Inport
                 list_output_names{k2} = [block_name{end} '_' ablock.Port '_' num2str(k2)];
                 outport_dt = LusUtils.get_lustre_dt(ablock.CompiledPortDataTypes.Inport(1));
