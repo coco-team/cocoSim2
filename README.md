@@ -20,6 +20,9 @@ Download the [CoCoSim ToolBox](https://github.com/coco-team/cocoSim/releases)
 
 ## Installation
 
+## Windows (Docker)
+
+
 CoCoSim can be installed and used as follows:
 
 ### Dependencies
