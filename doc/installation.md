@@ -6,7 +6,7 @@ The following video explains how to install and start CoCoSim.
 
 [![Installation](https://github.com/coco-team/cocoSim2/blob/master/doc/videos/installation.png)](https://coco-team.github.io/cocosim/videos/installation.mp4)
 
-CoCosim depends on [kind2](https://github.com/kind2-mc/kind2) model checker. Kind2 binaries for Linux and Mac OS provided in the toolbox CoCoSim.mltbx. Alteneratively [Kind2 web service](#kind2-web-service) or [docker](#docker) can be used. Please note that Kind2 local binary is not available in Windows. 
+CoCosim depends on [kind2](https://github.com/kind2-mc/kind2) model checker. Kind2 binaries for Linux and Mac OS are provided in the toolbox CoCoSim.mltbx. Alteneratively [Kind2 web service](#kind2-web-service) or [docker](#docker) can be used. Please note that Kind2 local binary is not available in Windows. 
 ## Kind2 web service
 
 
