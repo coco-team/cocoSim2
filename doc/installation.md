@@ -5,7 +5,7 @@ Download the latest release  for [CoCoSim ToolBox](https://github.com/coco-team/
 
 The following video explains how to install and start CoCoSim. 
 
-[![installation](https://github.com/coco-team/cocoSim2/blob/master/doc/videos/kind2WebService.PNG)](https://coco-team.github.io/cocosim/videos/installation.mp4)
+[![installation](https://github.com/coco-team/cocoSim2/blob/master/doc/videos/installation.PNG)](https://coco-team.github.io/cocosim/videos/installation.mp4)
 ## Kind2 web service
 
 [![Kind2 web service](https://github.com/coco-team/cocoSim2/blob/master/doc/videos/kind2WebService.PNG)](https://coco-team.github.io/cocosim/videos/kind2WebService.mp4)
