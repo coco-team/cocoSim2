@@ -28,25 +28,22 @@ More information about CoCoSim can be found [here](https://github.com/coco-team/
 [![Stories in Ready](https://badge.waffle.io/coco-team/cocoSim.png?label=ready&title=Ready)](https://waffle.io/coco-team/cocoSim)
 [![Throughput Graph](https://graphs.waffle.io/coco-team/cocoSim/throughput.svg)](https://waffle.io/coco-team/cocoSim/metrics/throughput)
 
-## Developers
+## People
 
-### Current
+* Project leaders: [Temesghen Kahsai](http://www.lememta.info/),
+  [Cesare Tinelli](http://homepage.cs.uiowa.edu/~tinelli/), and
+  [Corina Pasareanu](https://ti.arc.nasa.gov/profile/pcorina/)
 
-* Contributors: Hamza Bourbouh (SGT - USA), Christelle Dambreville (ENSEEIHTENSEEIHT - France)
-
-### Until May 2017
-
-* Lead Developer: [Temesghen Kahsai](http://www.lememta.info/)
-
-* Contributors: Hamza Bourbouh (SGT - USA), Pierre-Loic
-  Garoche (Onera - France), Claire Pagetti (Onera - France), Eric
-  Noulard (Onera - France), Thomas Loquen (Onera - France), Xavier
-  Thirioux (ENSEEIHT - France), Arnaud Dieumegard (IRIT - France, February - August 2015)
+* Developers/Contributors: Hamza Bourbouh (SGT - USA), Pierre-Loic Garoche (Onera - France),
+  Mudathir Mohamed (The University of Iowa - USA), Baoluo Meng (The University of Iowa - USA),
+  Daniel Larraz (The University of Iowa - USA), Christelle Dambreville (ENSEEIHTENSEEIHT - France),
+  Claire Pagetti (Onera - France), Eric Noulard (Onera - France), Thomas Loquen (Onera - France),
+  Xavier Thirioux (ENSEEIHT - France), and Arnaud Dieumegard (IRIT - France)
 
 
 ## Acknowledgments and Disclaimers
 
-CoCoSim is partially funded by:
+CoCoSim was partially funded by:
 
    * NASA NRA NNX14AI09G
    * NSF award 1136008
