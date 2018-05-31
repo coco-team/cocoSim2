@@ -1,8 +1,8 @@
-+ Install Automake
+1. Install Automake
 
 ```sudo apt-get install automake```
 
-+ Install opam for ocaml:
+2. Install opam for ocaml:
 
 ```
 wget https://raw.github.com/ocaml/opam/master/shell/opam_installer.sh -O - | sh -s /usr/local/bin
@@ -20,7 +20,7 @@ opam install menhir
 opam install num
 ```
 
-+ Install z3
+3. Install z3
 
 ```
 git clone https://github.com/Z3Prover/z3
@@ -37,7 +37,7 @@ sudo make install
 
 ```
 
-+ Install kind2
+4. Install kind2
 
 ```
 git clone https://github.com/kind2-mc/kind2
