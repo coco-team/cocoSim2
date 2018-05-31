@@ -15,7 +15,9 @@ The result of compositional analysis is displayed using the context menu. Two op
 ![context menu](https://github.com/coco-team/cocoSim2/blob/master/doc/images/contextMenuVerificationResults.png)
 
 
-+ Displaying the result using html page. When the verification is successfully finished, you can right click on an empty space anywhere in the model to show the context menu, then choose ```CoCoSim/Verification Results```.
+### Displaying the result using MATLAB web browser
+
+When the verification is successfully finished, you can right click on an empty space anywhere in the model to show the context menu, then choose ```CoCoSim/Verification Results```.
 
 The results would be displayed in Matlab web browser. The results summary can be found at the top the page. The summary shows the result of each subsystem with a contract as a table, bottom-up. Only one column **Result** is displayed in tables for subsystems which have no underlying subsytems with contracts. For other subsystems, the rows in the table show the result of each analysis performed by CoCosim. A check icon for a subsystem means that subystem is abstracted in the analysis, and a cross icon means the concrete implementation of the subsystem is used. 
 
@@ -25,4 +27,5 @@ The following video demonstrates this option.
 
 [![Installation](https://github.com/coco-team/cocoSim2/blob/master/doc/videos/htmlVerificationResults.png)](https://coco-team.github.io/cocosim/videos/htmlVerificationResults.mp4)
 
-+ 
+### Displaying the result by coloring blocks
+
