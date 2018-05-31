@@ -25,9 +25,12 @@ More detailed results are displayed at the end of the page where the result of e
 
 The following video demonstrates this option. 
 
-[![Installation](https://github.com/coco-team/cocoSim2/blob/master/doc/videos/htmlVerificationResults.png)](https://coco-team.github.io/cocosim/videos/htmlVerificationResults.mp4)
+[![htmlVerificationResults](https://github.com/coco-team/cocoSim2/blob/master/doc/videos/htmlVerificationResults.png)](https://coco-team.github.io/cocosim/videos/htmlVerificationResults.mp4)
 
 ### Displaying the result by coloring blocks
 
 When the verification is successfully finished, you can right click on an empty space anywhere in the model to show the context menu, then select ```CoCoSim/Compositional Abstract``` and then choose one of the compostional analyses for each susbsytem with a contract. When an analysis for a subsystem is selected, CoCosim will change the colors of related blocks according to the result of that analysis. 
 
+The following video demonstrates this option 
+
+[![compositionalAbstract](https://github.com/coco-team/cocoSim2/blob/master/doc/videos/compositionalAbstract.png)](https://coco-team.github.io/cocosim/videos/compositionalAbstract.mp4)

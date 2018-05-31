@@ -21,8 +21,8 @@ Installation instructions can be found [here](https://github.com/coco-team/cocoS
 ## CoCosim Features
 
 + [CoCoSim Specification Library](https://github.com/coco-team/cocoSim2/blob/master/doc/specificationLibrary.md)
++ [Verification results visualization](https://github.com/coco-team/cocoSim2/blob/master/doc/verificationVisualization.md)
 + [Compositional Analysis](https://github.com/coco-team/cocoSim2/blob/master/doc/compositionalAnalysis.md)
-+ [Verification results visualization]()
 
 ## People
 
