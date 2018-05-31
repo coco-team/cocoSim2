@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/coco-team/cocoSim.svg?branch=master)](https://travis-ci.org/coco-team/cocoSim)
 
 # CoCoSim
 
@@ -9,7 +8,7 @@ CoCoSim can be used to generate C and/or Rust code. CoCoSim uses
 Lustre as its intermediate language. CoCoSim is currently under
 development. We welcome any feedback and bug report.
 
-## [Installation](https://github.com/coco-team/cocoSim2/blob/master/doc/installation.md)
+## Installation
 
 Installation instructions can be found [here](https://github.com/coco-team/cocoSim2/blob/master/doc/installation.md).
 
@@ -22,7 +21,7 @@ Installation instructions can be found [here](https://github.com/coco-team/cocoS
 ## CoCosim Features
 
 + [CoCoSim Specification Library](https://github.com/coco-team/cocoSim2/blob/master/doc/specificationLibrary.md)
-+ [Compositional Analysis]()
++ [Compositional Analysis](https://github.com/coco-team/cocoSim2/blob/master/doc/compositionalAnalysis.md)
 + [Verification results visualization]()
 
 ## People
