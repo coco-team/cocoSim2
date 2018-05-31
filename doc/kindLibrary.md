@@ -1,6 +1,6 @@
 # Kind Library
 
-[![Kind Library](https://github.com/coco-team/cocoSim2/blob/master/doc/images/kindLibrary.png)]
+![Kind Library](https://github.com/coco-team/cocoSim2/blob/master/doc/images/kindLibrary.png)
 
 Kind library contains blocks commonly used in verification. 
 
