@@ -13,7 +13,7 @@ CoCosim depends on [kind2](https://github.com/kind2-mc/kind2) model checker. Kin
 ## Installation using Github
 
 1. Clone the project ```git clone https://github.com/coco-team/cocoSim2```
-2. For Linux and Mac OS download and extract the tools zip file ```https://github.com/coco-team/cocoSim2/releases/download/v.0.4/tools.zip``` into ```cocoSim2``` folder.
+2. For Linux and Mac OS download and extract the tools zip file ```https://github.com/coco-team/cocoSim2/releases/download/v.0.4/tools.zip``` into ```cocoSim2``` folder. For Windows  [Kind2 web service](#kind2-web-service) or [docker](#docker) can be used.
 
 ## Kind2 web service
 
