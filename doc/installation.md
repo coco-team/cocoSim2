@@ -2,7 +2,7 @@
 
 ## Installation using MATLAB toolbox
 
-CoCosim requires MATLAB version **R2014b** or newer. The CoCoSim toolbox (CoCoSim.mltbx) contains linux and osx binariers for the backend solvers. Download the latest release  for CoCoSim ToolBox from [here](https://github.com/coco-team/cocoSim2/releases). 
+CoCosim requires MATLAB version **R2014b** or newer. CoCosim works better with recent versions of Matlab. The CoCoSim toolbox (CoCoSim.mltbx) contains linux and osx binariers for the backend solvers. Download the latest release  for CoCoSim ToolBox from [here](https://github.com/coco-team/cocoSim2/releases). 
 
 The following video explains how to install and start CoCoSim. 
 
