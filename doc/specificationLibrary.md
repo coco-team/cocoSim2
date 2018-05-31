@@ -2,7 +2,7 @@
 
 ![Kind Library](https://github.com/coco-team/cocoSim2/blob/master/doc/images/kindLibrary.png)
 
-Kind library contains blocks commonly used in verification. 
+CoCoSim specification library contains blocks commonly used in verification. 
 
 + The *arrow* block is used when we have a signal with initial value coming from a signal at the first time step, and next values from another signal at later steps. 
 + The *first* block outputs a constant signal which is the first value of the input signal. 
