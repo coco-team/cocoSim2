@@ -22,9 +22,7 @@ Installation instructions can be found [here](https://github.com/coco-team/cocoS
    
 ## [Kind Library](https://github.com/coco-team/cocoSim2/blob/master/doc/kindLibrary.md)
 
-User documentation for kind simuilnk library are available (here)[https://github.com/coco-team/cocoSim2/blob/master/doc/kindLibrary.md]. 
-
-More information about CoCoSim can be found [here](https://github.com/coco-team/cocoSim/wiki/CoCoSim)
+User documentation for kind simuilnk library are available [here](https://github.com/coco-team/cocoSim2/blob/master/doc/kindLibrary.md). 
 
 ## People
 
