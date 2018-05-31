@@ -20,13 +20,9 @@ Installation instructions can be found [here](https://github.com/coco-team/cocoS
 3. To test an unsafe property (which also provide a counterexample):
    `open test/properties/unsafe_1.mdl`
    
-## Contracts 
+## [Kind Library](https://github.com/coco-team/cocoSim2/blob/master/doc/kindLibrary.md)
 
-More information about CoCoSim can be found [here](https://github.com/coco-team/cocoSim/wiki/CoCoSim)
-
-## Waffle
-[![Stories in Ready](https://badge.waffle.io/coco-team/cocoSim.png?label=ready&title=Ready)](https://waffle.io/coco-team/cocoSim)
-[![Throughput Graph](https://graphs.waffle.io/coco-team/cocoSim/throughput.svg)](https://waffle.io/coco-team/cocoSim/metrics/throughput)
+User documentation for kind simuilnk library are available [here](https://github.com/coco-team/cocoSim2/blob/master/doc/kindLibrary.md). 
 
 ## People
 
