@@ -1,4 +1,4 @@
-# Kind Library
+# CoCoSim Specification Library
 
 ![Kind Library](https://github.com/coco-team/cocoSim2/blob/master/doc/images/kindLibrary.png)
 
