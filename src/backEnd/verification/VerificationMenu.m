@@ -177,7 +177,7 @@ classdef VerificationMenu
             
             % open the web page in matlab browser
             url = ['file:///',htmlFile];
-            web(url, '-browser');
+            web(url);
             
         end
         

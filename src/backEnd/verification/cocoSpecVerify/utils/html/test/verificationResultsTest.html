@@ -1041,7 +1041,7 @@
                     summary[result.top].analyses.push(result);
 
                     result.subnodes.forEach(function (node){
-                        if(! summary[result.top].subnodes.includes(node)){
+                        if(! $.inArray(node, summary[result.top].subnodes)){
                             summary[result.top].subnodes.push(node);
                         }
                     });
@@ -1092,7 +1092,7 @@
 
                         result.answer = 'CEX';
 
-                        var matlabCommands = 'open(\'' + modelPath + '\');' +
+                        var matlabCommands = 'load_system(\'' + modelPath + '\');' +
                             'displayCexHtmlTables(' + (index+1) + ','+ (propertyIndex +1) + ');';
 
                         $(row).append(
@@ -1155,7 +1155,7 @@
 
                     for(var j = 0; j < summary[key].subnodes.length; j++) {
                         var node = summary[key].subnodes[j];
-                        if(analysis.subnodes.includes(node)){
+                        if($.inArray(node, analysis.subnodes)){
                             $(row).append('<td><i class="fas fa-check"></i></td>');
                         }
                         else {

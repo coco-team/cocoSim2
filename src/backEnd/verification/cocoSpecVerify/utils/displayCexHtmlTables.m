@@ -109,5 +109,5 @@ function displayCexHtmlTables(resultIndex, propertyIndex)
     end
     
     url = ['file:///',htmlFile];
-    web(url, '-browser');
+    web(url);
 end
