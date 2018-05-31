@@ -1155,7 +1155,8 @@
 
                     for(var j = 0; j < summary[key].subnodes.length; j++) {
                         var node = summary[key].subnodes[j];
-                        if($.inArray(node, analysis.subnodes)){
+
+                        if($.inArray(node, analysis.subnodes) > -1){
                             $(row).append('<td><i class="fas fa-check"></i></td>');
                         }
                         else {
