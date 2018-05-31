@@ -19,9 +19,11 @@ Installation instructions can be found [here](https://github.com/coco-team/cocoS
 2. Open one of the examples ```open('contract/DoorLockCompositional.slx')```
 3. To verify the model, go to Tools menu and select ```Tools/CoCoSim/Verify```
    
-## [Kind Library](https://github.com/coco-team/cocoSim2/blob/master/doc/kindLibrary.md)
+## CoCosim Features
 
-User documentation for kind simuilnk library are available [here](https://github.com/coco-team/cocoSim2/blob/master/doc/kindLibrary.md). 
++ [CoCoSim Specification Library](https://github.com/coco-team/cocoSim2/blob/master/doc/specificationLibrary.md)
++ [Compositional Analysis]()
++ [Verification results visualization]()
 
 ## People
 
