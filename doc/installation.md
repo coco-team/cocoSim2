@@ -1,5 +1,7 @@
 # Installation
 
+## Installation using MATLAB toolbox
+
 CoCosim requires MATLAB version **R2014b** or newer. The CoCoSim toolbox (CoCoSim.mltbx) contains linux and osx binariers for the backend solvers. Download the latest release  for CoCoSim ToolBox from [here](https://github.com/coco-team/cocoSim2/releases). 
 
 The following video explains how to install and start CoCoSim. 
@@ -7,6 +9,12 @@ The following video explains how to install and start CoCoSim.
 [![Installation](https://github.com/coco-team/cocoSim2/blob/master/doc/videos/installation.png)](https://coco-team.github.io/cocosim/videos/installation.mp4)
 
 CoCosim depends on [kind2](https://github.com/kind2-mc/kind2) model checker. Kind2 binaries for Linux and Mac OS are provided in the toolbox CoCoSim.mltbx. Alteneratively [Kind2 web service](#kind2-web-service) or [docker](#docker) can be used. Please note that Kind2 local binary is not available in Windows. 
+
+## Installation using Github
+
+1. Clone the project ```git clone https://github.com/coco-team/cocoSim2```
+2. For Linux and Mac OS download and extract the tools zip file ```https://github.com/coco-team/cocoSim2/releases/download/v.0.4/tools.zip``` into ```cocoSim2``` folder. For Windows  [Kind2 web service](#kind2-web-service) or [docker](#docker) can be used.
+
 ## Kind2 web service
 
 

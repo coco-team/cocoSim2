@@ -15,10 +15,9 @@ Installation instructions can be found [here](https://github.com/coco-team/cocoS
 
 ## Example
 
-1. To test a safe property: `open test/properties/safe_1.mdl`
-2. Under the `Tools` menu choose `Verify with ...` and then `Zustre` (or JKind if you are under Windows OS).
-3. To test an unsafe property (which also provide a counterexample):
-   `open test/properties/unsafe_1.mdl`
+1. Launch cocosim `start_cocosim`
+2. Open one of the examples ```open('contract/DoorLockCompositional.slx')```
+3. To verify the model, go to Tools menu and select ```Tools/CoCoSim/Verify```
    
 ## [Kind Library](https://github.com/coco-team/cocoSim2/blob/master/doc/kindLibrary.md)
 
