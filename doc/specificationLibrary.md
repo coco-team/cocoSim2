@@ -17,7 +17,7 @@ Typically a contract consists of a set of assumptions and a set of guarantees. A
 
 In CoCoSim, contract assumptions are handled by **assume** blocks, and guarantees are handled by **guarantee** blocks. These blocks are subsystems where the outport is fixed (only a single boolean outport) and the inports and other blocks are implemented by the user. The outports of **assume** and **guarantee** blocks need to be connected to the **validator** block in order to be considered in the verification process. 
 
-### Modes
+### Modes (mode, require, and ensure blocks)
 
 CoCoSim augments traditional assume-guarantee contracts with the notion of *mode*. A mode (requires, ensures) is a set of **requires** and a set of **ensures**. A CoCoSim contract is therefore a triplet (assumptions, guarantees, modes). If the set of modes is empty, then the semantics of contract is exactly that of an assume-guarantee contract. 
 
@@ -27,4 +27,20 @@ A mode represents a *situation*/*reaction* implication. A mode (requires, ensure
 
 Modes are introduced in the contract language of CoCoSim to account for the fact that most requirements found in specification documents are actually implications between a situation and a behavior. In a traditional assume-guarantee contract, such requirements have to be written as situation → behavior guarantees. This is cumbersome, error-prone, but most importantly some information is lost in this encoding. Modes make writing specification more straightforward and user-friendly, and allow CoCoSim to keep the mode information around to improve feedback for counterexamples, and adopt a defensive approach to guard against typos and specification oversights to a certain extent.  If a mode is missing, or a requirement is more restrictive than it should be, then CoCoSim will detect the modes that are not exhaustive, and provide a counterexample.
 
-In CoCoSim, **require** and **ensure** blocks are similar to **assume** and **guarantee** blocks, but their outports should be connected to **mode** blocks which connect to the **validator** block. 
+In CoCoSim, **require** and **ensure** blocks are similar to **assume** and **guarantee** blocks, but their outports should be connected to **mode** blocks which are connected to the **validator** block. 
+
+### The validator block
+
+The **validator** block is the main block inside a contract, and is connected to other contract blocks (**assume**, **guarantee**, and **mode**). When the validator block is double clicked, its mask will appear and show the following parameters:
+
+![validator mask](https://github.com/coco-team/cocoSim2/blob/master/doc/images/validatorMask.png)
+
+1. Assume ports: specify the number of **assume** ports in the validator. New **assume** blocks would be generated and connected to the **validator** block automatically for each disconnected **assume** port. 
+
+2. Guarantee ports: specify the number of **guarantee** ports in the validator. New **guarantee** blocks would be generated and connected to the **validator** block automatically for each disconnected **guarantee** port. 
+
+3. Mode ports: specify the number of **mode** ports in the validator. New **mode** blocks would be generated (along with its **ensure** and **require** blocks) and connected to the **validator** block automatically for each disconnected **mode** port. 
+
+4. A checkbox to add the contract inports to all **assume**,  **guarantee**, **require** and **ensure** blocks automatically. 
+
+After verification, the background of the validator block would be colored **green** if the modes are exhaustive, and would be colored **red** if the modes are not exhaustive. 
