@@ -47,6 +47,6 @@ After verification, the background of the validator block would be colored **gre
 
 # Example
 
-The following video shows how to use a contract with modes in CoCosim
+The following video shows how to use a contract with modes in CoCoSim.
 
 [![contracts in cocosim](https://github.com/coco-team/cocoSim2/blob/master/doc/images/2_contracts_simulink.png)](https://coco-team.github.io/cocosim/videos/2_contracts_simulink.mp4)
