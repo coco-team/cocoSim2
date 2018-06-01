@@ -20,7 +20,7 @@ Installation instructions can be found [here](https://github.com/coco-team/cocoS
 
 ## Tutorial videos
 
-The first and the second videos below explain the concept of contracts using bacteria population example in both Lustre and CoCoSim respectively, and the third video concept of compositional analysis using the door lock example. 
+The first and the second videos below explain the concept of contracts using bacteria population example in both Lustre and CoCoSim respectively, and the third video explain the concept of compositional analysis using the door lock example. 
 
 1. [Contracts in Lustre](https://coco-team.github.io/cocosim/videos/1_contracts_kind2.mp4)
 2. [Contracts in CoCoSim](https://coco-team.github.io/cocosim/videos/2_contracts_simulink.mp4)
