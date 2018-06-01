@@ -17,7 +17,16 @@ Installation instructions can be found [here](https://github.com/coco-team/cocoS
 1. Launch cocosim `start_cocosim`
 2. Open one of the examples ```open('contract/DoorLockCompositional.slx')```
 3. To verify the model, go to Tools menu and select ```Tools/CoCoSim/Verify```
-   
+
+## Tutorial videos
+
+The first and the second videos below explain the concept of contracts using bacteria population example in both Lustre and CoCoSim respectively, and the third video explain the concept of compositional analysis using the door lock example. 
+
+1. [Contracts in Lustre](https://coco-team.github.io/cocosim/videos/1_contracts_kind2.mp4)
+2. [Contracts in CoCoSim](https://coco-team.github.io/cocosim/videos/2_contracts_simulink.mp4)
+3. [Composotional analysis](https://coco-team.github.io/cocosim/videos/3_compositional_analysis.mp4)
+
+
 ## CoCosim Features
 
 + [CoCoSim Specification Library](https://github.com/coco-team/cocoSim2/blob/master/doc/specificationLibrary.md)
