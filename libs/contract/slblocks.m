@@ -9,11 +9,11 @@ function blkStruct = slblocks
     % in the Library Browser
     % and be cached in the browser repository
 
-    Browser.Library = 'Kind';
-    % 'Kind' is the name of the library
+    Browser.Library = 'CoCoSimSpecification';
+    % 'CoCoSimSpecification' is the name of the library
 
-    Browser.Name = 'Kind lib';
-    % 'Kind' is the library name that appears 
+    Browser.Name = 'CoCoSim Specification';
+    % 'CoCoSim Specification' is the library name that appears 
     % in the Library Browser
     blkStruct.Browser = Browser; 
 end
