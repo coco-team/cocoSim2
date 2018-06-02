@@ -36,4 +36,4 @@ Contracts and subsystems are colored as follows:
 + *Orange* border or foreground color if there is at least one falsified **assume** property
 
 
-![property colors](https://github.com/coco-team/cocoSim2/blob/master/doc/images/propertyColors.png "property colors")
+![property colors](https://github.com/coco-team/cocoSim2/blob/master/doc/images/subsystemColors.png "property colors")

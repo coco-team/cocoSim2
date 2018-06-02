@@ -44,3 +44,9 @@ The **validator** block is the main block inside a contract, and is connected to
 4. A checkbox to add the contract inports to all **assume**,  **guarantee**, **require** and **ensure** blocks automatically. 
 
 After verification, the background of the validator block would be colored **green** if the modes are exhaustive, and would be colored **red** if the modes are not exhaustive. 
+
+# Example
+
+The following video shows how to use a contract with modes in CoCoSim.
+
+[![contracts in cocosim](https://github.com/coco-team/cocoSim2/blob/master/doc/images/2_contracts_simulink.png)](https://coco-team.github.io/cocosim/videos/2_contracts_simulink.mp4)
