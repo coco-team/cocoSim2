@@ -3,7 +3,7 @@
 CoCoSm Menu can be accessed through the Tools menu in Simulink models. CoCoSim menu contains many items:
 
 + Verify: this option starts the verification process for the current model using the current user's preferences 
-+ Create Property (deprecated): This option adds an observer property to the model. Observers are subsumed by the [CoCoSim Specification Library](https://github.com/coco-team/cocoSim2/blob/master/doc/specificationLibrary.md)
++ Create Property (deprecated): This option adds an observer property to the model. Observers are subsumed by the new [CoCoSim Specification Library](https://github.com/coco-team/cocoSim2/blob/master/doc/specificationLibrary.md)
 + Verify using: this option starts the verification process for the current model using the current user's preferences 
 + Simplifier: (to be completed)
 + Compiler Validation Experimental: (to be completed)
