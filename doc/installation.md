@@ -6,7 +6,7 @@ CoCosim requires MATLAB version **R2014b** or newer. CoCosim works better with r
 
 The following video explains how to install and start CoCoSim. 
 
-[![Installation](https://github.com/coco-team/cocoSim2/blob/master/doc/videos/installation.png)](https://coco-team.github.io/cocosim/videos/installation.mp4)
+[![Installation](https://github.com/coco-team/cocoSim2/blob/master/doc/videos/installation.png)](http://milner.cs.uiowa.edu/cocosim/installation.mp4)
 
 CoCosim depends on [kind2](https://github.com/kind2-mc/kind2) model checker. Kind2 binaries for Linux and Mac OS are provided in the toolbox CoCoSim.mltbx. Alteneratively [Kind2 web service](#kind2-web-service) or [docker](#docker) can be used. Please note that Kind2 local binary is not available in Windows. 
 
@@ -18,11 +18,11 @@ CoCosim depends on [kind2](https://github.com/kind2-mc/kind2) model checker. Kin
 ## Kind2 web service
 
 
-[![Kind2 web service](https://github.com/coco-team/cocoSim2/blob/master/doc/videos/kind2WebService.PNG)](https://coco-team.github.io/cocosim/videos/kind2WebService.mp4)
+[![Kind2 web service](https://github.com/coco-team/cocoSim2/blob/master/doc/videos/kind2WebService.PNG)](http://milner.cs.uiowa.edu/cocosim/kind2WebService.mp4)
 
 ## Docker
 
-[![Docker](https://github.com/coco-team/cocoSim2/blob/master/doc/videos/docker.PNG)](https://coco-team.github.io/cocosim/videos/docker.mp4)
+[![Docker](https://github.com/coco-team/cocoSim2/blob/master/doc/videos/docker.PNG)](http://milner.cs.uiowa.edu/cocosim/docker.mp4)
 
 CoCoSim can be installed and used as follows:
 
