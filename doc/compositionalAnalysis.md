@@ -25,7 +25,7 @@ More detailed results are displayed at the end of the page where the result of e
 
 The following video demonstrates this option. 
 
-[![htmlVerificationResults](https://github.com/coco-team/cocoSim2/blob/master/doc/videos/htmlVerificationResults.png)](https://coco-team.github.io/cocosim/videos/htmlVerificationResults.mp4)
+[![htmlVerificationResults](https://github.com/coco-team/cocoSim2/blob/master/doc/videos/htmlVerificationResults.png)](http://milner.cs.uiowa.edu/cocosim/htmlVerificationResults.mp4)
 
 ### Displaying the result by coloring blocks
 
@@ -33,4 +33,4 @@ When the verification is successfully finished, you can right click on an empty 
 
 The following video demonstrates this option 
 
-[![compositionalAbstract](https://github.com/coco-team/cocoSim2/blob/master/doc/videos/compositionalAbstract.png)](https://coco-team.github.io/cocosim/videos/compositionalAbstract.mp4)
+[![compositionalAbstract](https://github.com/coco-team/cocoSim2/blob/master/doc/videos/compositionalAbstract.png)](http://milner.cs.uiowa.edu/cocosim/compositionalAbstract.mp4)
