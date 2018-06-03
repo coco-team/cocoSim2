@@ -47,6 +47,13 @@ function [ CoCoSimPreferences ] = loadCoCoSimPreferences()
         end
         modified = true;
     end 
+    
+    % check if verificationTimeout is defined
+    if ~ isfield(CoCoSimPreferences,'verificationTimeout')
+        CoCoSimPreferences.verificationTimeout = '60.0';        
+        modified = true;
+    end 
+    
     % save if CoCoSimPreferences is modified
     if modified
         save(preferencesFile, 'CoCoSimPreferences');

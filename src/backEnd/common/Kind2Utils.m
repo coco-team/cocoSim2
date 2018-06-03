@@ -68,10 +68,12 @@ classdef Kind2Utils
             end                
         end % simulate
         
-        function [kind2Output] = verify(lustreFile, arguments, timeout)
+        function [kind2Output] = verify(lustreFile, arguments)
             
             [CoCoSimPreferences, KIND2, Z3] = Kind2Utils.checkAvailability();      
-
+            
+            timeout = CoCoSimPreferences.verificationTimeout;
+            
             [file_path,file_name,extension] = fileparts(lustreFile);      
 
             % local binary

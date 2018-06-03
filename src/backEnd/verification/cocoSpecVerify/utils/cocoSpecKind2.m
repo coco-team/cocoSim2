@@ -12,12 +12,7 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
        kind2_option = evalin('base','kind2_option');
     catch
        kind2_option  = '';
-    end
-    try
-       timeout = evalin('base','timeout');
-    catch
-       timeout = '60.0';
-    end
+    end    
        
     % Get start time
     t_start = now;
@@ -25,7 +20,7 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
     % properties in the mapping file                        
     if exist(mapping_file, 'file') == 2
 
-        kind2_out = Kind2Utils.verify(lustre_file_name, kind2_option, timeout);
+        kind2_out = Kind2Utils.verify(lustre_file_name, kind2_option);
         
         results_file_name = strrep(lustre_file_name,'.lus','.xml');
         fid = fopen(results_file_name, 'w');
