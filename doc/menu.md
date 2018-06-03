@@ -1,5 +1,7 @@
 # CoCoSim menu
 
+![Kind Library](https://github.com/coco-team/cocoSim2/blob/master/doc/images/menu.png)
+
 CoCoSm Menu can be accessed through the Tools menu in Simulink models. CoCoSim menu contains many items:
 
 + Verify: this option starts the verification process for the current model using the current user's preferences 
