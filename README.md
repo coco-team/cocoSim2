@@ -24,7 +24,7 @@ The first and the second videos below explain the concept of contracts using bac
 
 1. [Contracts in Lustre](http://milner.cs.uiowa.edu/cocosim/1_contracts_kind2.mp4)
 2. [Contracts in CoCoSim](http://milner.cs.uiowa.edu/cocosim/2_contracts_simulink.mp4)
-3. [Composotional analysis](http://milner.cs.uiowa.edu/cocosim/3_compositional_analysis.mp4)
+3. [Compositional analysis](http://milner.cs.uiowa.edu/cocosim/3_compositional_analysis.mp4)
 
 
 ## CoCosim Features
@@ -32,6 +32,7 @@ The first and the second videos below explain the concept of contracts using bac
 + [CoCoSim Specification Library](https://github.com/coco-team/cocoSim2/blob/master/doc/specificationLibrary.md)
 + [Verification results visualization](https://github.com/coco-team/cocoSim2/blob/master/doc/verificationVisualization.md)
 + [Compositional Analysis](https://github.com/coco-team/cocoSim2/blob/master/doc/compositionalAnalysis.md)
++ [CoCoSim menu](https://github.com/coco-team/cocoSim2/blob/master/doc/menu.md)
 
 ## People
 
