@@ -1,6 +1,8 @@
 # CoCoSim menu
 
-CoCoSm Menu can be accessed through the Tools menu in Simulink models. CoCoSim menu contains many items:
+![Kind Library](https://github.com/coco-team/cocoSim2/blob/master/doc/images/menu.png)
+
+CoCoSm Menu can be accessed after [launching CoCoSim](https://github.com/coco-team/cocoSim2/blob/master/doc/installation.md#launching)  through the Tools menu in Simulink models. CoCoSim menu contains many items:
 
 + Verify: this option starts the verification process for the current model using the current user's preferences 
 + Create Property (deprecated): This option adds an observer property to the model. Observers are subsumed by the new [CoCoSim Specification Library](https://github.com/coco-team/cocoSim2/blob/master/doc/specificationLibrary.md)
