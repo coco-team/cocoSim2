@@ -25,7 +25,7 @@ The following video explains how to configure CoCoSim to use the Kind 2 web serv
 
 ### Docker
 
-The following video explains how to install and use in CoCoSim a Docker image of Kind 2:
+The following video explains how to install and configure CoCoSim to use a Docker image of Kind 2:
 
 [![Docker](https://github.com/coco-team/cocoSim2/blob/master/doc/videos/docker.PNG)](http://milner.cs.uiowa.edu/cocosim/docker.mp4)
 
