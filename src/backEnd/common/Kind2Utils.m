@@ -116,7 +116,7 @@ classdef Kind2Utils
                 % read the lustre code from the file
                 data.code = fileread(lustreFile);                
                 data.arguments.smt_solver = 'Z3';
-                data.arguments.timeout = str2num(timeout);
+                data.arguments.timeout = timeout;
                 data.arguments.modular = 'true';
 
                 if CoCoSimPreferences.compositionalAnalysis

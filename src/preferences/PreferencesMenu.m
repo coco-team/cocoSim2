@@ -15,7 +15,9 @@ classdef PreferencesMenu
                 %{@PreferencesMenu.getModelChecker,CoCoSimPreferences}, ...
                 {@PreferencesMenu.getMiddleEnd,CoCoSimPreferences}, ...
                 {@PreferencesMenu.getCompositionalAnalysis, CoCoSimPreferences}, ...
-                {@PreferencesMenu.getKind2Binary, CoCoSimPreferences}};
+                {@PreferencesMenu.getKind2Binary, CoCoSimPreferences}, ...
+                {@PreferencesMenu.getVerificationTimeout, CoCoSimPreferences}, ...
+                };
         end
 
         function schema = getModelChecker(callbackInfo)
@@ -201,10 +203,58 @@ classdef PreferencesMenu
             PreferencesMenu.saveCoCoSimPreferences(CoCoSimPreferences);
         end
 
+        
+        function schema = getVerificationTimeout(callbackInfo)
+            schema = sl_container_schema;
+            schema.label = 'Verification timeout';        
+            schema.statustip = 'Verification timeout';
+            schema.autoDisableWhen = 'Busy';    
+
+            CoCoSimPreferences = callbackInfo.userdata;            
+            
+            % ToDo: remove the hardcoded options
+            timeoutOptions = [1 3 5 10 20];
+            data = {};
+            data.selectedOption = CoCoSimPreferences.verificationTimeout / 60; % seconds
+            data.CoCoSimPreferences = CoCoSimPreferences;
+            
+            for index = 1 : length(timeoutOptions)                
+                data.currentOption = timeoutOptions(index);                                    
+                schema.childrenFcns{index} = {@PreferencesMenu.timeoutOption, data};
+            end
+        end
+        
+        function schema = timeoutOption(callbackInfo)
+            schema = sl_toggle_schema;
+            data = callbackInfo.userdata;    
+            if data.currentOption == 1
+                schema.label = '1 minute';
+            else
+                schema.label = strcat(num2str(data.currentOption), ' minutes');
+            end          
+            
+            if data.selectedOption == data.currentOption
+                schema.checked = 'checked';    
+            else
+                schema.checked = 'unchecked';    
+            end
+
+            schema.callback = @PreferencesMenu.timeoutOptionCallback;
+            schema.userdata = data;
+        end
+
+        function timeoutOptionCallback(callbackInfo)    
+            data = callbackInfo.userdata;    
+            CoCoSimPreferences = data.CoCoSimPreferences;
+            CoCoSimPreferences.verificationTimeout = data.currentOption * 60;        
+            PreferencesMenu.saveCoCoSimPreferences(CoCoSimPreferences);
+        end        
+        
         function saveCoCoSimPreferences(CoCoSimPreferences)
             [cocosim_path, ~, ~] = fileparts(mfilename('fullpath'));
             preferencesFile = fullfile(cocosim_path, 'preferences.mat');
             save(preferencesFile, 'CoCoSimPreferences');
         end
+        
     end
 end
