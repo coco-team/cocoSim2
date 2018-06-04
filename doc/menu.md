@@ -17,3 +17,4 @@ CoCoSm Menu can be accessed after [launching CoCoSim](https://github.com/coco-te
      + Local: The default option in Linux and macOS which tells CoCoSim to use the local binary located inside the tools folder. 
      + Docker: This option tells CoCoSim to use kind2 image installed in docker container platform. See [here](https://github.com/coco-team/cocoSim2/blob/master/doc/installation.md#docker) on how to install docker and kind2 in Windows
      + Kind2 web service: This is the default option in Windows. This option tells CoCoSim to use [kind2 web service](https://github.com/kind2-mc/kind2-webservices/wiki) which supports verification and simulation requests. 
+   + Verification timeout: the timeout argument for kind2. 
