@@ -1,4 +1,4 @@
-# Verification results visualization
+# Visualization of Verification Results 
 
 ## Property colors
 
