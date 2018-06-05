@@ -27,7 +27,7 @@ Installation instructions can be found [here](https://github.com/coco-team/cocoS
 
 ## Tutorial Videos
 
-The first video below explains the concept of contract specification using a simple Lustre model that simulates the evolution of a bacteria population. The second video shows how CoCoSim can be used to specify a contract for a CoCoSim version of the bacteria population model. Finally, the third video explains the concept of compositional analysis using a semi-realistic model of door lock.
+The first video below explains the concept of contract specification using a simple Lustre model that simulates the evolution of a bacteria population. The second video shows how CoCoSim can be used to specify a contract for a CoCoSim version of the bacteria population model. Finally, the third video explains the concept of compositional analysis using a semi-realistic model of a door lock.
 
 1. [Contracts in Lustre](http://milner.cs.uiowa.edu/cocosim/1_contracts_kind2.mp4)
 2. [Contracts in CoCoSim](http://milner.cs.uiowa.edu/cocosim/2_contracts_simulink.mp4)
