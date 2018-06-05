@@ -7,8 +7,8 @@ CoCoSim Menu can be accessed after [launching CoCoSim](https://github.com/coco-t
 + Verify: this option starts the verification process for the current model using the current user's preferences 
 + Create Property (deprecated): This option adds an observer property to the model. Observers are subsumed by the new [CoCoSim Specification Library](https://github.com/coco-team/cocoSim2/blob/master/doc/specificationLibrary.md)
 + Verify using: this option starts the verification process for the current model using the selected back-end solver 
-+ Simplifier: (to be completed)
-+ Compiler Validation (experimental): (to be completed)
++ Simplifier: [to be completed]
++ Compiler Validation (experimental): [to be completed]
 + Check unsupported blocks: check whether all blocks used in the model are supported by the plugin
 + Preferences: user's preferences are updated using this menu item. The preferences include: 
    + Use java to lustre Compiler (enabled by default): CoCoSim uses the latest [translator](https://github.com/coco-team/ir2lustre) from CoCoSim IR to Lustre (written in Java) which supports [contract specification](https://github.com/coco-team/cocoSim2/blob/master/doc/specificationLibrary.md). If this option is disabled, CoCoSim will use the old translator (written in MATLAB) which only supports the observer block. 
