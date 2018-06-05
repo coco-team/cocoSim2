@@ -15,7 +15,7 @@ Installation instructions can be found [here](https://github.com/coco-team/cocoS
 ## CoCoSim Features
 
 + [CoCoSim Specification Library](https://github.com/coco-team/cocoSim2/blob/master/doc/specificationLibrary.md)
-+ [CoCoSim Menu Options](https://github.com/coco-team/cocoSim2/blob/master/doc/menu.md)
++ [CoCoSim Menu](https://github.com/coco-team/cocoSim2/blob/master/doc/menu.md)
 + [Visualization of Verification Results](https://github.com/coco-team/cocoSim2/blob/master/doc/verificationVisualization.md)
 + [Compositional Analysis](https://github.com/coco-team/cocoSim2/blob/master/doc/compositionalAnalysis.md)
 
