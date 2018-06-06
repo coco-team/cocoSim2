@@ -1,4 +1,4 @@
-# Verification results visualization
+# Visualization of Verification Results 
 
 ## Property colors
 
@@ -14,7 +14,8 @@ When **assume**, **guarantee** or **ensure** blocks are verified, there are poss
 
 ## Counter examples for falsified properties
 
-Whenever  **assume**, **guarantee**, or **ensure** blocks are falsified during the verfication process, counter examples are returned by the backend solver. To display the counter example, double click on the falsified block. The following options will appear:
+Whenever  **assume**, **guarantee**, or **ensure** blocks are falsified during the verfication process, counter examples are returned by the backend solver. Currently only counter examples with **scalar values** are supported. Counter examples with **vector values** are not supported. 
+To display the counter example, double click on the falsified block. The following options will appear:
 
 ![property colors](https://github.com/coco-team/cocoSim2/blob/master/doc/images/counterExampleOptions.png "counter example options")
 

@@ -12,27 +12,26 @@ development. We welcome any feedback and bug report.
 
 Installation instructions can be found [here](https://github.com/coco-team/cocoSim2/blob/master/doc/installation.md).
 
+## CoCoSim Features
+
++ [CoCoSim Specification Library](https://github.com/coco-team/cocoSim2/blob/master/doc/specificationLibrary.md)
++ [CoCoSim Menu](https://github.com/coco-team/cocoSim2/blob/master/doc/menu.md)
++ [Visualization of Verification Results](https://github.com/coco-team/cocoSim2/blob/master/doc/verificationVisualization.md)
++ [Compositional Analysis](https://github.com/coco-team/cocoSim2/blob/master/doc/compositionalAnalysis.md)
+
 ## Example
 
 1. Launch cocosim `start_cocosim`
 2. Open one of the examples ```open('contract/DoorLockCompositional.slx')```
 3. To verify the model, go to Tools menu and select ```Tools/CoCoSim/Verify```
 
-## Tutorial videos
+## Tutorial Videos
 
-The first and the second videos below explain the concept of contracts using bacteria population example in both Lustre and CoCoSim respectively, and the third video explain the concept of compositional analysis using the door lock example. 
+The first video below explains the concept of contract specification using a simple Lustre model that simulates the evolution of a bacteria population. The second video shows how CoCoSim can be used to specify a contract for a CoCoSim version of the bacteria population model. Finally, the third video explains the concept of compositional analysis using a semi-realistic model of a door lock.
 
 1. [Contracts in Lustre](http://milner.cs.uiowa.edu/cocosim/1_contracts_kind2.mp4)
 2. [Contracts in CoCoSim](http://milner.cs.uiowa.edu/cocosim/2_contracts_simulink.mp4)
 3. [Compositional analysis](http://milner.cs.uiowa.edu/cocosim/3_compositional_analysis.mp4)
-
-
-## CoCosim Features
-
-+ [CoCoSim Specification Library](https://github.com/coco-team/cocoSim2/blob/master/doc/specificationLibrary.md)
-+ [Verification results visualization](https://github.com/coco-team/cocoSim2/blob/master/doc/verificationVisualization.md)
-+ [Compositional Analysis](https://github.com/coco-team/cocoSim2/blob/master/doc/compositionalAnalysis.md)
-+ [CoCoSim menu](https://github.com/coco-team/cocoSim2/blob/master/doc/menu.md)
 
 ## People
 
