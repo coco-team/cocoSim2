@@ -108,7 +108,7 @@ assignin('base','cocosim_status_handle',t_status);
 CoCoSimPreferences = loadCoCoSimPreferences();
 
 %determine which compiler to use
-if CoCoSimPreferences.javaToLustreCompiler   
+if CoCoSimPreferences.irToLustreCompiler   
     cocoSpecVerify(model_full_path);
 else
     if nargin==1

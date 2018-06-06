@@ -26,9 +26,9 @@ function [ CoCoSimPreferences ] = loadCoCoSimPreferences()
         modified = true;
     end
     
-    % check if javaToLustreCompiler is defined
-    if ~ isfield(CoCoSimPreferences,'javaToLustreCompiler')
-        CoCoSimPreferences.javaToLustreCompiler = true;
+    % check if irToLustreCompiler is defined
+    if ~ isfield(CoCoSimPreferences,'irToLustreCompiler')
+        CoCoSimPreferences.irToLustreCompiler = true;
         modified = true;
     end
     % check if compositionalAnalysis is defined

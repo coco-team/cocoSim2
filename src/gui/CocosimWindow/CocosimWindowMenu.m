@@ -26,7 +26,7 @@ classdef CocosimWindowMenu
                 model_full_path = CocosimWindowMenu.get_file_name(gcs);             
                 % load preferences
                 CoCoSimPreferences = loadCoCoSimPreferences();
-                if CoCoSimPreferences.javaToLustreCompiler   
+                if CoCoSimPreferences.irToLustreCompiler   
                     lustre_file=cocoSpecCompiler(model_full_path);
                 else
                     lustre_file=lustre_compiler(model_full_path);

@@ -75,25 +75,25 @@ classdef PreferencesMenu
 
         function schema = getMiddleEnd(callbackInfo)
             schema = sl_toggle_schema;
-            schema.label = 'Use java to lustre Compiler';       
+            schema.label = 'Use IR to Lustre Compiler';       
 
             CoCoSimPreferences = callbackInfo.userdata;
 
-            if CoCoSimPreferences.javaToLustreCompiler
+            if CoCoSimPreferences.irToLustreCompiler
                 schema.checked = 'checked';
             else
                 schema.checked = 'unchecked';
             end    
 
-            schema.callback = @PreferencesMenu.javaToLustreCompilerCallback;    
+            schema.callback = @PreferencesMenu.irToLustreCompilerCallback;    
             schema.userdata = CoCoSimPreferences;
 
         end
 
 
-        function javaToLustreCompilerCallback(callbackInfo)
+        function irToLustreCompilerCallback(callbackInfo)
             CoCoSimPreferences = callbackInfo.userdata;
-            CoCoSimPreferences.javaToLustreCompiler = ~ CoCoSimPreferences.javaToLustreCompiler;
+            CoCoSimPreferences.irToLustreCompiler = ~ CoCoSimPreferences.irToLustreCompiler;
             PreferencesMenu.saveCoCoSimPreferences(CoCoSimPreferences);
         end
 

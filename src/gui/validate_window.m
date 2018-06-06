@@ -162,7 +162,7 @@ nb_argin = nargin;
             CoCoSimPreferences = loadCoCoSimPreferences();
 
             %determine which compiler to use
-            if CoCoSimPreferences.javaToLustreCompiler   
+            if CoCoSimPreferences.irToLustreCompiler   
                  [valid, validation_compute,sim_failed, lus_file_path, ...
                     sf2lus_time] = cocoSpecValidate(model_full_path, min_max_constraints);
                   
