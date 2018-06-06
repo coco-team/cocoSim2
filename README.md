@@ -16,6 +16,7 @@ Installation instructions can be found [here](https://github.com/coco-team/cocoS
 
 + [CoCoSim Specification Library](https://github.com/coco-team/cocoSim2/blob/master/doc/specificationLibrary.md)
 + [CoCoSim Menu](https://github.com/coco-team/cocoSim2/blob/master/doc/menu.md)
++ [Supported Simulink Blocks](https://github.com/coco-team/ir2lustre/wiki/JSON-Intermediate-Representation-of-CoCoSim-to-Lustre-Programs#a-list-of-supported-simulink-blocks)
 + [Visualization of Verification Results](https://github.com/coco-team/cocoSim2/blob/master/doc/verificationVisualization.md)
 + [Compositional Analysis](https://github.com/coco-team/cocoSim2/blob/master/doc/compositionalAnalysis.md)
 
