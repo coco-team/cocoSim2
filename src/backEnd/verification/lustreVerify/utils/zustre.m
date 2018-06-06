@@ -34,11 +34,9 @@ Query_time.nb_properties_unsafe = 0;
 Query_time.nb_properties_timeout = 0;
 Query_time.time_safe = 0;
 Query_time.time_unsafe = 0;
-try
-   timeout = evalin('base','timeout');
-catch
-   timeout = '60';
-end
+
+CoCoSimPreferences = loadCoCoSimPreferences();
+timeout = num2str(CoCoSimPreferences.verificationTimeout);
 
 properties_summary = [];
 if exist(ZUSTRE,'file')

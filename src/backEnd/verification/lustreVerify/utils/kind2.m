@@ -10,13 +10,12 @@ function kind2(lustre_file_name, property_node_names, property_file_base_name, i
     try
        kind2_option = evalin('base','kind2_option');
     catch
-       kind2_option  = '';
+       kind2_option  = '';    
     end
-    try
-       timeout = evalin('base','timeout');
-    catch
-       timeout = '60.0';
-    end
+    
+    CoCoSimPreferences = loadCoCoSimPreferences();
+    timeout = num2str(CoCoSimPreferences.verificationTimeout);    
+    
     for idx_prop=1:numel(property_node_names)
         if exist(KIND2,'file') && exist(Z3,'file')
             date_value = datestr(now, 'ddmmyyyyHHMMSS');
