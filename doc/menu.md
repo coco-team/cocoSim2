@@ -10,9 +10,8 @@ CoCoSim Menu can be accessed after [launching CoCoSim](https://github.com/coco-t
 + Simplifier: [to be completed]
 + Compiler Validation (experimental): [to be completed]
 + Check unsupported blocks: check whether all blocks used in the model are supported by the plugin
-+ Preferences: user's preferences are updated using this menu item. 
++ Preferences: user's preferences are updated using this menu item: 
 ![Preferences](https://github.com/coco-team/cocoSim2/blob/master/doc/images/preferences.png)
-The preferences include: 
    + Use IR to lustre Compiler (enabled by default): CoCoSim uses the latest [translator](https://github.com/coco-team/ir2lustre) from CoCoSim IR to Lustre (written in Java) which supports [contract specification](https://github.com/coco-team/cocoSim2/blob/master/doc/specificationLibrary.md). If this option is disabled, CoCoSim will use the old translator (written in MATLAB) which only supports the observer block. 
    + Compositional Analysis (enabled by default): CoCoSim will verify the model specification using a [compositional analysis](https://github.com/coco-team/cocoSim2/blob/master/doc/compositionalAnalysis.md). If it is disabled, CoCoSim will perform only a modular analysis.
    + Kind 2 binary: This option specifies which Kind 2 binary is used in the backend:
