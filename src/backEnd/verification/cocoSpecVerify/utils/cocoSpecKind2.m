@@ -371,7 +371,13 @@ function [nodeStruct] = parseCounterExampleNode(nodeElement, jsonMap)
             streamStruct = {};                     
             name = char(xmlElement.getAttribute('name'));
             name = [nodeStruct.name '_' name];
-            name = jsonMap(name).OriginPath;
+            if isKey(jsonMap, name)
+                name = jsonMap(name).OriginPath;
+            else
+                % some variables are added by the translator which are not
+                % blocks in Simulink
+                continue;
+            end
             [path streamStruct.name] = fileparts(name);
             streamStruct.type = char(xmlElement.getAttribute('type'));
             streamStruct.class = char(xmlElement.getAttribute('class'));             
@@ -393,6 +399,15 @@ function [nodeStruct] = parseCounterExampleNode(nodeElement, jsonMap)
         elseif strcmp(xmlElement.getNodeName,'Node')   
             % for parsing nested nodes and their streams inside
             % the counter example            
+            
+            nodeName = char(xmlElement.getAttribute('name'));
+            
+             if ~isKey(jsonMap, nodeName)                
+                % some  nodes like bool_to_int are added by the
+                % translator which are not blocks in Simulink
+                continue;
+            end
+            
             nestedNodeStruct = parseCounterExampleNode(xmlElement, jsonMap);
             nodeIndex = nodeIndex + 1;
             nodeStruct.nodes{nodeIndex} = nestedNodeStruct;   
