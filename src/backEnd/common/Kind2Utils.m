@@ -72,7 +72,7 @@ classdef Kind2Utils
             
             [CoCoSimPreferences, KIND2, Z3] = Kind2Utils.checkAvailability();      
             
-            timeout = CoCoSimPreferences.verificationTimeout;
+            timeout = num2str(CoCoSimPreferences.verificationTimeout);
             
             [file_path,file_name,extension] = fileparts(lustreFile);      
 
