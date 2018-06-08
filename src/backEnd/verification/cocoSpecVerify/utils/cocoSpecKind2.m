@@ -223,15 +223,13 @@ end
 function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, ...
                                analysisStruct, nodeNameToBlockNameMap, jsonMap)
     xml_element = xml_analysis_start;
-    analysisStruct.properties ={};    
-    index = 0;
+    analysisStruct.properties ={};       
     %ToDo: make sure the loop terminates when there are parsing errors
     while ~strcmp(xml_element.getNodeName,'AnalysisStop')
         
         xml_element = xml_element.getNextSibling;
         if strcmp(xml_element.getNodeName,'Property')            
-            propertyStruct = {};
-            index = index + 1;
+            propertyStruct = {};            
             % get the property name
             propertyStruct.propertyName = char(xml_element.getAttribute('name'));
             %ToDo: fix the naming difference between kind2 xml file and
@@ -298,7 +296,7 @@ function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, ..
                             if counterExampleElement.getLength > 0                                
                                 propertyStruct.counterExample = parseCounterExample(counterExampleElement.item(0), jsonMap);
                                 
-                                analysisStruct.properties{index} = propertyStruct;
+                                analysisStruct.properties{end + 1} = propertyStruct;
                             else
                                 msg = [solver ': FAILURE to get counter example: '];
                                 msg = [msg property_name '\n'];
@@ -310,7 +308,7 @@ function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, ..
                         % distinguish between the 2 cases, rename the top
                         analysisStruct.top = strcat(analysisStruct.top, '_one_mode_active');
                         propertyStruct.propertyType = 'oneModeActive';
-                        analysisStruct.properties{index} = propertyStruct;                        
+                        analysisStruct.properties{end + 1} = propertyStruct;                        
                         break;
                     end
                 end
