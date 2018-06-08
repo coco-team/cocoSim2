@@ -47,7 +47,7 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
         %build a map for properties        
         propertiesMap= containers.Map;
         jsonMap = containers.Map; 
-        index = 1;
+        
         for i = 1 : length(json)        
             variableKey = '';
             if isfield(json{i}, 'NodeName')
@@ -62,8 +62,7 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
             jsonMap(variableKey) = json{i};
             if isfield(json{i}, 'PropertyName')                
                 key = json{i}.PropertyName;    
-                propertiesMap(key) = json{i};                
-                index = index + 1;
+                propertiesMap(key) = json{i};                        
             end
         end        
         
@@ -346,7 +345,7 @@ function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, ..
                         display_msg(msg, Constants.WARNING, 'Property Checking', '');
                     end
                 end
-                analysisStruct.properties{index} = propertyStruct;
+                analysisStruct.properties{end + 1} = propertyStruct;
             end %end if isKey(propertiesMap, jsonName)                        
         end % end if strcmp(xml_element.getNodeName, 'Property')
     end
