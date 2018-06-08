@@ -295,7 +295,7 @@ function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, ..
                             if counterExampleElement.getLength > 0                                
                                 propertyStruct.counterExample = parseCounterExample(counterExampleElement.item(0), jsonMap);
                                 
-                                analysisStruct.properties{end + 1} = propertyStruct;
+                             %   analysisStruct.properties{end + 1} = propertyStruct;
                             else
                                 msg = [solver ': FAILURE to get counter example: '];
                                 msg = [msg property_name '\n'];
