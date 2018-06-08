@@ -320,17 +320,21 @@ function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, ..
                 property = propertiesMap(jsonName);
                 propertyStruct.originPath = property.OriginPath;      
                 
-                maskValues = get_param(propertyStruct.originPath,'MaskValues');
-                if strcmp(maskValues{1}, 'ContractAssumeBlock')
-                    propertyStruct.propertyType = 'assume';
-                elseif strcmp(maskValues{1}, 'ContractGuaranteeBlock')
-                    propertyStruct.propertyType = 'guarantee';
-                elseif strcmp(maskValues{1}, 'ContractEnsureBlock')
-                    propertyStruct.propertyType = 'ensure';
+                if isfield(property, 'propertyType')
+                    propertyStruct.propertyType = property.propertyType;      
                 else
-                    propertyStruct.propertyType = 'observer';
-                end
+                    maskValues = get_param(propertyStruct.originPath,'MaskValues');
                 
+                    if strcmp(maskValues{1}, 'ContractAssumeBlock')
+                        propertyStruct.propertyType = 'assume';
+                    elseif strcmp(maskValues{1}, 'ContractGuaranteeBlock')
+                        propertyStruct.propertyType = 'guarantee';
+                    elseif strcmp(maskValues{1}, 'ContractEnsureBlock')
+                        propertyStruct.propertyType = 'ensure';
+                    else
+                        propertyStruct.propertyType = 'observer';
+                    end
+                end
                 if strcmp(propertyStruct.answer, 'CEX') 
                     % get the counter example                                        
                     counterExampleElement = xml_element.getElementsByTagName('CounterExample');                        
