@@ -77,12 +77,24 @@ function generateModelWithSignalBuilders(resultIndex, propertyIndex, level)
         end
     end
 
+    % get available inport blocks
+    inportBlocks = find_system(modelName, 'SearchDepth', '1', 'BlockType','Inport');
+    
     for i = 1 : length(node.streams)
         
         if strcmp('input', node.streams{i}.class) || ... % outside the contract
                 (strcmp('output', node.streams{i}.class) && level == 1) % inside the contract
             %ToDo review the cases where stream name has special symbols            
             blockName = strcat(modelName, '/', node.streams{i}.name);
+            % check there is an inport block for the blockName
+            isPresent = any(ismember(inportBlocks, blockName));
+            
+            if ~ isPresent
+                %ToDo: handle this case by creating an inport and
+                %connecting it to the target subsystem and its contract
+                error(strcat(node.streams{i}.name, ' is not an inport in the diagram. This case is not supported yet.'));
+                continue ;
+            end
             
             portHandle = get_param(blockName,'PortHandles');
             portHandle = portHandle.Outport;
