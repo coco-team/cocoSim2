@@ -98,25 +98,17 @@ function generateModelWithSignalBuilders(resultIndex, propertyIndex, level)
                 subsystemInports = portHandles.Inport;
                 subsystemInport = strcat(modelName, '/', subsystemName, '/', node.streams{i}.name);
                 portIndex = str2num(get_param(subsystemInport, 'Port'));
-                subsystemLine = get_param(subsystemInports(portIndex), 'Line');
-                nonInportBlock = get_param(subsystemLine, 'SrcBlockHandle');
-                if nonInportBlock ~= -1
-                    nonInportBlockPortHandles = get_param(nonInportBlock, 'PortHandles');
-                    for j = 1 : length(nonInportBlockPortHandles.Inport)
-                        inportLine = get_param(nonInportBlockPortHandles.Inport(j), 'Line');
-                        delete_line(inportLine);
-                    end
-                    delete_block(nonInportBlock);
-                end                
+                subsystemLine = get_param(subsystemInports(portIndex), 'Line');                
+                subsystemLineSource = get_param(subsystemLine, 'SrcPortHandle');
                 
-                parentLine = get_param(subsystemLine, 'LineParent');
-                destinationPorts = get_param(parentLine, 'DstPortHandle');
+                subsystemLine = get_param(subsystemLineSource, 'Line');
+                destinationPorts = get_param(subsystemLine, 'DstPortHandle');                    
+                delete_line(subsystemLine);                    
+                
                 newInportBlock = add_block('built-in/Inport', blockName,'MakeNameUnique','on');       
                 newPortHandles = get_param(newInportBlock, 'PortHandles');
                 
-                for j = 1 : length(destinationPorts)
-                    childLine = get_param(destinationPorts(j), 'Line');
-                    delete_line(childLine);
+                for j = 1 : length(destinationPorts)                   
                     add_line(modelName, newPortHandles.Outport,destinationPorts(j), 'autorouting','on');
                 end
             end
