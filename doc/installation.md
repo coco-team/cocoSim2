@@ -1,6 +1,6 @@
 # Installation
 
-There are two ways to use CoCoSim on your computer. You can install it as a MATLAB toolbox, or you can get a local copy of the source code. CoCoSim requires MATLAB version **R2014b** or newer. CoCoSim works better with recent versions of MATLAB.
+There are two ways to use CoCoSim on your computer. You can install it as a MATLAB toolbox, or you can get a local copy of the source code. CoCoSim requires MATLAB version **R2015a** or newer. CoCoSim works better with recent versions of MATLAB.
 
 ## Installation using MATLAB toolbox
 
