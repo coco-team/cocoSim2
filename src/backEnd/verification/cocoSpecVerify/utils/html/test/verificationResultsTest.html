@@ -1067,8 +1067,8 @@
                 var table = $.parseHTML(
                     '<table class="table table-striped">' +
                         '<thead><tr>' +
-                            '<th>Property</th>' +
-                            '<th>Answer</th>' +
+                            '<th class="text-left">Property</th>' +
+                            '<th class="text-left">Answer</th>' +
                         '</tr></thead>' +
                     '</table>');
 
@@ -1140,10 +1140,10 @@
 
                 // table head
                 summary[key].subnodes.forEach(function (node, nodeIndex){
-                    $(head).append('<th>'+ node + '</th>');
+                    $(head).append('<th class="text-left">'+ node + '</th>');
                 });
 
-                $(head).append('<th>Result</th>');
+                $(head).append('<th class="text-left">Result</th>');
 
                 var tbody = $.parseHTML('<tbody></tbody>');
                 $(table).append(tbody);
