@@ -56,11 +56,23 @@ catch
 end
 
 
+
 %% Saving the json ir
 json_model = json_encode(ir_struct); %faire en sorte qu'il y ait des sauts de ligne dans la réécriture de la fonction json_encode
 json_model = strrep(json_model,'\/','/');
 json_model = strrep(json_model,'"X0"','"InitialCondition"');
 % essayer d'enlever le escape des slash si possible pour l'esthétique
+
+% Fix the dimensionality issue "CompiledPortDimensions": 
+% {..."Outport": [2,1,1]...} -> {..."Outport": [1,1]...}
+%json_model = strrep(json_model,'"Outport":[2,1,1]','"Outport":[1,1]');
+%ToDo: this is a dirty quick fix which may not work for all cases. A
+%revision and a better approach is needed. 
+matches = regexp(json_model, '("Inport":|"Outport":)\[.*?2,1,1.*?\]', 'match');
+for i = 1 : length(matches)
+    newStr = strrep(matches(i), '2,1,1', '1,1');
+    json_model = strrep(json_model,matches(i),newStr);
+end
 
 % To save the json in a file :
 if nargin < 3
@@ -72,7 +84,7 @@ if df_export
     file_path = fullfile(output_dir, file_json);
     fid = fopen(file_path, 'w');
     % Write in the file
-    fprintf(fid, '%s\n', json_model);
+    fprintf(fid, '%s\n', char(json_model));
     fclose(fid);
 % The code below doesn't work in windows
 %     new_path = fullfile(output_dir, [file_name '_IR.json']);
