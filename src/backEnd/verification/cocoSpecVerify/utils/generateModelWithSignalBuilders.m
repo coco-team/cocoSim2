@@ -90,10 +90,35 @@ function generateModelWithSignalBuilders(resultIndex, propertyIndex, level)
             isPresent = any(ismember(inportBlocks, blockName));
             
             if ~ isPresent
-                %ToDo: handle this case by creating an inport and
-                %connecting it to the target subsystem and its contract
-                error(strcat(node.streams{i}.name, ' is not an inport in the diagram. This case is not supported yet.'));
-                continue ;
+                %handle this case by creating an inport and connecting it
+                %to the target subsystem and its contract
+                [~, subsystemName] = fileparts(verificationResults.analysisResults{resultIndex}.top);
+                targetSubsystem = strcat(modelName, '/', subsystemName );
+                portHandles = get_param(targetSubsystem, 'PortHandles');
+                subsystemInports = portHandles.Inport;
+                subsystemInport = strcat(modelName, '/', subsystemName, '/', node.streams{i}.name);
+                portIndex = str2num(get_param(subsystemInport, 'Port'));
+                subsystemLine = get_param(subsystemInports(portIndex), 'Line');
+                nonInportBlock = get_param(subsystemLine, 'SrcBlockHandle');
+                if nonInportBlock ~= -1
+                    nonInportBlockPortHandles = get_param(nonInportBlock, 'PortHandles');
+                    for j = 1 : length(nonInportBlockPortHandles.Inport)
+                        inportLine = get_param(nonInportBlockPortHandles.Inport(j), 'Line');
+                        delete_line(inportLine);
+                    end
+                    delete_block(nonInportBlock);
+                end                
+                
+                parentLine = get_param(subsystemLine, 'LineParent');
+                destinationPorts = get_param(parentLine, 'DstPortHandle');
+                newInportBlock = add_block('built-in/Inport', blockName,'MakeNameUnique','on');       
+                newPortHandles = get_param(newInportBlock, 'PortHandles');
+                
+                for j = 1 : length(destinationPorts)
+                    childLine = get_param(destinationPorts(j), 'Line');
+                    delete_line(childLine);
+                    add_line(modelName, newPortHandles.Outport,destinationPorts(j), 'autorouting','on');
+                end
             end
             
             portHandle = get_param(blockName,'PortHandles');
