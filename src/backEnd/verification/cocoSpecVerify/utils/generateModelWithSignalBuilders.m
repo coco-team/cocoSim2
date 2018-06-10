@@ -80,6 +80,8 @@ function generateModelWithSignalBuilders(resultIndex, propertyIndex, level)
     % get available inport blocks
     inportBlocks = find_system(modelName, 'SearchDepth', '1', 'BlockType','Inport');
     
+    newInportPosition = [];
+    
     for i = 1 : length(node.streams)
         
         if strcmp('input', node.streams{i}.class) || ... % outside the contract
@@ -105,7 +107,13 @@ function generateModelWithSignalBuilders(resultIndex, propertyIndex, level)
                 destinationPorts = get_param(subsystemLine, 'DstPortHandle');                    
                 delete_line(subsystemLine);                    
                 
-                newInportBlock = add_block('built-in/Inport', blockName,'MakeNameUnique','on');       
+                newInportBlock = add_block('built-in/Inport', blockName,'MakeNameUnique','on');    
+                if ~ isempty(newInportPosition)
+                    newInportPosition(2) = newInportPosition(2) - 75;
+                    newInportPosition(4) = newInportPosition(4) - 75;
+                    set_param(newInportBlock, 'Position',newInportPosition);
+                end
+                newInportPosition = get_param(newInportBlock, 'Position');
                 newPortHandles = get_param(newInportBlock, 'PortHandles');
                 
                 for j = 1 : length(destinationPorts)                   
