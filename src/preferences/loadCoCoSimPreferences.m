@@ -4,7 +4,7 @@
 % Author: Mudathir Mahgoub
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [ CoCoSimPreferences ] = loadCoCoSimPreferences()
+function [ CoCoSimPreferences, modified ] = loadCoCoSimPreferences()
     % check if the preferences mat file is there
     path = fileparts(mfilename('fullpath'));
     preferencesFile = fullfile(path, 'preferences.mat');
