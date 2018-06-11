@@ -16,7 +16,7 @@ The CoCoSim specification library contains blocks for the specification of mode-
 Typically a contract consists of a set of assumptions and a set of guarantees. An assumption describes how a subsystem **must** be used, while guarantees specify how that subsystem behaves. More formally, a susbystem respects its contract if 
 ```(☐ contract assumptions) → (☐ contract guarantees)``` where ☐ is the global temporal operator. That is, if the assumptions always hold then the guarantees hold. 
 
-In CoCoSim, contract assumptions are handled by **assume** blocks, and guarantees are handled by **guarantee** blocks. These blocks are subsystems where the outport is fixed (only a single boolean outport) and the inports and other blocks are implemented by the user. The outports of **assume** and **guarantee** blocks need to be connected to the **validator** block in order to be considered in the verification process. 
+In CoCoSim, contracts are handled by **contract** blocks. A contract block needs to have same inports of its subsystem as inports, and the same outports of it subsystem as inports. A contract block has only one boolean outport which is valid. Contract assumptions are handled by **assume** blocks, and guarantees are handled by **guarantee** blocks. These blocks are subsystems where the outport is fixed (only a single boolean outport) and the inports and other blocks are implemented by the user. The outports of **assume** and **guarantee** blocks need to be connected to the **validator** block in order to be considered in the verification process. 
 
 ### Modes (mode, require, and ensure blocks)
 
