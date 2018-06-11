@@ -80,8 +80,8 @@ Utils.update_status('Building internal format');
 display_msg('Building internal format', Constants.INFO, 'cocoSim', '');
 
 %%%%%% Internal representation building %%%%%%
-[ir_struct, all_blks, subs_blks_list] = cocosim_IR(file_name, 1, output_dir);
-
+[ir_struct, ~, ~, ~,json_model] = cocosim_IR(file_name, 0, output_dir);
+cocoSpecIRPP( file_name, output_dir, json_model)
 %%%%%%%%%%%%%%% Retrieving nodes code %%%%%%%%%%%%%%%
 Utils.update_status('Lustre generation');
 display_msg('Lustre generation', Constants.INFO, 'cocoSim', '');
