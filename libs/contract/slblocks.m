@@ -8,8 +8,13 @@ function blkStruct = slblocks
     % This function specifies that the library should appear
     % in the Library Browser
     % and be cached in the browser repository
-
-    Browser.Library = 'CoCoSimSpecification';
+    version_year = regexp(version('-release'), '^\d+', 'match', 'once');
+    version_year = str2double(version_year);
+    if version_year >= 2017
+        Browser.Library = 'CoCoSimSpecification';
+    else
+        Browser.Library = 'CoCoSimSpecification_r2015a';
+    end
     % 'CoCoSimSpecification' is the name of the library
 
     Browser.Name = 'CoCoSim Specification';
