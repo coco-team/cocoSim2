@@ -167,14 +167,14 @@ for i = 1 : length(portConnectivity)
     if portConnectivity(i).SrcBlock == -1
         % add a new block
         if i <= assumePorts
-            blockHandle =  add_block('Kind/assume',strcat(blockModel,'/','assume'),'MakeNameUnique','on');
+            blockHandle =  add_block('CoCoSimSpecification/assume',strcat(blockModel,'/','assume'),'MakeNameUnique','on');
         else
             if i <= assumePorts + guaranteePorts
-                blockHandle =  add_block('Kind/guarantee',strcat(blockModel,'/','guarantee'),'MakeNameUnique','on');
+                blockHandle =  add_block('CoCoSimSpecification/guarantee',strcat(blockModel,'/','guarantee'),'MakeNameUnique','on');
             else
-                blockHandle =  add_block('Kind/mode',strcat(blockModel,'/','mode'),'MakeNameUnique','on');                
-                requireBlock = add_block('Kind/require',strcat(blockModel,'/','require'),'MakeNameUnique','on');
-                ensureBlock = add_block('Kind/ensure',strcat(blockModel,'/','ensure'),'MakeNameUnique','on');                
+                blockHandle =  add_block('CoCoSimSpecification/mode',strcat(blockModel,'/','mode'),'MakeNameUnique','on');                
+                requireBlock = add_block('CoCoSimSpecification/require',strcat(blockModel,'/','require'),'MakeNameUnique','on');
+                ensureBlock = add_block('CoCoSimSpecification/ensure',strcat(blockModel,'/','ensure'),'MakeNameUnique','on');                
             end
         end
         % move the new block closer to its port
