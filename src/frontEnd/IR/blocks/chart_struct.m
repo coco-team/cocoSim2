@@ -219,7 +219,7 @@ function junctionStruct =  buildJunctionStruct(junction)
     junctionStruct.OuterTransitions = {};
     transitions = junction.sourcedTransitions;
     for i = 1 : length(transitions)          
-       transitionStruct.Destination = buildDestinationStruct(transitions(i));
+       transitionStruct = buildDestinationStruct(transitions(i));
        junctionStruct.OuterTransitions = [junctionStruct.OuterTransitions transitionStruct];
     end    
 end
@@ -260,6 +260,23 @@ function functionStruct =  buildGraphicalFunctionStruct(functionObject)
     %set the name of the function
     functionStruct.Name = functionObject.name;      
     
+    % add states. States are rarely used in SFunctions, but they can
+    % technically exist.
+    functionStates = functionObject.find('-isa','Stateflow.State');
+    % build the json struct for states
+    functionStruct.States = cell(length(functionStates),1);
+    for index = 1 : length(functionStates)       
+        functionStruct.States{index} = buildStateStruct(functionStates(index));
+    end
+
+    %get the junctions in the SFun
+    functiontions = functionObject.find('-isa','Stateflow.Junction');           
+    % build the json struct for junctions
+    functionStruct.Junctions = cell(length(functiontions),1);
+    for index = 1 : length(functiontions)        
+        functionStruct.Junctions{index} = buildJunctionStruct(functiontions(index));
+    end 
+
     %set the signature of the function
     functionStruct.LabelString = functionObject.LabelString;    
     % set the content of the function
@@ -272,7 +289,13 @@ function functionStruct =  buildGraphicalFunctionStruct(functionObject)
     for index = 1 : length(functionData)       
         functionStruct.Data{index} = buildDataStruct(functionData(index));
     end
-    
+    % get the events of the chart
+    functionEvents = functionObject.find('-isa','Stateflow.Event');
+    % build the json struct for events
+    functionStruct.Events = cell(length(functionEvents),1);
+    for index = 1 : length(functionEvents)       
+        functionStruct.Events{index} = buildEventStruct(functionEvents(index));
+    end
 end
 
 
