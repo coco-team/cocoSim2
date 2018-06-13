@@ -260,15 +260,7 @@ function functionStruct =  buildGraphicalFunctionStruct(functionObject)
     %set the name of the function
     functionStruct.Name = functionObject.name;      
     
-    % add states. States are rarely used in SFunctions, but they can
-    % technically exist.
-    functionStates = functionObject.find('-isa','Stateflow.State');
-    % build the json struct for states
-    functionStruct.States = cell(length(functionStates),1);
-    for index = 1 : length(functionStates)       
-        functionStruct.States{index} = buildStateStruct(functionStates(index));
-    end
-
+    
     %get the junctions in the SFun
     functiontions = functionObject.find('-isa','Stateflow.Junction');           
     % build the json struct for junctions
