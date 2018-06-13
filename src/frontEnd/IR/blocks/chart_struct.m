@@ -54,6 +54,11 @@ function [StateflowContentStruct] = chart_struct(chartPath)
     virtualState.Id = chart.id;       
     virtualState.InnerTransitions = [];
     virtualState.OuterTransitions = [];
+    states_fields = {'Entry', 'During', 'Exit', 'Bind', 'On', 'OnAfter', ...
+        'OnBefore', 'OnAt', 'OnEvery'};
+    for f=states_fields
+        virtualState.Actions.(f{1}) = '';
+    end
     %ToDo: find a better name for composition
     virtualState.Composition = getContent(chart, false);     
     
