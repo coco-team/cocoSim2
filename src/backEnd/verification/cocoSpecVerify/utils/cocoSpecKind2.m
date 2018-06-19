@@ -319,8 +319,8 @@ function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, ..
                 property = propertiesMap(jsonName);
                 propertyStruct.originPath = property.OriginPath;      
                 
-                if isfield(property, 'propertyType')
-                    propertyStruct.propertyType = property.propertyType;      
+                if isfield(property, 'PropertyType')
+                    propertyStruct.propertyType = property.PropertyType;      
                 else
                     maskValues = get_param(propertyStruct.originPath,'MaskValues');
                 
