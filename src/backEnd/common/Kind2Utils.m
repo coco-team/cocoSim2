@@ -17,7 +17,7 @@ classdef Kind2Utils
             % local binary
             if strcmp(CoCoSimPreferences.kind2Binary, 'Local')               
                 
-                command = sprintf('%s --z3_bin %s -xml  %s  --enable interpreter --interpreter_input_file %s',...
+                command = sprintf('%s --z3_bin %s -xml  "%s"  --enable interpreter --interpreter_input_file "%s"',...
                     KIND2, Z3,  lustreFile, inputsFile);
 
                 display_msg(['KIND2_COMMAND ' command], Constants.DEBUG, 'write_code', '');
@@ -80,10 +80,10 @@ classdef Kind2Utils
             if strcmp(CoCoSimPreferences.kind2Binary, 'Local')
                 % check whether to use compositional analysis
                 if CoCoSimPreferences.compositionalAnalysis
-                    command = sprintf('%s --z3_bin %s -xml --timeout %s %s %s --modular true --compositional true',...
+                    command = sprintf('%s --z3_bin %s -xml --timeout %s %s "%s" --modular true --compositional true',...
                         KIND2, Z3, timeout, arguments, lustreFile);
                 else
-                    command = sprintf('%s --z3_bin %s -xml --timeout %s %s %s --modular true',...
+                    command = sprintf('%s --z3_bin %s -xml --timeout %s %s "%s" --modular true',...
                         KIND2, Z3, timeout, arguments, lustreFile);
                 end
 
