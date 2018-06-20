@@ -20,18 +20,22 @@ classdef BusUtils
 	end
 
 	function [res, bus] = is_bus(bus_name)
-		res = false;
-		bus = '';
-		if ~exist('bus_struct', 'var')
-			load('tmp_data');
-		end
-		for idx=1:numel(bus_struct)
-			if strcmp(bus_struct(idx).name, bus_name)
-				res = true;
-				bus = bus_struct(idx);
-				break;
-			end
-		end
+        res = false;
+        try
+            %tmp_data ???
+            bus = '';
+            if ~exist('bus_struct', 'var')
+                load('tmp_data');
+            end
+            for idx=1:numel(bus_struct)
+                if strcmp(bus_struct(idx).name, bus_name)
+                    res = true;
+                    bus = bus_struct(idx);
+                    break;
+                end
+            end
+        catch
+        end
 	end
 
 	function [cpx_struct] = get_complex_struct(dt)
