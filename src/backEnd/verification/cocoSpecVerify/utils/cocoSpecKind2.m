@@ -89,7 +89,7 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
             displayVerificationResults(verificationResults, compositionalMap);
             
             %save the model 
-            if strcmp(get_param(gcs,'Dirty'),'on')
+            if strcmp(get_param(bdroot(gcs),'Dirty'),'on')
                 save_system;
             end 
         end                        
@@ -101,7 +101,7 @@ end
 function [nodeNameToBlockNameMap] = getBlocksMapping()
     %get blocks names from nodes names
     %ToDo: refactor this process with the Java translator
-    blockSet = find_system(gcs,'LookUnderMasks', 'on');
+    blockSet = find_system(bdroot(gcs),'LookUnderMasks', 'on');
     nameSet = cell(length(blockSet), 1);
     for i = 1 : length(blockSet)
         nameSet{i} = Utils.name_format(blockSet{i});
@@ -111,7 +111,7 @@ function [nodeNameToBlockNameMap] = getBlocksMapping()
 end
 function [verificationResults, compositionalMap] = saveVerificationResults(verificationResults, nodeNameToBlockNameMap)
     
-    modelWorkspace = get_param(gcs,'ModelWorkspace');             
+    modelWorkspace = get_param(bdroot(gcs),'ModelWorkspace');             
     
     
     %store the mapping in the model workspace
