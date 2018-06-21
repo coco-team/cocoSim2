@@ -66,7 +66,7 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
             end
         end        
         
-        [nodeNameToBlockNameMap] = getBlocksMapping();
+        [nodeNameToBlockNameMap] = getBlocksMapping(json);
         
         verificationResults = {};
 
@@ -98,15 +98,23 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
     %% for modular execution
 end
 
-function [nodeNameToBlockNameMap] = getBlocksMapping()
+function [nodeNameToBlockNameMap] = getBlocksMapping(json)
     %get blocks names from nodes names
     %ToDo: refactor this process with the Java translator
-    blockSet = find_system(bdroot(gcs),'LookUnderMasks', 'on');
-    nameSet = cell(length(blockSet), 1);
-    for i = 1 : length(blockSet)
-        nameSet{i} = Utils.name_format(blockSet{i});
-        nameSet{i} = strrep(nameSet{i}, '/','_');
-    end   
+    blockSet = {};
+    nameSet = {};
+    for i = 1 : length(json)
+        % starting by VariableName as if exists it has priority
+        if isfield(json{i}, 'VariableName')
+            nameSet{end+1} = json{i}.VariableName;
+        elseif isfield(json{i}, 'NodeName')
+            nameSet{end+1} = json{i}.NodeName;
+        elseif isfield(json{i}, 'ContractName')
+            nameSet{end+1} = json{i}.ContractName;
+        end
+        blockSet{end+1} = json{i}.OriginPath;
+    end
+    
     nodeNameToBlockNameMap = containers.Map(nameSet, blockSet);    
 end
 function [verificationResults, compositionalMap] = saveVerificationResults(verificationResults, nodeNameToBlockNameMap)
