@@ -61,7 +61,11 @@ function generateModelWithSignalBuilders(resultIndex, propertyIndex, level)
         open_system(tempModel);
         subsystemName = strcat(tempModelName, '/tempSubsystem');        
         add_block('built-in/Subsystem', subsystemName);
-        Simulink.BlockDiagram.copyContentsToSubsystem(copyPath, subsystemName);
+        %copyContentsToSubsystem is not supported in 2015b
+        %Simulink.BlockDiagram.copyContentsToSubsystem(copyPath, subsystemName);
+        bdObj = get_param(copyPath,'object');
+        ssH = get_param(subsystemName, 'handle');
+        bdObj.copyContentsToSS(ssH);
         Simulink.SubSystem.copyContentsToBlockDiagram(subsystemName, generatedModel);
         close_system(tempModelName, 0);
     end
@@ -156,11 +160,11 @@ function generateModelWithSignalBuilders(resultIndex, propertyIndex, level)
                 portHandle = get_param(convertBlock,'PortHandles');
                 x_shift = 100;
                 position = [position(1)-x_shift position(2) position(3)-x_shift position(4)];        
-                signalBuilderBlock = signalbuilder(char(blockName), 'create', time, {node.streams{i}.values'},name, name,1,position,{0 0});
+                signalBuilderBlock = signalbuilder(char(blockName), 'create', time, {node.streams{i}.values'},name, name,1,position);
                 signalBuilderPorts = get_param(signalBuilderBlock,'PortHandles');
                 add_line(generatedModel, signalBuilderPorts.Outport, portHandle.Inport,'autorouting','on');               
             else
-                signalBuilderBlock = signalbuilder(char(blockName), 'create', time, {node.streams{i}.values'},name, name,1,position,{0 0});
+                signalBuilderBlock = signalbuilder(char(blockName), 'create', time, {node.streams{i}.values'},name, name,1,position);
                 portHandle = get_param(signalBuilderBlock,'PortHandles');
             end
 
