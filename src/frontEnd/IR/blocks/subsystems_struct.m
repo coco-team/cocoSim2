@@ -87,7 +87,7 @@ for i=1:numel(content)
     % Inner SubSystems/model struct
     if strcmp(sub_type, 'SubSystem') ...
         ||  (  strcmp(get_param(content{i}, 'Mask'), 'on' ) ... % validatr has type 'M-S-Function'
-            && ~strcmp(get_param(content{i}, 'MaskType'), 'KindContractValidator'))
+            && ~contains(get_param(content{i}, 'MaskType'), 'ContractValidator'))   % there are two maskTypes for the validator block  "ContractValidatorBlock" and  "KindContractValidator"
         S.(sub_name).Mask = get_param(content{i}, 'Mask');
 
         S.(sub_name).MaskType = mask_type;

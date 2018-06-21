@@ -274,12 +274,16 @@ function [analysisStruct] = handleAnalysis(propertiesMap, xml_analysis_start, ..
                             strcmp(propertiesValues{i}.ContractName, contractName)                        
                         
                         blockPath = propertiesValues{i}.OriginPath;
-                        blocks = find_system(blockPath,'LookUnderMasks','on','MaskType','KindContractValidator');
+                        % there are two maskTypes for the validator block
+                        % "ContractValidatorBlock" and
+                        % "KindContractValidator"
+                        % that's why we use RegExp to look for both of them
+                        blocks = find_system(blockPath,'LookUnderMasks','on', 'Regexp', 'on', 'MaskType','(Kind)?ContractValidator(Block)?');
                         %ToDo: remove this while when the json mapping file
                         %is fixed
                         while isempty(blocks) 
                             blockPath = fileparts(blockPath);
-                            blocks = find_system(blockPath,'LookUnderMasks','on','MaskType','KindContractValidator');
+                            blocks = find_system(blockPath,'LookUnderMasks','on','Regexp', 'on', 'MaskType','(Kind)?ContractValidator(Block)?');
                         end
                         validatorBlock = blocks{1};
                         propertyStruct.originPath = getfullname(validatorBlock);
