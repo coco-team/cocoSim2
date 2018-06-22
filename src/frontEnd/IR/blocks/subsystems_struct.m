@@ -86,8 +86,8 @@ for i=1:numel(content)
     
     % Inner SubSystems/model struct
     if strcmp(sub_type, 'SubSystem') ...
-        ||  (  strcmp(get_param(content{i}, 'Mask'), 'on' ) ... % validatr has type 'M-S-Function'
-            && ~contains(get_param(content{i}, 'MaskType'), 'ContractValidator'))   % there are two maskTypes for the validator block  "ContractValidatorBlock" and  "KindContractValidator"
+        || strcmp(get_param(content{i}, 'Mask'), 'on' ) 
+             
         S.(sub_name).Mask = get_param(content{i}, 'Mask');
 
         S.(sub_name).MaskType = mask_type;
@@ -110,10 +110,14 @@ for i=1:numel(content)
             end
             S.(sub_name).Content = struct();
         else            
-            [S.(sub_name).Content, next_blocks, next_subsyst, handle_struct_map_next] = subsystems_struct(content{i}, true);
-            all_blocks = [all_blocks, next_blocks];
-            subsyst_blocks = [subsyst_blocks, next_subsyst];
-            handle_struct_map = [handle_struct_map; handle_struct_map_next];
+             % there are two maskTypes for the validator block  "ContractValidatorBlock" and  "KindContractValidator"
+             % TODO: Why empty Content in IR is a problem in IOWA translator?
+            if ~contains(mask_type, 'ContractValidator')
+                [S.(sub_name).Content, next_blocks, next_subsyst, handle_struct_map_next] = subsystems_struct(content{i}, true);
+                all_blocks = [all_blocks, next_blocks];
+                subsyst_blocks = [subsyst_blocks, next_subsyst];
+                handle_struct_map = [handle_struct_map; handle_struct_map_next];
+            end
         end
         
     elseif strcmp(sub_type, 'ModelReference')
