@@ -99,8 +99,6 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
 end
 
 function [nodeNameToBlockNameMap] = getBlocksMapping(json)
-    %get blocks names from nodes names
-    %ToDo: refactor this process with the Java translator
     blockSet = {};
     nameSet = {};
     for i = 1 : length(json)
@@ -114,7 +112,6 @@ function [nodeNameToBlockNameMap] = getBlocksMapping(json)
         end
         blockSet{end+1} = json{i}.OriginPath;
     end
-    
     nodeNameToBlockNameMap = containers.Map(nameSet, blockSet);    
 end
 function [verificationResults, compositionalMap] = saveVerificationResults(verificationResults, nodeNameToBlockNameMap)
