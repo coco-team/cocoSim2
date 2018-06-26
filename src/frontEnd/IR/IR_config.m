@@ -51,7 +51,7 @@ block_param_map('DiscreteFilter') = {'Numerator', 'Denominator',...
 block_param_map('Mux') = {'Inputs', 'DisplayOption', 'UseBusObject', 'BusObject', 'NonVirtualBus'};
 
 block_param_map('MultiPortSwitch') = {'DataPortOrder', 'DataPortIndices'...
-    'Inputs', 'DataPortForDefault', 'AllowDiffInputSizes'};
+    'Inputs', 'DataPortForDefault', 'AllowDiffInputSizes' 'RndMeth', 'SaturateOnIntegerOverflow'};
 
 block_param_map('Scope') = {'Floating'};
 
