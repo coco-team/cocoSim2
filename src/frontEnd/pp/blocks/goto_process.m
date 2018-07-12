@@ -2,7 +2,7 @@ function [] = goto_process(model)
 % GOTO_PROCESS Searches for goto/from pattern and replaces them by a
 % GAL-friendly equivalent.
 %   model is a string containing the name of the model to search in
-goto_list = find_system(model,'BlockType','Goto');
+goto_list = find_system(model,'LookUnderMasks', 'all', 'BlockType','Goto');
 if not(isempty(goto_list))
     display_msg('Processing Goto/From blocks...', Constants.INFO, 'goto_process', ''); 
     for i=1:length(goto_list)
