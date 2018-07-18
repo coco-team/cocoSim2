@@ -382,7 +382,14 @@ function [nodeStruct] = parseCounterExampleNode(nodeElement, jsonMap)
             name = char(xmlElement.getAttribute('name'));
             name = [nodeStruct.name '_' name];
             if isKey(jsonMap, name)
-                name = jsonMap(name).OriginPath;
+                k = name;
+                name = jsonMap(k).OriginPath;
+                if isfield(jsonMap(k), 'Width')...
+                        && isfield(jsonMap(k), 'Index')...
+                        && ~isequal(jsonMap(k).Width, '1')
+                    % present Arrays index
+                    name = sprintf('%s(%s)', name, jsonMap(k).Index);
+                end
             else
                 % some variables are added by the translator which are not
                 % blocks in Simulink
