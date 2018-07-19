@@ -147,6 +147,7 @@ function [verificationResults, compositionalMap] = saveVerificationResults(verif
         if ~ isempty(verificationResults.analysisResults{i}.abstract)
             % replace the abstract name with the corresponding block name        
             abstract = strsplit(verificationResults.analysisResults{i}.abstract,',');
+            abstract = abstract(cellfun(@(x) isKey(nodeNameToBlockNameMap, x), abstract));
             abstract = cellfun(@(x) nodeNameToBlockNameMap(x), abstract,'UniformOutput', 0);
             for j = 1: length(abstract)
                 [~, nodeName] = fileparts(abstract{j});
