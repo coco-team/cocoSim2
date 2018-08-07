@@ -52,7 +52,7 @@ block_param_map('Mux') = {'Inputs', 'DisplayOption', 'UseBusObject', 'BusObject'
 
 block_param_map('MultiPortSwitch') = {'DataPortOrder', 'DataPortIndices'...
     'Inputs', 'DataPortForDefault', 'AllowDiffInputSizes' 'RndMeth', 'SaturateOnIntegerOverflow'};
-
+block_param_map('ManualSwitch') = {'sw'};
 block_param_map('Scope') = {'Floating'};
 
 block_param_map('Outport') = {'Port', 'CompiledPortDimensions', 'CompiledPortDataTypes', 'UseBusObject', 'BusObject', 'OutputWhenDisabled', 'InitialOutput'};
