@@ -118,7 +118,7 @@ function [nodeNameToBlockNameMap] = getBlocksMapping(json)
     nodeNameToBlockNameMap = containers.Map(nameSet, blockSet);    
 end
 function [verificationResults, compositionalMap, status] = saveVerificationResults(verificationResults, nodeNameToBlockNameMap)
-    
+    compositionalMap = [];
     modelWorkspace = get_param(bdroot(gcs),'ModelWorkspace');             
     
     status = 0;
