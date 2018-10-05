@@ -9,6 +9,9 @@ Object_struct = [];
 if isa(Object, 'char')
     path = strsplit(Object, '/');
     Object_search = ir_struct;
+    if isfield(Object_search, 'Content')
+        Object_search = Object_search.Content;
+    end
     for i=1:numel(path)-1
         try
             Object_search = Object_search.(IRUtils.name_format(path{i})).Content;
