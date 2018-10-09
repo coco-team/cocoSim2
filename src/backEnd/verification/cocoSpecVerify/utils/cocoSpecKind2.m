@@ -5,7 +5,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-function cocoSpecKind2(lustre_file_name, mapping_file)
+function cocoSpecKind2(lustre_file_name, mapping_file, kind2_out)
      
     cocosim_config;
     try
@@ -19,9 +19,9 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
 
     % properties in the mapping file                        
     if exist(mapping_file, 'file') == 2
-
-        kind2_out = Kind2Utils.verify(lustre_file_name, kind2_option);
-        
+        if ~exist('kind2_out', 'var') ||  isempty(kind2_out)
+            kind2_out = Kind2Utils.verify(lustre_file_name, kind2_option);
+        end
         results_file_name = strrep(lustre_file_name,'.lus','.xml');
         fid = fopen(results_file_name, 'w');
         fprintf(fid, kind2_out);
@@ -85,7 +85,10 @@ function cocoSpecKind2(lustre_file_name, mapping_file)
             end
 
             %store the verification results in the model workspace
-            [verificationResults, compositionalMap] = saveVerificationResults(verificationResults, nodeNameToBlockNameMap);
+            [verificationResults, compositionalMap, status] = saveVerificationResults(verificationResults, nodeNameToBlockNameMap);
+            if status
+                return;
+            end
             displayVerificationResults(verificationResults, compositionalMap);
             
             %save the model 
@@ -114,17 +117,18 @@ function [nodeNameToBlockNameMap] = getBlocksMapping(json)
     end
     nodeNameToBlockNameMap = containers.Map(nameSet, blockSet);    
 end
-function [verificationResults, compositionalMap] = saveVerificationResults(verificationResults, nodeNameToBlockNameMap)
-    
+function [verificationResults, compositionalMap, status] = saveVerificationResults(verificationResults, nodeNameToBlockNameMap)
+    compositionalMap = [];
     modelWorkspace = get_param(bdroot(gcs),'ModelWorkspace');             
     
-    
+    status = 0;
     %store the mapping in the model workspace
     assignin(modelWorkspace,'nodeNameToBlockNameMap',nodeNameToBlockNameMap);
     
     if ~ isfield(verificationResults, 'analysisResults')
        display_msg('No property found in kind2 XML output file', Constants.RESULT, '', '');   
-       error('No property found in kind2 XML output file');
+       status = 1;
+       return;
     end
     
     %replace the nodes names with blocks names
