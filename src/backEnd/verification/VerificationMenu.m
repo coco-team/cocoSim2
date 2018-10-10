@@ -120,13 +120,20 @@ classdef VerificationMenu
             schema.autoDisableWhen = 'Busy';            
             schema.callback = @VerificationMenu.displayHtmlVerificationResultsCallback;
         end
-        
         function displayHtmlVerificationResultsCallback(callbackInfo)
+            model_handle = callbackInfo.studio.App.blockDiagramHandle;
+            VerificationMenu.displayHtmlVerificationResultsCallbackCode(model_handle);
+        end
+        function displayHtmlVerificationResultsCallbackCode(model_handle)
              % get the verification results from the model workspace
-            modelWorkspace = get_param(callbackInfo.studio.App.blockDiagramHandle,'modelworkspace');   
+            modelWorkspace = get_param(model_handle, 'modelworkspace');   
+            if ~modelWorkspace.hasVariable('verificationResults')
+                errordlg('verificationResults not found in the model Workspace')
+                return;
+            end
             verificationResults = modelWorkspace.getVariable('verificationResults');    
             
-            modelPath = get_param(callbackInfo.studio.App.blockDiagramHandle, 'FileName');
+            modelPath = get_param(model_handle, 'FileName');
             
             modelPath = strrep(modelPath, '\', '\\');            
 
