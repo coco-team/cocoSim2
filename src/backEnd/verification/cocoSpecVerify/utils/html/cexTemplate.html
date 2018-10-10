@@ -23,9 +23,7 @@
 			var property = [(property)];
 
 			$('#property').append('<h1 style="font-weight: bold;">' + property.originPath + '</h1>');
-
-			$('#property').append('<h1 style="font-weight: bold;">' + property.originPath + '</h1>');
-            if( property.tables === Array) {
+            if( property.tables.length >= 1) {
                 property.tables.forEach(function (table, index) {
                     for (var i = 0; i < table.columnNames.length; i++) {
                         table.columnNames[i] = { title: table.columnNames[i] };
