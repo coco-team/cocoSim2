@@ -131,7 +131,7 @@ classdef write_state_node < handle
                 source = children(i);
                 transitions = sort_by_order(chart.find('-isa', 'Stateflow.Transition', '-and', 'Source', source));
                 source_innerTrans = sort_by_order(source.innerTransitions());
-                transitions= removerows(transitions,ismember(transitions,source_innerTrans));
+                transitions= write_state_node.removerows(transitions,ismember(transitions,source_innerTrans));
                 m = numel(transitions);
                 for j=1:m
                     id_source = num2str(source.get('Id'));
@@ -519,6 +519,26 @@ classdef write_state_node < handle
                     end
                 else
                     b = true;
+                end
+            end
+        end
+        
+        function Y = removerows(X, I)
+            if isempty(X)
+                Y = [];
+                return;
+            end
+            try
+                %Neural Network Toolbox
+                Y = removerows(X, I);
+            catch
+                Y = X(1);
+                j = 1;
+                for i=1:numel(X)
+                    if ~ismember(i, I)
+                        Y(j) = X(i);
+                        j = j+1;
+                    end
                 end
             end
         end
