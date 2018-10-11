@@ -210,7 +210,7 @@ isChart = strcmp(get_full_name(chart),get_full_name(state));
 if ~isChart
     state_innerTransitions = sort_by_order(state.innerTransitions());
     innerTransitions_ends_on_state = write_state_node.transitions_end_on_state(state_innerTransitions,chart);
-    state_innerTransitions= removerows(state_innerTransitions,ismember(state_innerTransitions,innerTransitions_ends_on_state));
+    state_innerTransitions= write_state_node.removerows(state_innerTransitions,ismember(state_innerTransitions,innerTransitions_ends_on_state));
     m = numel(state_innerTransitions);
     if m==0
         [action_code, variables] =add_unchanged_variables(node_struct.Outputs, variables_struct);
