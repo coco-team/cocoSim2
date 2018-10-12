@@ -226,7 +226,8 @@ end
 
 function transitionStruct = buildDestinationStruct(transition)
     transitionStruct = {};
-    transitionStruct.Id = transition.id;       
+    transitionStruct.Id = transition.id;     
+    transitionStruct.ExecutionOrder = transition.ExecutionOrder;
     destination =  transition.Destination;
     transitionStruct.Destination.Id = destination.id;    
     
