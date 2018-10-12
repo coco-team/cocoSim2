@@ -49,7 +49,8 @@ function [StateflowContentStruct] = chart_struct(chartPath)
     
     % add a virtual state that represents the chart itself 
     % set the state path
-    virtualState.Path = chart.path;    
+    virtualState.Path = chart.path;   
+    virtualState.Name = chart.Name; 
     %set the id of the state
     virtualState.Id = chart.id;       
     virtualState.InnerTransitions = [];
