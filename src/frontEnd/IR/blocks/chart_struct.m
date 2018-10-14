@@ -201,6 +201,14 @@ function content = getContent(chartObject, self)
         content.Substates{i-index} = childStates(i).name;
         content.States{i-index} = childStates(i).id;
     end
+    % add subJunctions
+    junctions = chartObject.find('-isa','Stateflow.Junction', '-depth',1);
+    content.SubJunctions = cell(length(junctions), 1);
+    for i = 1 : length(junctions)
+        jun.Name = junctionName(junctions(i));
+        jun.Type = junctions(i).Type;
+        content.SubJunctions{i} = jun;
+    end
 end
 
 function junctionStruct =  buildJunctionStruct(junction)    
@@ -208,7 +216,7 @@ function junctionStruct =  buildJunctionStruct(junction)
     junctionStruct.Path = strcat (junction.Path, '/Junction',int2str(junction.id));
     
     % set the junction name
-    junctionStruct.Name = strcat ('Junction',int2str(junction.id));
+    junctionStruct.Name = junctionName (junction);
     
     %set the id of the junction
     junctionStruct.Id = junction.id;
@@ -223,6 +231,10 @@ function junctionStruct =  buildJunctionStruct(junction)
        transitionStruct = buildDestinationStruct(transitions(i));
        junctionStruct.OuterTransitions = [junctionStruct.OuterTransitions transitionStruct];
     end    
+end
+
+function Name = junctionName(junction)
+    Name = strcat ('Junction',int2str(junction.id));
 end
 
 function transitionStruct = buildDestinationStruct(transition)
