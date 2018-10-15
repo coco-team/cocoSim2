@@ -250,7 +250,9 @@ function transitionStruct = buildDestinationStruct(transition)
     transitionStruct.Condition = char(transitionObject.condition);
     transitionStruct.ConditionAction = cell(transitionObject.conditionAction);  
     transitionStruct.TransitionAction = cell(transitionObject.transitionAction);  
-    
+    %keep LabelString in case the parser failed.
+    transitionStruct.LabelString = transition.LabelString;
+
     % check if the destination is a state or a junction
     if strcmp(destination.Type, 'CONNECTIVE') || ...
        strcmp(destination.Type, 'HISTORY')
