@@ -213,10 +213,10 @@ end
 
 function junctionStruct =  buildJunctionStruct(junction)    
     % set the junction path
-    junctionStruct.Path = strcat (junction.Path, '/Junction',int2str(junction.id));
+    junctionStruct.Path = strcat (junction.Path, '/', junctionName(junction));
     
     % set the junction name
-    junctionStruct.Name = junctionName (junction);
+    junctionStruct.Name = junctionName(junction);
     
     %set the id of the junction
     junctionStruct.Id = junction.id;
@@ -258,7 +258,7 @@ function transitionStruct = buildDestinationStruct(transition)
        strcmp(destination.Type, 'HISTORY')
        transitionStruct.Destination.Type = 'Junction';
        transitionStruct.Destination.Name = strcat(destination.Path, '/', ...
-           'Junction', int2str(destination.id));
+            junctionName(destination));
     else
        transitionStruct.Destination.Type = 'State';
        transitionStruct.Destination.Name = strcat(destination.Path, '/', ...
