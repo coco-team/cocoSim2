@@ -121,6 +121,7 @@ function eventStruct = buildEventStruct(event)
     eventStruct.Name = event.name;    
     eventStruct.Port = event.Port;
     eventStruct.Scope = event.scope;
+    eventStruct.Trigger = event.Trigger;
 end
 
 function stateStruct =  buildStateStruct(state)    
@@ -129,6 +130,9 @@ function stateStruct =  buildStateStruct(state)
     
     %set the id of the state
     stateStruct.Id = state.id;
+    
+    %set the ExecutionOrder of the state
+    stateStruct.ExecutionOrder = state.ExecutionOrder;
     
     %set the name of the state
     stateStruct.Name = state.name;
