@@ -11,7 +11,7 @@ function [ S ] = common_struct( block_path, model_ref_parent )
 %   S = COMMON_STRUCT(file_name)
 
 % load config
-IR_config;
+global block_param_map;
 if nargin < 2
     model_ref_parent = '';
 end
