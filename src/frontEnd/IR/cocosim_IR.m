@@ -43,7 +43,6 @@ end
 
 ir_struct.meta.date = datestr(datetime('today'));
 
-
 file_name_modif = IRUtils.name_format(file_name);
 [ir_struct.(file_name_modif).Content, all_blocks, subsyst_blocks, ir_handle_struct_map] = subsystems_struct(file_name);
 
@@ -55,7 +54,8 @@ catch
     %do nothing
 end
 
-
+%% get all enumeration and bus object declarations used in the model
+ir_struct.meta.Declarations = buildDeclarationsStruct(ir_struct);
 
 %% Saving the json ir
 json_model = json_encode(ir_struct); %faire en sorte qu'il y ait des sauts de ligne dans la réécriture de la fonction json_encode
