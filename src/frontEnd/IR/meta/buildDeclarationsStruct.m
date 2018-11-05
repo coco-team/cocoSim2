@@ -37,8 +37,13 @@ function enumStruct = buildEnumStruct(enumTypeName)
     metadata = meta.class.fromName(enumTypeName);    
     
     % get the default value
-    cmd = [enumTypeName '.getDefaultValue()'];
-    enumStruct.DefaultValue = char(eval(cmd));    
+    
+    if ismethod(enumTypeName,'getDefaultValue')        
+        cmd = [enumTypeName '.getDefaultValue()'];
+        enumStruct.DefaultValue = char(eval(cmd));    
+    else        
+        enumStruct.DefaultValue = metadata.EnumerationMemberList(1).Name; 
+    end
     
     enumStruct.Members = cell(length(metadata.EnumerationMemberList), 1);
     
