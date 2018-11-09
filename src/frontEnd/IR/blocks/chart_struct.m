@@ -27,6 +27,15 @@ function [StateflowContentStruct] = chart_struct(chartPath)
     % get the chart object
     chart = model.find('-isa','Stateflow.Chart', 'Path', chartPath);   
     
+    %get the chart ActionLanguage, StateMachineType, ChartUpdate, 
+    % ExecuteAtInitialization, InitializeOutput, EnableNonTerminalStates
+    StateflowContentStruct.ActionLanguage = chart.ActionLanguage;
+    StateflowContentStruct.StateMachineType = chart.StateMachineType;
+    StateflowContentStruct.ChartUpdate = chart.ChartUpdate;
+    StateflowContentStruct.ExecuteAtInitialization = chart.ExecuteAtInitialization;
+    StateflowContentStruct.InitializeOutput = chart.InitializeOutput;
+    StateflowContentStruct.EnableNonTerminalStates = chart.EnableNonTerminalStates;
+    
     %get the chart path
     StateflowContentStruct.Path = chart.Path;
        
