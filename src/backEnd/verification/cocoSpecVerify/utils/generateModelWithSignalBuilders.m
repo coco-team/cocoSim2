@@ -143,10 +143,11 @@ try
             signalType = 'double';
             if strcmp('bool', node.streams{i}.type)
                 signalType = 'boolean';
-            else
-                if strcmp('int', node.streams{i}.type)
-                    signalType = 'int32';
-                end
+            elseif strcmp('int', node.streams{i}.type)
+                signalType = 'int32';
+            elseif strcmp('enum', node.streams{i}.type)                    
+                %ToDo: fix this when kind2 is modified to return enum name
+                signalType = ['Enum: ' 'Days'];                
             end
             
             % remove the inport block
@@ -158,12 +159,33 @@ try
                 convertBlock = add_block('Simulink/Signal Attributes/Data Type Conversion',convertBlockName);
                 set_param(convertBlock, 'Position', position);
                 set_param(convertBlock, 'OutDataTypeStr', signalType);
+                
+                %To add lines to blocks previously connected to the inport
                 portHandle = get_param(convertBlock,'PortHandles');
+                
+                %To add a line to the conversion block from the signal
+                %builder
+                signalBuilderLinePorts = portHandle;
+                
                 x_shift = 100;
                 position = [position(1)-x_shift position(2) position(3)-x_shift position(4)];
+                
+                % To convert to enum type we need to convert first to int32
+                if strcmp('enum', node.streams{i}.type)                    
+                    convertBlockName = strcat(modelName,'/', name, '_convert_to_', 'int32');
+                    convertBlock = add_block('Simulink/Signal Attributes/Data Type Conversion',convertBlockName);
+                    set_param(convertBlock, 'Position', position);
+                    set_param(convertBlock, 'OutDataTypeStr', 'int32');
+                    
+                    signalBuilderLinePorts = get_param(convertBlock,'PortHandles');
+                    add_line(generatedModel, signalBuilderLinePorts.Outport, portHandle.Inport,'autorouting','on');    
+                    
+                    x_shift = 200;
+                    position = [position(1)-x_shift position(2) position(3)-x_shift position(4)];
+                end
                 signalBuilderBlock = signalbuilder(char(blockName), 'create', time, {node.streams{i}.values'},name, name,1,position);
                 signalBuilderPorts = get_param(signalBuilderBlock,'PortHandles');
-                add_line(generatedModel, signalBuilderPorts.Outport, portHandle.Inport,'autorouting','on');
+                add_line(generatedModel, signalBuilderPorts.Outport, signalBuilderLinePorts.Inport,'autorouting','on');
             else
                 signalBuilderBlock = signalbuilder(char(blockName), 'create', time, {node.streams{i}.values'},name, name,1,position);
                 portHandle = get_param(signalBuilderBlock,'PortHandles');
