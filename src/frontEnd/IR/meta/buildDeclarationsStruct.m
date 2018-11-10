@@ -7,6 +7,9 @@
 function [declarations] = buildDeclarationsStruct(ir_struct)
 %getDeclarations returns an object that describes enumerations and
 % bus objects defined in the model 
+
+%https://www.mathworks.com/help/simulink/ug/migrate-enumerated-types-into-data-dictionary.html
+
 % Find all variables and enumerated types used in model blocks
 
 usedTypesVars = Simulink.findVars(gcs,'IncludeEnumTypes',true);
