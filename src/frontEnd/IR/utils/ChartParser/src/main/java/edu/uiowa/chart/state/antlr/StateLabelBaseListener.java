@@ -28,6 +28,18 @@ public class StateLabelBaseListener implements StateLabelListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterStateName(StateLabelParser.StateNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitStateName(StateLabelParser.StateNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterActions(StateLabelParser.ActionsContext ctx) { }
 	/**
 	 * {@inheritDoc}

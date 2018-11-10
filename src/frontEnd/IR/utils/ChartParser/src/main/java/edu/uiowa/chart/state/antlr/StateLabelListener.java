@@ -18,6 +18,16 @@ public interface StateLabelListener extends ParseTreeListener {
 	 */
 	void exitStateLabel(StateLabelParser.StateLabelContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link StateLabelParser#stateName}.
+	 * @param ctx the parse tree
+	 */
+	void enterStateName(StateLabelParser.StateNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link StateLabelParser#stateName}.
+	 * @param ctx the parse tree
+	 */
+	void exitStateName(StateLabelParser.StateNameContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link StateLabelParser#actions}.
 	 * @param ctx the parse tree
 	 */
