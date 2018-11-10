@@ -409,14 +409,25 @@ for childIndex = 0 : (children.getLength - 1)
         streamStruct.type = char(xmlElement.getAttribute('type'));
         streamStruct.class = char(xmlElement.getAttribute('class'));
         valueElements = xmlElement.getElementsByTagName('Value');
-        streamStruct.values = [];
+        
+        streamStruct.values = [];        
+        % to store string values like enum values and others
+        streamStruct.stringValues = cell(valueElements.getLength,1);
+        
         nodeStruct.timeSteps = valueElements.getLength;
         for valueIndex=0:(valueElements.getLength-1)
             value = char(valueElements.item(valueIndex).getTextContent);
+            %ToDo: review this for struct values
+            streamStruct.stringValues{valueIndex + 1} = value;
             if strcmp(value, 'false')
                 streamStruct.values(valueIndex + 1) = false;
             elseif strcmp(value, 'true')
                 streamStruct.values(valueIndex + 1) = true;
+            elseif strcmp (streamStruct.type, 'enum')
+                %ToDo: fix this when kind2 is modified to return enum name
+                enumTypeName = 'Days';
+                cmd = [enumTypeName '.' value];                
+                streamStruct.values(valueIndex + 1) = eval(cmd);
             else
                 streamStruct.values(valueIndex + 1) = str2num(value);
             end

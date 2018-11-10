@@ -66,7 +66,11 @@ function displayCexHtmlTables(resultIndex, propertyIndex)
             dataRow{1} = rowName;
             
             for j=1 : propertyStruct.counterExample.node.timeSteps
-                dataRow{j+1} = num2str(flattenedNodes{nodeIndex}.streams{i}.values(j));
+                if strcmp (flattenedNodes{nodeIndex}.streams{i}.type, 'enum')
+                    dataRow{j+1} = char(flattenedNodes{nodeIndex}.streams{i}.stringValues(j));
+                else
+                    dataRow{j+1} = num2str(flattenedNodes{nodeIndex}.streams{i}.values(j));
+                end
             end            
             data{i} = dataRow;            
         end
