@@ -33,6 +33,15 @@ class StateActionParserTest {
         assertEquals(0, stateAction.onEvery.length);
     }
 
+    @Test
+    void parseStateWithNameEndingWithForwardSlash()
+    {
+        String stateLabel = "increasing/\n" +
+                "entry: x=y;y=x*2.0;";
+
+        StateAction stateAction = StateParser.parse(stateLabel);
+        assertEquals("x=y;y=x*2.0;", stateAction.entry[0]);
+    }
 
     @Test
     void parseEntry()

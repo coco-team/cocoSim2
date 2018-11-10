@@ -17,6 +17,12 @@ public interface StateLabelVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStateLabel(StateLabelParser.StateLabelContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link StateLabelParser#stateName}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStateName(StateLabelParser.StateNameContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link StateLabelParser#actions}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
