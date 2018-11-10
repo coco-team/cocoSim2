@@ -12,7 +12,7 @@ function [declarations] = buildDeclarationsStruct(ir_struct)
 
 % Find all variables and enumerated types used in model blocks
 
-usedTypesVars = Simulink.findVars(gcs,'IncludeEnumTypes',true);
+usedTypesVars = Simulink.findVars(bdroot,'IncludeEnumTypes',true);
 % Here, EnumsReporting is the name of the model and
 % usedTypesVars is an array of Simulink.VariableUsage objects
 
