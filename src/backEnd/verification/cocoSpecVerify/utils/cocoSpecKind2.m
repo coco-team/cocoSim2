@@ -407,6 +407,12 @@ for childIndex = 0 : (children.getLength - 1)
         end
         [path streamStruct.name] = fileparts(name);
         streamStruct.type = char(xmlElement.getAttribute('type'));
+        if strcmp (streamStruct.type, 'enum')
+            streamStruct.enumName = char(xmlElement.getAttribute('enumName'));
+        else
+            streamStruct.enumName = '';
+        end
+        streamStruct.class = char(xmlElement.getAttribute('class'));
         streamStruct.class = char(xmlElement.getAttribute('class'));
         valueElements = xmlElement.getElementsByTagName('Value');
         
@@ -424,9 +430,7 @@ for childIndex = 0 : (children.getLength - 1)
             elseif strcmp(value, 'true')
                 streamStruct.values(valueIndex + 1) = true;
             elseif strcmp (streamStruct.type, 'enum')
-                %ToDo: fix this when kind2 is modified to return enum name
-                enumTypeName = 'Days';
-                cmd = [enumTypeName '.' value];                
+                cmd = [streamStruct.enumName '.' value];                
                 streamStruct.values(valueIndex + 1) = eval(cmd);
             else
                 streamStruct.values(valueIndex + 1) = str2num(value);

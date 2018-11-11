@@ -97,13 +97,15 @@ classdef Kind2Utils
             if strcmp(CoCoSimPreferences.kind2Binary, 'Docker')
                 % check whether to use compositional analysis
                 if CoCoSimPreferences.compositionalAnalysis
-                    command = sprintf('docker run -v %s:/lus kind2/kind2:dev /lus/%s -xml --timeout %s --modular true --compositional true',...
+                    command = sprintf('docker run -v %s:/lus kind2/kind2:dev /lus/%s -xml --timeout %s --modular true  --smt_solver Z3 --compositional true',...
                         file_path, [file_name extension], timeout);
                 else
-                     command = sprintf('docker run -v %s:/lus kind2/kind2:dev /lus/%s -xml --timeout %s --modular true',...
+                    command = sprintf('docker run -v %s:/lus kind2/kind2:dev /lus/%s -xml --timeout %s --modular true  --smt_solver Z3',...
                         file_path, [file_name extension], timeout);
                 end
 
+                %ouptut the command to the console for debugging
+                command
                 display_msg(['KIND2_COMMAND ' command], Constants.DEBUG, 'write_code', '');
                 [~, kind2Output] = system(command);
                 display_msg(kind2Output, Constants.DEBUG, 'write_code', '');                

@@ -145,9 +145,8 @@ try
                 signalType = 'boolean';
             elseif strcmp('int', node.streams{i}.type)
                 signalType = 'int32';
-            elseif strcmp('enum', node.streams{i}.type)                    
-                %ToDo: fix this when kind2 is modified to return enum name
-                signalType = ['Enum: ' 'Days'];                
+            elseif strcmp('enum', node.streams{i}.type)
+                signalType = ['Enum: ' node.streams{i}.enumName];                
             end
             
             % remove the inport block
