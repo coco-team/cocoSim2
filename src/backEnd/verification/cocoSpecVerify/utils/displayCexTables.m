@@ -79,6 +79,8 @@ function displayCexTables(resultIndex, propertyIndex)
         tableName = flattenedNodes{nodeIndex}.name;
         if isKey(nodeNameToBlockNameMap, tableName)
             tableName = nodeNameToBlockNameMap(flattenedNodes{nodeIndex}.name);
+            %ToDo: review a better approach to display block names
+            tableName = strrep(tableName, newline,' ');
         end
         text = uicontrol('Style','text','String',tableName,'parent',f);
         text.Position = [0 t.Position(2)+t.Position(4)  500 20];
