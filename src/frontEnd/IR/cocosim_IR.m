@@ -15,7 +15,11 @@ function [ir_struct, all_blocks, subsyst_blocks, ir_handle_struct_map, json_mode
 %   json_model = COCOSIM_IR(model_path)
 %   json_model = COCOSIM_IR(model_path, df_export) if you want to export
 %   the json in a file
-
+%% load config to filter blocks' params
+global block_param_map;
+if isempty(block_param_map)
+    IR_config;
+end
 %% Initialisation
 [ir_path, ~, ~] = fileparts(mfilename('fullpath'));
 addpath(fullfile(ir_path, 'blocks'));

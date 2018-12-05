@@ -17,7 +17,8 @@ function [ S, all_blocks, subsyst_blocks, handle_struct_map ] = subsystems_struc
 %   S = SUBSYSTEMS_STRUT(file_name, is_subsystem) precise if 'file_name' is
 %   a subsystem or not. Default value is false.
 
-IR_config;
+
+global block_param_map stateflow_treatment;
 
 %% Set of default value
 if nargin < 2

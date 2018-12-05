@@ -120,11 +120,14 @@ if ~isempty(operands)
             ident = '([a-zA-Z][a-zA-Z_0-9]*)';
             expression = strcat('after\(\s*(\d+)\s*,\s*(',ident,')\)') ;
             tokens = regexp(transition_label,expression,'tokens','once');
-            event_name = tokens{2};
+            event_name = char(tokens{2});
             event = strcat('after_',event_name,'_',char(tokens{1}),'_output');
             parent_state = transition.getParent();
             id_name = strcat('id', get_full_name(parent_state),'_1');
-            after_code = strcat('after(',char(tokens{1}),',',char(tokens{2}),', ', id_name,')');
+            if isequal(event_name, 'tick')
+                event_name = 'true';
+            end
+            after_code = strcat('after(',char(tokens{1}),',',event_name,', ', id_name,')');
             additional_outputs{numel(additional_outputs)+1} = strcat('\t', event, ' = ', after_code, ';\n');
             add_vars{numel(add_vars)+1} = sprintf('\t%s: bool;\n',event);
             external_nodes = [external_nodes, struct('Name','after','Type','temporal_operator')];
@@ -150,11 +153,14 @@ if ~isempty(operands)
                 ident = '([a-zA-Z][a-zA-Z_0-9]*)';
                 expression = strcat('after\(\s*(\d+)\s*,\s*(',ident,')\)') ;
                 tokens = regexp(transition_label,expression,'tokens','once');
-                event_name = tokens{2};
+                event_name = char(tokens{2});
                 c = strcat('after_',event_name,'_',char(tokens{1}),'_output');
                 parent_state = transition.getParent();
                 id_name = strcat('id', get_full_name(parent_state),'_1');
-                after_code = strcat('after(',char(tokens{1}),',',char(tokens{2}),', ', id_name,')');
+                if isequal(event_name, 'tick')
+                    event_name = 'true';
+                end
+                after_code = strcat('after(',char(tokens{1}),',',event_name,', ', id_name,')');
                 additional_outputs{numel(additional_outputs)+1} = strcat('\t', c, ' = ', after_code, ';\n');
                 add_vars{numel(add_vars)+1} = sprintf('\t%s: bool;\n',c);
                 external_nodes = [external_nodes, struct('Name','after','Type','temporal_operator')];

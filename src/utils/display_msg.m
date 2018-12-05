@@ -16,7 +16,10 @@
 % err_code: an additional error code to be displayed.
 %
 function display_msg(str, type, from_str, err_code)
-
+global ERROR_MSG;
+if isempty(ERROR_MSG)
+    ERROR_MSG = {};
+end
 final_message = '';
 
 if type == 1
@@ -25,6 +28,7 @@ elseif type == 2
     final_message = '(Warning)';
 elseif type == 3
     final_message = '(Error)';
+    ERROR_MSG{end+1} = str;
 elseif type == 4
     final_message = '(Debug)';
 elseif type == 5

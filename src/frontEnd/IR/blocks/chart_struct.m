@@ -27,6 +27,15 @@ function [StateflowContentStruct] = chart_struct(chartPath)
     % get the chart object
     chart = model.find('-isa','Stateflow.Chart', 'Path', chartPath);   
     
+    %get the chart ActionLanguage, StateMachineType, ChartUpdate, 
+    % ExecuteAtInitialization, InitializeOutput, EnableNonTerminalStates
+    StateflowContentStruct.ActionLanguage = chart.ActionLanguage;
+    StateflowContentStruct.StateMachineType = chart.StateMachineType;
+    StateflowContentStruct.ChartUpdate = chart.ChartUpdate;
+    StateflowContentStruct.ExecuteAtInitialization = chart.ExecuteAtInitialization;
+    StateflowContentStruct.InitializeOutput = chart.InitializeOutput;
+    StateflowContentStruct.EnableNonTerminalStates = chart.EnableNonTerminalStates;
+    
     %get the chart path
     StateflowContentStruct.Path = chart.Path;
        
@@ -49,7 +58,8 @@ function [StateflowContentStruct] = chart_struct(chartPath)
     
     % add a virtual state that represents the chart itself 
     % set the state path
-    virtualState.Path = chart.path;    
+    virtualState.Path = chart.path;   
+    virtualState.Name = chart.Name; 
     %set the id of the state
     virtualState.Id = chart.id;       
     virtualState.InnerTransitions = [];
@@ -120,6 +130,7 @@ function eventStruct = buildEventStruct(event)
     eventStruct.Name = event.name;    
     eventStruct.Port = event.Port;
     eventStruct.Scope = event.scope;
+    eventStruct.Trigger = event.Trigger;
 end
 
 function stateStruct =  buildStateStruct(state)    
@@ -129,10 +140,15 @@ function stateStruct =  buildStateStruct(state)
     %set the id of the state
     stateStruct.Id = state.id;
     
+    %set the ExecutionOrder of the state
+    stateStruct.ExecutionOrder = state.ExecutionOrder;
+    
     %set the name of the state
     stateStruct.Name = state.name;
     
     % parse the label string of the state
+    %keep the original LabelString
+    stateStruct.LabelString = state.LabelString;
     stateAction = edu.uiowa.chart.state.StateParser.parse(state.LabelString);     
     
     % set the state actions    
@@ -200,14 +216,22 @@ function content = getContent(chartObject, self)
         content.Substates{i-index} = childStates(i).name;
         content.States{i-index} = childStates(i).id;
     end
+    % add subJunctions
+    junctions = chartObject.find('-isa','Stateflow.Junction', '-depth',1);
+    content.SubJunctions = cell(length(junctions), 1);
+    for i = 1 : length(junctions)
+        jun.Name = junctionName(junctions(i));
+        jun.Type = junctions(i).Type;
+        content.SubJunctions{i} = jun;
+    end
 end
 
 function junctionStruct =  buildJunctionStruct(junction)    
     % set the junction path
-    junctionStruct.Path = strcat (junction.Path, '/Junction',int2str(junction.id));
+    junctionStruct.Path = strcat (junction.Path, '/', junctionName(junction));
     
     % set the junction name
-    junctionStruct.Name = strcat ('Junction',int2str(junction.id));
+    junctionStruct.Name = junctionName(junction);
     
     %set the id of the junction
     junctionStruct.Id = junction.id;
@@ -224,9 +248,14 @@ function junctionStruct =  buildJunctionStruct(junction)
     end    
 end
 
+function Name = junctionName(junction)
+    Name = strcat ('Junction',int2str(junction.id));
+end
+
 function transitionStruct = buildDestinationStruct(transition)
     transitionStruct = {};
-    transitionStruct.Id = transition.id;       
+    transitionStruct.Id = transition.id;     
+    transitionStruct.ExecutionOrder = transition.ExecutionOrder;
     destination =  transition.Destination;
     transitionStruct.Destination.Id = destination.id;    
     
@@ -236,13 +265,15 @@ function transitionStruct = buildDestinationStruct(transition)
     transitionStruct.Condition = char(transitionObject.condition);
     transitionStruct.ConditionAction = cell(transitionObject.conditionAction);  
     transitionStruct.TransitionAction = cell(transitionObject.transitionAction);  
-    
+    %keep LabelString in case the parser failed.
+    transitionStruct.LabelString = transition.LabelString;
+
     % check if the destination is a state or a junction
     if strcmp(destination.Type, 'CONNECTIVE') || ...
        strcmp(destination.Type, 'HISTORY')
        transitionStruct.Destination.Type = 'Junction';
        transitionStruct.Destination.Name = strcat(destination.Path, '/', ...
-           'Junction', int2str(destination.id));
+            junctionName(destination));
     else
        transitionStruct.Destination.Type = 'State';
        transitionStruct.Destination.Name = strcat(destination.Path, '/', ...

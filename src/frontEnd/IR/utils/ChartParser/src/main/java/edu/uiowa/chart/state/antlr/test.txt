@@ -1,4 +1,4 @@
-increasing 
+increasing/
 entry: 
 prePopulation = population; 
 population = prePopulation * 2.0;

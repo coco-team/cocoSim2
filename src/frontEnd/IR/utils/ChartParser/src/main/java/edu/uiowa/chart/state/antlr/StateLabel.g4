@@ -11,7 +11,9 @@ grammar StateLabel;
 
 // parser rules
 
-stateLabel : Identifier '\r'? '\n'* actions?;
+stateLabel : stateName '\r'? '\n'* actions?;
+
+stateName : Identifier '/'?;
 
 actions : (action)+ ;
 

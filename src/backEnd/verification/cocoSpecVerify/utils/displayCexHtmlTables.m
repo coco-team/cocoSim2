@@ -63,10 +63,14 @@ function displayCexHtmlTables(resultIndex, propertyIndex)
             rowName = strcat(name, ' (', class, ')');
             % additional column for the row name
             dataRow = cell (1, columns + 1);
-            dataRow{1} = rowName;
+            dataRow{1} = strrep(rowName, newline, ' ');
             
             for j=1 : propertyStruct.counterExample.node.timeSteps
-                dataRow{j+1} = num2str(flattenedNodes{nodeIndex}.streams{i}.values(j));
+                if strcmp (flattenedNodes{nodeIndex}.streams{i}.type, 'enum')
+                    dataRow{j+1} = char(flattenedNodes{nodeIndex}.streams{i}.stringValues(j));
+                else
+                    dataRow{j+1} = num2str(flattenedNodes{nodeIndex}.streams{i}.values(j));
+                end
             end            
             data{i} = dataRow;            
         end
@@ -76,6 +80,7 @@ function displayCexHtmlTables(resultIndex, propertyIndex)
         table.name = flattenedNodes{nodeIndex}.name;
         if isKey(nodeNameToBlockNameMap, table.name)
             table.name = nodeNameToBlockNameMap(flattenedNodes{nodeIndex}.name);
+            table.name = strrep(table.name, newline, ' ');
         end       
         
         property.tables{nodeIndex} = table;

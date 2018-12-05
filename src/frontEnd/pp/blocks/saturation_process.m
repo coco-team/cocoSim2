@@ -26,6 +26,12 @@ if not(isempty(saturation_list))
                 'OutDataTypeStr',outputDataType);
             set_param(strcat(saturation_list{i},'/lower_limit'),...
                 'OutDataTypeStr',outputDataType);
+        else
+            %Inherit: Inherit via back propagation
+            set_param(strcat(saturation_list{i},'/upper_limit'),...
+                'OutDataTypeStr','Inherit: Inherit via back propagation');
+            set_param(strcat(saturation_list{i},'/lower_limit'),...
+                'OutDataTypeStr','Inherit: Inherit via back propagation');
         end
     end
     display_msg('Done\n\n', Constants.INFO, 'saturation_process', '');

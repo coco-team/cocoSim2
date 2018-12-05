@@ -6,10 +6,11 @@
 
 
 function generateModelWithSignalBuilders(resultIndex, propertyIndex, level)
+try
     %get the verification results
     modelWorkspace = get_param(bdroot(gcs),'ModelWorkspace');
-    verificationResults = modelWorkspace.getVariable('verificationResults');    
-
+    verificationResults = modelWorkspace.getVariable('verificationResults');
+    
     propertyStruct = verificationResults.analysisResults{resultIndex}.properties{propertyIndex};
     node = propertyStruct.counterExample.node;
     modelName = Utils.name_format(propertyStruct.originPath);
@@ -22,12 +23,12 @@ function generateModelWithSignalBuilders(resultIndex, propertyIndex, level)
     end
     
     time = zeros (1, node.timeSteps);
-
+    
     timeStep = 0;
     for i= 1 : length(time)
         time(i) = timeStep;
         timeStep = timeStep + verificationResults.sampleTime;
-    end    
+    end
     
     close_system(modelName, 0);
     generatedModel = new_system(modelName);
@@ -37,11 +38,11 @@ function generateModelWithSignalBuilders(resultIndex, propertyIndex, level)
     set_param(configSet, 'FixedStep', '1');
     
     
-    %copy at the level of the parent of the contract    
-    pathParts = strsplit(propertyStruct.originPath,'/');    
+    %copy at the level of the parent of the contract
+    pathParts = strsplit(propertyStruct.originPath,'/');
     % the parent of the contract is 2 levels above the property (level = 2)
-    % whereas the contract is 1 level above the property (level = 1)    
-    copyPath = strjoin(pathParts(1 :end - level), '/');    
+    % whereas the contract is 1 level above the property (level = 1)
+    copyPath = strjoin(pathParts(1 :end - level), '/');
     
     %ToDo: fix for the observer
     if isempty(copyPath)
@@ -59,7 +60,7 @@ function generateModelWithSignalBuilders(resultIndex, propertyIndex, level)
         close_system(tempModelName, 0);
         tempModel = new_system(tempModelName);
         open_system(tempModel);
-        subsystemName = strcat(tempModelName, '/tempSubsystem');        
+        subsystemName = strcat(tempModelName, '/tempSubsystem');
         add_block('built-in/Subsystem', subsystemName);
         %copyContentsToSubsystem is not supported in 2015b
         %Simulink.BlockDiagram.copyContentsToSubsystem(copyPath, subsystemName);
@@ -80,7 +81,7 @@ function generateModelWithSignalBuilders(resultIndex, propertyIndex, level)
             node.streams{i}.values = cat(2,node.streams{i}.values,node.streams{i}.values);
         end
     end
-
+    
     % get available inport blocks
     inportBlocks = find_system(modelName, 'SearchDepth', '1', 'BlockType','Inport');
     
@@ -90,7 +91,7 @@ function generateModelWithSignalBuilders(resultIndex, propertyIndex, level)
         
         if strcmp('input', node.streams{i}.class) || ... % outside the contract
                 (strcmp('output', node.streams{i}.class) && level == 1) % inside the contract
-            %ToDo review the cases where stream name has special symbols            
+            %ToDo review the cases where stream name has special symbols
             blockName = strcat(modelName, '/', node.streams{i}.name);
             % check there is an inport block for the blockName
             isPresent = any(ismember(inportBlocks, blockName));
@@ -104,14 +105,14 @@ function generateModelWithSignalBuilders(resultIndex, propertyIndex, level)
                 subsystemInports = portHandles.Inport;
                 subsystemInport = strcat(modelName, '/', subsystemName, '/', node.streams{i}.name);
                 portIndex = str2num(get_param(subsystemInport, 'Port'));
-                subsystemLine = get_param(subsystemInports(portIndex), 'Line');                
+                subsystemLine = get_param(subsystemInports(portIndex), 'Line');
                 subsystemLineSource = get_param(subsystemLine, 'SrcPortHandle');
                 
                 subsystemLine = get_param(subsystemLineSource, 'Line');
-                destinationPorts = get_param(subsystemLine, 'DstPortHandle');                    
-                delete_line(subsystemLine);                    
+                destinationPorts = get_param(subsystemLine, 'DstPortHandle');
+                delete_line(subsystemLine);
                 
-                newInportBlock = add_block('built-in/Inport', blockName,'MakeNameUnique','on');    
+                newInportBlock = add_block('built-in/Inport', blockName,'MakeNameUnique','on');
                 if ~ isempty(newInportPosition)
                     newInportPosition(2) = newInportPosition(2) - 75;
                     newInportPosition(4) = newInportPosition(4) - 75;
@@ -120,7 +121,7 @@ function generateModelWithSignalBuilders(resultIndex, propertyIndex, level)
                 newInportPosition = get_param(newInportBlock, 'Position');
                 newPortHandles = get_param(newInportBlock, 'PortHandles');
                 
-                for j = 1 : length(destinationPorts)                   
+                for j = 1 : length(destinationPorts)
                     add_line(modelName, newPortHandles.Outport,destinationPorts(j), 'autorouting','on');
                 end
             end
@@ -129,51 +130,76 @@ function generateModelWithSignalBuilders(resultIndex, propertyIndex, level)
             portHandle = portHandle.Outport;
             line = get_param(portHandle,'Line');
             destinationPorts = get_param(line, 'Dstporthandle');
-
+            
             % delete old lines
             for j=1: length(destinationPorts)
-                delete_line(generatedModel, portHandle, destinationPorts(j));        
+                delete_line(generatedModel, portHandle, destinationPorts(j));
             end
-
+            
             position = get_param(blockName,'Position');
             
             name = node.streams{i}.name;
-
+            
             signalType = 'double';
             if strcmp('bool', node.streams{i}.type)
                 signalType = 'boolean';
-            else
-                if strcmp('int', node.streams{i}.type)
-                    signalType = 'int32';
-                end
+            elseif strcmp('int', node.streams{i}.type)
+                signalType = 'int32';
+            elseif strcmp('enum', node.streams{i}.type)
+                signalType = ['Enum: ' node.streams{i}.enumName];                
             end
-
+            
             % remove the inport block
-            delete_block(blockName); 
-
+            delete_block(blockName);
+            
             % add Data type conversion block if the signal type is not double
             if ~strcmp(signalType, 'double')
                 convertBlockName = strcat(modelName,'/', name, '_convert_to_', signalType);
-                convertBlock = add_block('Simulink/Signal Attributes/Data Type Conversion',convertBlockName);        
+                convertBlock = add_block('Simulink/Signal Attributes/Data Type Conversion',convertBlockName);
                 set_param(convertBlock, 'Position', position);
                 set_param(convertBlock, 'OutDataTypeStr', signalType);
+                
+                %To add lines to blocks previously connected to the inport
                 portHandle = get_param(convertBlock,'PortHandles');
+                
+                %To add a line to the conversion block from the signal
+                %builder
+                signalBuilderLinePorts = portHandle;
+                
                 x_shift = 100;
-                position = [position(1)-x_shift position(2) position(3)-x_shift position(4)];        
+                position = [position(1)-x_shift position(2) position(3)-x_shift position(4)];
+                
+                % To convert to enum type we need to convert first to int32
+                if strcmp('enum', node.streams{i}.type)                    
+                    convertBlockName = strcat(modelName,'/', name, '_convert_to_', 'int32');
+                    convertBlock = add_block('Simulink/Signal Attributes/Data Type Conversion',convertBlockName);
+                    set_param(convertBlock, 'Position', position);
+                    set_param(convertBlock, 'OutDataTypeStr', 'int32');
+                    
+                    signalBuilderLinePorts = get_param(convertBlock,'PortHandles');
+                    add_line(generatedModel, signalBuilderLinePorts.Outport, portHandle.Inport,'autorouting','on');    
+                    
+                    x_shift = 200;
+                    position = [position(1)-x_shift position(2) position(3)-x_shift position(4)];
+                end
                 signalBuilderBlock = signalbuilder(char(blockName), 'create', time, {node.streams{i}.values'},name, name,1,position);
                 signalBuilderPorts = get_param(signalBuilderBlock,'PortHandles');
-                add_line(generatedModel, signalBuilderPorts.Outport, portHandle.Inport,'autorouting','on');               
+                add_line(generatedModel, signalBuilderPorts.Outport, signalBuilderLinePorts.Inport,'autorouting','on');
             else
                 signalBuilderBlock = signalbuilder(char(blockName), 'create', time, {node.streams{i}.values'},name, name,1,position);
                 portHandle = get_param(signalBuilderBlock,'PortHandles');
             end
-
+            
             portHandle = portHandle.Outport;
-
+            
             % add new lines
             for j=1: length(destinationPorts)
                 add_line(generatedModel, portHandle, destinationPorts(j),'autorouting','on');
-            end    
+            end
         end
     end
+catch me
+    errordlg('This option is not supported for this CounterExample.');
+    display_msg(me.getReport(), Constants.DEBUG, 'generateModelWithSignalBuilders', '');
+end
 end

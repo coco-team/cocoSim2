@@ -18,7 +18,7 @@ function [ ] = cocoSpecVerify(model_full_path)
     try
         SOLVER = evalin('base','SOLVER');
     catch
-        SOLVER = 'K';
+        SOLVER = 'NONE';
     end
 
     % Get start time

@@ -43,7 +43,7 @@ function initializeVerificationVisualization(verificationResults)
         for j = 1 : length(verificationResults.analysisResults{i}.properties)
             propertyStruct = verificationResults.analysisResults{i}.properties{j};
             set_param(propertyStruct.originPath, 'BackgroundColor', 'white');
-            set_param(propertyStruct.originPath, 'ForegroundColor', 'black');
+            %set_param(propertyStruct.originPath, 'ForegroundColor', 'black');
             
             %clear mask controls for counter examples            
             modelWorkspace = get_param(bdroot(gcs),'ModelWorkspace');
@@ -65,7 +65,7 @@ function initializeVerificationVisualization(verificationResults)
             ancestorBlock = fileparts(verificationResults.analysisResults{i}.properties{j}.originPath);            
             while contains(ancestorBlock, '/')        
                 set_param(ancestorBlock, 'BackgroundColor', 'white');
-                set_param(propertyStruct.originPath, 'ForegroundColor', 'black');
+                %set_param(propertyStruct.originPath, 'ForegroundColor', 'black');
                 ancestorBlock = fileparts(ancestorBlock);
             end   
 
@@ -90,7 +90,7 @@ function displayAssumptionResult(propertyStruct, resultIndex, propertyIndex)
         % color ancestor blocks
         ancestorBlock = fileparts(propertyStruct.originPath);            
         while contains(ancestorBlock, '/')            
-            set_param(ancestorBlock, 'ForegroundColor', 'orange');
+            set_param(ancestorBlock, 'BackgroundColor', 'orange');
             %set_param(ancestorBlock,'HiliteAncestors',ancestorColor)            
             ancestorBlock = fileparts(ancestorBlock);
         end          
@@ -99,7 +99,7 @@ function displayAssumptionResult(propertyStruct, resultIndex, propertyIndex)
     end                        
     
     set_param(propertyStruct.originPath, 'BackgroundColor', color);
-	set_param(propertyStruct.originPath, 'ForegroundColor', color);
+	%set_param(propertyStruct.originPath, 'ForegroundColor', color);
     
     for i = 1 : length(ports.Inport)
         line = get_param(ports.Inport(i),'Line');
@@ -111,22 +111,22 @@ end
 function [ancestorColor] = displayPropertyResult(propertyStruct, ancestorColor, resultIndex, propertyIndex)
      if strcmp(propertyStruct.answer, 'SAFE')
         set_param(propertyStruct.originPath, 'BackgroundColor', 'green');
-        set_param(propertyStruct.originPath, 'ForegroundColor', 'green');                                
+        %set_param(propertyStruct.originPath, 'ForegroundColor', 'green');                                
     elseif strcmp(propertyStruct.answer, 'TIMEOUT')
         set_param(propertyStruct.originPath, 'BackgroundColor', 'gray');
-        set_param(propertyStruct.originPath, 'ForegroundColor', 'gray');        
+        %set_param(propertyStruct.originPath, 'ForegroundColor', 'gray');        
         if strcmp(ancestorColor, 'green')
             ancestorColor = 'yellow';
         end
     elseif strcmp(propertyStruct.answer, 'UNKNOWN')
         set_param(propertyStruct.originPath, 'BackgroundColor', 'yellow');
-        set_param(propertyStruct.originPath, 'ForegroundColor', 'yellow');         
+        %set_param(propertyStruct.originPath, 'ForegroundColor', 'yellow');         
         if strcmp(ancestorColor, 'green')
             ancestorColor = 'yellow';
         end
     elseif strcmp(propertyStruct.answer, 'CEX')
         set_param(propertyStruct.originPath, 'BackgroundColor', 'red');
-        set_param(propertyStruct.originPath, 'ForegroundColor', 'red');   
+        %set_param(propertyStruct.originPath, 'ForegroundColor', 'red');   
         ancestorColor = 'red';
         addCounterExampleOptions(propertyStruct, resultIndex, propertyIndex);
      end  
@@ -173,6 +173,10 @@ end
 
 function createMaskAction(title, content, originPath)
     mask = Simulink.Mask.get(originPath);    
+    if isempty(mask)
+        % the case of Assertion block from SLDV
+        mask = Simulink.Mask.create(originPath);
+    end
     name = regexprep(title,'[/\s'']','_');    
     button = mask.addDialogControl('pushbutton', name);
     button.Prompt = title;

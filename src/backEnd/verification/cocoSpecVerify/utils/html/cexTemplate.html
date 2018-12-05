@@ -23,27 +23,63 @@
 			var property = [(property)];
 
 			$('#property').append('<h1 style="font-weight: bold;">' + property.originPath + '</h1>');
+            if( property.tables.length >= 1) {
+                property.tables.forEach(function (table, index) {
+                    for (var i = 0; i < table.columnNames.length; i++) {
+                        table.columnNames[i] = { title: table.columnNames[i] };
+                    }
 
-			property.tables.forEach(function (table, index) {
-				for (var i = 0; i < table.columnNames.length; i++) {
-					table.columnNames[i] = { title: table.columnNames[i] };
-				}
+                    $('#property').append('<br/>');
+                    $('#property').append('<h2 style="margin-left:10px;">' + property.tables[index].name + '</h2>');
+                    $('#property').append('<table id="table' + index + '" class="display" width="100%"></table>');
 
-				$('#property').append('<br/>');
-				$('#property').append('<h2 style="margin-left:10px;">' + property.tables[index].name + '</h2>');
-				$('#property').append('<table id="table' + index + '" class="display" width="100%"></table>');
-				$('#table' + index).DataTable({
-					data: property.tables[index].data,
-					columns: property.tables[index].columnNames,
-					"paging": false,
-					"ordering": false,
-					"searching": false,
-					"info": false,
-					"columnDefs": [
-   					 	{ className: "dt-left", targets: '_all'}
-					]
-				});
-			});
+                    // handle the cases when there is a single row
+                    if(property.tables[index].data[0].constructor !== Array){
+                        //  DataTable requires data to be a 2 dimensional array
+                        property.tables[index].data = [property.tables[index].data];
+                    }
+
+                    $('#table' + index).DataTable({
+                        data: property.tables[index].data,
+                        columns: property.tables[index].columnNames,
+                        "paging": false,
+                        "ordering": false,
+                        "searching": false,
+                        "info": false,
+                        "columnDefs": [
+                            { className: "dt-left", targets: '_all'}
+                        ]
+                    });
+                });
+            }else{
+                    var table = property.tables;
+                    var index = 1;
+                    for (var i = 0; i < table.columnNames.length; i++) {
+                        table.columnNames[i] = { title: table.columnNames[i] };
+                    }
+
+                    $('#property').append('<br/>');
+                    $('#property').append('<h2 style="margin-left:10px;">' + property.tables.name + '</h2>');
+                    $('#property').append('<table id="table' + index + '" class="display" width="100%"></table>');
+
+					// handle the cases when there is a single row
+					if(property.tables.data[0].constructor !== Array){
+						//  DataTable requires data to be a 2 dimensional array
+						property.tables.data = [property.tables.data];
+					}
+
+                    $('#table' + index).DataTable({
+                        data: property.tables.data,
+                        columns: property.tables.columnNames,
+                        "paging": false,
+                        "ordering": false,
+                        "searching": false,
+                        "info": false,
+                        "columnDefs": [
+                            { className: "dt-left", targets: '_all'}
+                        ]
+                    });
+            }
 		});
 
 

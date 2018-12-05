@@ -1,9 +1,18 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This file is part of CoCoSim.
+% Copyright (C) 2018  The university of Iowa
+% Author: Mudathir Mahgoub
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 function [declarations] = buildDeclarationsStruct(ir_struct)
 %getDeclarations returns an object that describes enumerations and
 % bus objects defined in the model 
+
+%https://www.mathworks.com/help/simulink/ug/migrate-enumerated-types-into-data-dictionary.html
+
 % Find all variables and enumerated types used in model blocks
 
-usedTypesVars = Simulink.findVars(gcs,'IncludeEnumTypes',true);
+usedTypesVars = Simulink.findVars(bdroot,'IncludeEnumTypes',true);
 % Here, EnumsReporting is the name of the model and
 % usedTypesVars is an array of Simulink.VariableUsage objects
 

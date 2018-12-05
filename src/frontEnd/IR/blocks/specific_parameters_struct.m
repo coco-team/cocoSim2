@@ -12,7 +12,7 @@ function [ S ] = specific_parameters_struct( block_path, block_type )
 %   S = SPECIFIC_PARAMETERS_STRUCT(file_name, block_type)
 
 % load config to filter blocks' params
-IR_config;
+global block_param_map;
 unwanted_params = block_param_map('UnwantedParameters');
 S = struct();
 
