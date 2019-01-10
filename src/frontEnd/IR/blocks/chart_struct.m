@@ -256,6 +256,7 @@ function transitionStruct = buildDestinationStruct(transition)
     transitionStruct = {};
     transitionStruct.Id = transition.id;     
     transitionStruct.ExecutionOrder = transition.ExecutionOrder;
+    transitionStruct.Source = transition.Source.Path;
     destination =  transition.Destination;
     transitionStruct.Destination.Id = destination.id;    
     
