@@ -5,7 +5,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-function status = cocoSpecKind2(lustre_file_name, mapping_file, kind2_out)
+function status = cocoSpecKind2(lustre_file_name, mapping_file, kind2_out, disp_verif)
 try
     status = 0;
     cocosim_config;
@@ -13,6 +13,9 @@ try
         kind2_option = evalin('base','kind2_option');
     catch
         kind2_option  = '';
+    end
+    if nargin < 4
+        disp_verif = true;
     end
     
     % Get start time
@@ -90,8 +93,9 @@ try
             if status
                 return;
             end
-            displayVerificationResults(verificationResults, compositionalMap);
-            
+            if disp_verif
+                displayVerificationResults(verificationResults, compositionalMap);
+            end
             %save the model
             if strcmp(get_param(bdroot(gcs),'Dirty'),'on')
                 save_system;
