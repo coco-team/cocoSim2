@@ -105,7 +105,7 @@
                 $(tbody).append(row);
 
                 if(property.answer == 'SAFE'){
-                    $(row).append('<td>' + property.originPath + '</td>');
+                    $(row).append('<td>' + property.originPath + '  (Type: ' + property.propertyType + ')' + '</td>');
                     $(row).append('<td><i style="color: green" class="fas fa-check-circle"></i></td>');
                 }
                 else if(property.answer === "CEX"){
@@ -118,7 +118,7 @@
                     $(row).append(
                         '<td>'+
                         '<a href="matlab:'+matlabCommands+'">' +
-                        property.originPath +
+                        property.originPath + '  (Type: ' + property.propertyType + ')' +
                         '</a>' +
                         '</td>');
 
