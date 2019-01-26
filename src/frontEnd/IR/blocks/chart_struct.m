@@ -123,6 +123,7 @@ function dataStruct = buildDataStruct(data)
     dataStruct.InitialValue = data.Props.InitialValue;    
     dataStruct.Scope = data.scope;
     dataStruct.ArraySize = data.Props.Array.Size;
+    dataStruct.CompiledSize = data.CompiledSize;
 end
 
 function eventStruct = buildEventStruct(event)
