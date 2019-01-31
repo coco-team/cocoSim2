@@ -283,4 +283,14 @@ class StateActionParserTest {
         assertEquals("name", stateAction.onEvery[0].eventName);
         assertEquals("x=x;\n", stateAction.onEvery[0].actions);
     }
+
+    @Test
+    void parseArray()
+    {
+        String stateLabel = "A\n" +
+                "en:x = x([3 1 2]) + 1;";
+
+        StateAction stateAction = StateParser.parse(stateLabel);
+        assertEquals("x=x([3 1 2])+1;", stateAction.entry[0]);
+    }
 }
