@@ -110,6 +110,9 @@ for i=1:numel(content)
                 S.(sub_name).StateflowContent = struct();
             end
             S.(sub_name).Content = struct();
+        elseif isfield(S.(sub_name), 'SFBlockType') && strcmp(S.(sub_name).SFBlockType, 'MATLAB Function')
+            new_content = emchart_struct(content{i});
+            S.(sub_name) = catstruct(S.(sub_name), new_content);
         else            
              % there are two maskTypes for the validator block  "ContractValidatorBlock" and  "KindContractValidator"
              % TODO: Why empty Content in IR is a problem in IOWA translator?
