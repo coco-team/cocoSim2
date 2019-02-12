@@ -16,21 +16,24 @@
 % err_code: an additional error code to be displayed.
 %
 function display_msg(str, type, from_str, err_code)
-global ERROR_MSG;
-if isempty(ERROR_MSG)
-    ERROR_MSG = {};
-end
+global ERROR_MSG WARNING_MSG DEBUG_MSG;
+if isempty(ERROR_MSG),ERROR_MSG = {};end
+if isempty(WARNING_MSG),WARNING_MSG = {};end
+if isempty(DEBUG_MSG),DEBUG_MSG = {};end
+
 final_message = '';
 
 if type == 1
     final_message = '(Info)';
 elseif type == 2
     final_message = '(Warning)';
+    WARNING_MSG{end+1} = str;
 elseif type == 3
     final_message = '(Error)';
     ERROR_MSG{end+1} = str;
 elseif type == 4
     final_message = '(Debug)';
+    DEBUG_MSG{end+1} = str;
 elseif type == 5
     final_message = '(Result)';
 end
