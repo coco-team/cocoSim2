@@ -54,7 +54,11 @@ function initializeVerificationVisualization(verificationResults)
                     controls = maskControlsMap(keySet{keyIndex});
                     mask = Simulink.Mask.get(keySet{keyIndex}); 
                     for controlIndex = 1: length(controls)
-                        mask.removeDialogControl(controls{controlIndex});
+                        try
+                            mask.removeDialogControl(controls{controlIndex});
+                        catch 
+                            % ignore in case no dialog control found.
+                        end
                     end
                     maskControlsMap(keySet{keyIndex}) = {};
                 end
@@ -178,6 +182,11 @@ function createMaskAction(title, content, originPath)
         mask = Simulink.Mask.create(originPath);
     end
     name = regexprep(title,'[/\s'']','_');    
+    [control, ~] = mask.getDialogControl(name);
+    if ~isempty(control)
+        % remove it from Mask
+        mask.removeDialogControl(name);
+    end
     button = mask.addDialogControl('pushbutton', name);
     button.Prompt = title;
     button.Callback = content;    
