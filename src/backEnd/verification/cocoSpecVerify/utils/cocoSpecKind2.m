@@ -5,9 +5,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-function status = cocoSpecKind2(lustre_file_name, mapping_file, kind2_out, disp_verif)
+function [status, verificationResults] = cocoSpecKind2(lustre_file_name, mapping_file, kind2_out, disp_verif)
 try
     status = 0;
+    verificationResults = {};
     cocosim_config;
     try
         kind2_option = evalin('base','kind2_option');
@@ -72,7 +73,6 @@ try
         
         [nodeNameToBlockNameMap] = getBlocksMapping(json);
         
-        verificationResults = {};
         
         if s.bytes ~= 0
             xml_doc = xmlread(results_file_name);
