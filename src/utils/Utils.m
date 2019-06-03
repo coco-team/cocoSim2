@@ -149,13 +149,13 @@ classdef Utils
         
         function st = get_BlockDiagram_SampleTime(file_name)
             ts = Simulink.BlockDiagram.getSampleTimes(file_name);
-            st = 1;
+            st = 0; % start by zero since gcd(0, v) = v;
+            cst = 1000000; % Assuming Sample Time is never less than 10^-6, this constant helps gcd to be applied on integers
             for t=ts
                 if ~isempty(t.Value) && isnumeric(t.Value)
                     tv = t.Value(1);
                     if ~(isnan(tv) || tv==Inf)
-                        st = gcd(st*10000,tv*10000)/10000;
-                        
+                        st = gcd(st * cst, tv * cst) / cst;
                     end
                 end
             end
