@@ -159,6 +159,7 @@ classdef Utils
                     end
                 end
             end
+            if st == 0, st = 1;end
         end
     end
 end
