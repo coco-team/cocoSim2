@@ -15,6 +15,9 @@ if not(isempty(discrete_intr_list))
         if strcmp(sample_tmp,'-1')
             sample_tmp = num2str(model_smtp);
         end
+        gainval = get_param(discrete_intr_list{i}, 'gainval'); 
+        % add sample time * gain
+        gainval = sprintf('(%s)*(%s)', sample_tmp, gainval);
         ICS = get_param(discrete_intr_list{i},'InitialConditionSource');
         ER = get_param(discrete_intr_list{i},'ExternalReset');
         SaturateOnIntegerOverflow = get_param(discrete_intr_list{i},'SaturateOnIntegerOverflow');
@@ -69,7 +72,7 @@ if not(isempty(discrete_intr_list))
         end
         % Set the sample time of the Discrete integrator
         set_param(strcat(discrete_intr_list{i},'/Sample'),...
-            'Gain',sample_tmp);
+            'Gain',gainval);
         set_param(strcat(discrete_intr_list{i},'/UnitDelay'),...
             'SampleTime',sample_tmp);
         set_param(strcat(discrete_intr_list{i},'/Sum6'),...
