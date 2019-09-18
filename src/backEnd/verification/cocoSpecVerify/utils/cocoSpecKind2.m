@@ -36,7 +36,7 @@ try
         
         t_end = now;
         t_compute = t_end - t_start;
-        display_msg(['Total Kind2 verification time: ' datestr(t_compute, 'HH:MM:SS.FFF')], Constants.RESULT, 'Time', '');
+        %display_msg(['Total Kind2 verification time: ' datestr(t_compute, 'HH:MM:SS.FFF')], Constants.RESULT, 'Time', '');
         
         % read the mapping file
         fid = fopen(mapping_file);
