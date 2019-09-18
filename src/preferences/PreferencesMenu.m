@@ -251,9 +251,13 @@ classdef PreferencesMenu
         end        
         
         function saveCoCoSimPreferences(CoCoSimPreferences)
-            [cocosim_path, ~, ~] = fileparts(mfilename('fullpath'));
-            preferencesFile = fullfile(cocosim_path, 'preferences.mat');
-            save(preferencesFile, 'CoCoSimPreferences');
+            if isfield(CoCoSimPreferences, 'preferencesPath')
+                save(CoCoSimPreferences.preferencesPath, 'CoCoSimPreferences');
+            else
+                [cocosim_path, ~, ~] = fileparts(mfilename('fullpath'));
+                preferencesFile = fullfile(cocosim_path, 'preferences.mat');
+                save(preferencesFile, 'CoCoSimPreferences');
+            end
         end
         
     end
