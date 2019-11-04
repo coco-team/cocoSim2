@@ -213,7 +213,7 @@ classdef PreferencesMenu
             CoCoSimPreferences = callbackInfo.userdata;            
             
             % ToDo: remove the hardcoded options
-            timeoutOptions = [1 3 5 10 20];
+            timeoutOptions = [1 3 5 10 20 60 120];
             data = {};
             data.selectedOption = CoCoSimPreferences.verificationTimeout / 60; % seconds
             data.CoCoSimPreferences = CoCoSimPreferences;
