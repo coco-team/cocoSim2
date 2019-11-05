@@ -437,6 +437,12 @@ for childIndex = 0 : (children.getLength - 1)
                 cmd = [streamStruct.enumName '.' value];                
                 streamStruct.values(valueIndex + 1) = eval(cmd);
             else
+                % remove type casting: e.g., (real 345)
+                if contains(value, 'real ')
+                    value = strrep(value, 'real ', '');
+                elseif contains(value, 'int ')
+                    value = strrep(value, 'int ', '');
+                end
                 streamStruct.values(valueIndex + 1) = str2num(value);
             end
         end
