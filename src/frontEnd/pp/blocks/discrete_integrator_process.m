@@ -11,7 +11,13 @@ if not(isempty(discrete_intr_list))
     display_msg('Processing Discrete Integrator blocks...', Constants.INFO, 'discrete_integrator_process', ''); 
     for i=1:length(discrete_intr_list)
         display_msg(discrete_intr_list{i}, Constants.INFO, 'discrete_integrator_process', ''); 
-        sample_tmp = get_param(discrete_intr_list{i},'SampleTime'); 
+        IntegratorMethod = get_param(discrete_intr_list{i}, 'IntegratorMethod');
+        if ~strcmp(IntegratorMethod, 'Integration: Backward Euler')
+            % TODO Support other integration methods
+            display_msg(sprintf('The block "%s" use method of integration different from Backward Euler. We will use Backward Euler instead. This can cause different behavior of the block.', discrete_intr_list{i}), ...
+                Constants.WARNING, 'discrete_integrator_process', ''); 
+        end
+        sample_tmp = get_param(discrete_intr_list{i}, 'SampleTime'); 
         if strcmp(sample_tmp,'-1')
             sample_tmp = num2str(model_smtp);
         end
