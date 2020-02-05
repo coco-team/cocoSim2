@@ -15,11 +15,25 @@
 %
 % err_code: an additional error code to be displayed.
 %
-function display_msg(str, type, from_str, err_code)
+function display_msg(str, type, from_str, err_code, verbose_level)
 global ERROR_MSG WARNING_MSG DEBUG_MSG;
 if isempty(ERROR_MSG),ERROR_MSG = {};end
 if isempty(WARNING_MSG),WARNING_MSG = {};end
 if isempty(DEBUG_MSG),DEBUG_MSG = {};end
+
+if nargin < 5
+    verbose_level = 0 ;
+end
+
+try
+    cocosim_verbose = evalin('base','cocosim_verbose');
+catch
+    cocosim_verbose  = 10;
+end
+% print based on the verbosity level
+if verbose_level > cocosim_verbose
+    return
+end
 
 final_message = '';
 
