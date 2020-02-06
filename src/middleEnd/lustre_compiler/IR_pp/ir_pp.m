@@ -17,7 +17,14 @@ end
 subs_blks_list = get_not_handled_masked_subs(new_ir, model_name);
 ir_handle_struct_map = get_ir_handle_struct_map(new_ir, model_name);
 
-json_model = json_encode(new_ir);
+try
+    % use jsonencode of Matlab versions > R2017a
+    json_model = jsonencode(new_ir);
+catch
+    % we will use our c function json_encode
+    json_model = json_encode(new_ir);
+end
+%json_model = json_encode(new_ir);
 json_model = strrep(json_model,'\/','/');
 if nargin < 3
     output_dir = parent;

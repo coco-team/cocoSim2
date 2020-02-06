@@ -62,7 +62,14 @@ end
 ir_struct.meta.Declarations = buildDeclarationsStruct(ir_struct);
 
 %% Saving the json ir
-json_model = json_encode(ir_struct); %faire en sorte qu'il y ait des sauts de ligne dans la réécriture de la fonction json_encode
+try
+    % use jsonencode of Matlab versions > R2017a
+    json_model = jsonencode(ir_struct);
+catch
+    % we will use our c function json_encode
+    json_model = json_encode(ir_struct);
+end
+%json_model = json_encode(ir_struct); %faire en sorte qu'il y ait des sauts de ligne dans la réécriture de la fonction json_encode
 json_model = strrep(json_model,'\/','/');
 json_model = strrep(json_model,'"X0"','"InitialCondition"');
 % essayer d'enlever le escape des slash si possible pour l'esthétique

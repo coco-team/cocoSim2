@@ -43,7 +43,14 @@ try
         raw = fread(fid, inf);
         str = char(raw');
         fclose(fid);
-        json = json_decode(str);
+        try
+            % use Matlab built-in version
+            json = jsondecode(str);
+        catch
+            % we will use the c function json_encode
+            json = json_decode(str);
+        end
+        %json = json_decode(str);
         %convert to cell if its json is struct
         if isstruct(json)
             json = num2cell(json);

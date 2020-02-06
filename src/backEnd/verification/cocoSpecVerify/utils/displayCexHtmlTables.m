@@ -87,7 +87,13 @@ function displayCexHtmlTables(resultIndex, propertyIndex)
     end
     filePath = fileparts(mfilename('fullpath'));
     html = fileread(fullfile(filePath, 'html', 'cexTemplate.html'));
-    json = json_encode(property);    
+    try
+        % use jsonencode of Matlab versions > R2017a
+        json = jsonencode(property);
+    catch
+        % we will use our c function json_encode
+        json = json_encode(property);
+    end
     html = strrep(html, '[(property)]', json);
     htmlFile = strcat(tempname, '.html');
     fid = fopen(htmlFile, 'w');

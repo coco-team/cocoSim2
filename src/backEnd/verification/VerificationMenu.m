@@ -142,7 +142,14 @@ classdef VerificationMenu
             filePath = fileparts(mfilename('fullpath'));
             filePath = fullfile(filePath, 'cocoSpecVerify', 'utils', 'html');
             html = fileread(fullfile(filePath, 'verificationResultsTemplate.html'));
-            json = json_encode(verificationResults);    
+            try
+                % use jsonencode of Matlab versions > R2017a
+                json = jsonencode(verificationResults);
+            catch
+                % we will use our c function json_encode
+                json = json_encode(verificationResults);
+            end
+            %json = json_encode(verificationResults);    
             html = strrep(html, '[(verificationResults)]', json);
             html = strrep(html, '[(modelPath)]', modelPath);
             htmlFile = strcat(tempname, '.html');
