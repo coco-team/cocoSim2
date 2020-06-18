@@ -51,14 +51,18 @@ function initializeVerificationVisualization(verificationResults)
                 maskControlsMap = modelWorkspace.getVariable('maskControlsMap');
                 keySet = keys(maskControlsMap);
                 for keyIndex = 1: length(keySet)
-                    controls = maskControlsMap(keySet{keyIndex});
-                    mask = Simulink.Mask.get(keySet{keyIndex}); 
-                    for controlIndex = 1: length(controls)
-                        try
-                            mask.removeDialogControl(controls{controlIndex});
-                        catch 
-                            % ignore in case no dialog control found.
+                    try
+                        controls = maskControlsMap(keySet{keyIndex});
+                        mask = Simulink.Mask.get(keySet{keyIndex});
+                        for controlIndex = 1: length(controls)
+                            try
+                                mask.removeDialogControl(controls{controlIndex});
+                            catch
+                                % ignore in case no dialog control found.
+                            end
                         end
+                    catch
+                        % ignore in case no dialog control found when model modified.
                     end
                     maskControlsMap(keySet{keyIndex}) = {};
                 end
