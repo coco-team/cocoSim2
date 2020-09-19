@@ -64,7 +64,7 @@ str_sp = regexp(str, '\\n', 'split');
 
 % disp([final_message ' ' str{1}]);
 
-msg = [final_message ' ' str_sp{1} '\n'];
+msg = [final_message ' ' str_sp{1}];
 try
     tgroup = evalin('base','cocosim_tgroup_handle');
     if (tgroup.isvalid)
@@ -93,16 +93,17 @@ if tgroup_found && isa(tgroup,'matlab.ui.container.TabGroup')
     if (type~=4 || cocosim_debug), tgroup.SelectedTab = tgroup.Children(type); end
     drawnow limitrate
 else
+    
     if type == 1
-        cprintf('black', msg);
+        cprintf('black', '%s\n', msg);
     elseif type == 3
-        cprintf('red', msg)
+        cprintf('red', '%s\n', msg)
     elseif (type == 4 && cocosim_debug)
-        cprintf([1,0.5,0], msg)
+        cprintf([1,0.5,0], '%s\n', msg)
     elseif type == 2
-        cprintf('cyan', msg)
+        cprintf('cyan', '%s\n', msg)
     elseif type == 5
-        cprintf('*blue', msg)
+        cprintf('blue', '%s\n', msg)
     end
     for idx_str=2:numel(str_sp)
         if ~strcmp(str_sp{idx_str}, '')
