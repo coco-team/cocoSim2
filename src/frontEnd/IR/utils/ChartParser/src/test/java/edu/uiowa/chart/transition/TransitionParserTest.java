@@ -9,6 +9,7 @@
  
 package edu.uiowa.chart.transition;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -57,5 +58,15 @@ class TransitionParserTest {
         assertEquals("x<0", transition.condition);
         assertEquals("x=1;y=2;", transition.conditionAction);
         assertEquals("z=1;", transition.transitionAction);
+    }
+
+    @Disabled //ToDo: support arrays in transition actions
+    @Test
+    void parseArray()
+    {
+        String transitionLabel = "[i<0] {x = x([3 1 2]) + 1;}";
+        Transition transition = TransitionParser.parse(transitionLabel);
+        assertEquals("i<0", transition.condition);
+        assertEquals("x=x([3 1 2])+1;", transition.conditionAction);
     }
 }

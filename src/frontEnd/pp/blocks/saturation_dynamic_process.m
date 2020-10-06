@@ -12,7 +12,9 @@ if not(isempty(sat_dyn_list))
         display_msg(sat_dyn_list{i}, Constants.INFO, ...
             'saturation_dynamic_process', '');
         outputDataType = get_param(sat_dyn_list{i}, 'OutDataTypeStr');
-        
+        OutMin = get_param(sat_dyn_list{i}, 'OutMin');
+        OutMax = get_param(sat_dyn_list{i}, 'OutMax');
+            
         replace_one_block(sat_dyn_list{i},'gal_lib/saturation_dyn');
         if ~strcmp(outputDataType, 'Inherit: Same as second input')
             set_param(strcat(sat_dyn_list{i},'/upper'),...
@@ -20,6 +22,9 @@ if not(isempty(sat_dyn_list))
             set_param(strcat(sat_dyn_list{i},'/lower'),...
                 'OutDataTypeStr',outputDataType);
         end
+        
+        set_param(strcat(sat_dyn_list{i},'/Out'), 'OutMin', OutMin);
+        set_param(strcat(sat_dyn_list{i},'/Out'), 'OutMax', OutMax);
     end
     display_msg('Done\n\n', Constants.INFO, ...
         'saturation_dynamic_process', '');

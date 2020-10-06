@@ -30,7 +30,7 @@ actionType: Entry
             | On Every '(' Number ',' Identifier ')'
             ;
 
-actionBody: (.| '\r'? '\n')*? ;
+actionBody: (.| Array | '\r'? '\n')*? ;
 
 // lexer rules
 
@@ -66,6 +66,8 @@ Float   : Digit+ '.' Digit*
 Digit : '0'..'9' ;
 
 LineComment : '%' .*? '\n' -> skip ;
+
+Array: '[' (.| '\r'? '\n')*? ']';
 
 WhiteSpace : [ \t\r]+ -> skip ;
 

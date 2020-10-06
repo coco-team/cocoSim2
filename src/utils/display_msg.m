@@ -15,22 +15,39 @@
 %
 % err_code: an additional error code to be displayed.
 %
-function display_msg(str, type, from_str, err_code)
-global ERROR_MSG;
-if isempty(ERROR_MSG)
-    ERROR_MSG = {};
+function display_msg(str, type, from_str, err_code, verbose_level)
+global ERROR_MSG WARNING_MSG DEBUG_MSG;
+if isempty(ERROR_MSG),ERROR_MSG = {};end
+if isempty(WARNING_MSG),WARNING_MSG = {};end
+if isempty(DEBUG_MSG),DEBUG_MSG = {};end
+
+if nargin < 5
+    verbose_level = 0 ;
 end
+
+try
+    cocosim_verbose = evalin('base','cocosim_verbose');
+catch
+    cocosim_verbose  = 10;
+end
+% print based on the verbosity level
+if verbose_level > cocosim_verbose
+    return
+end
+
 final_message = '';
 
 if type == 1
     final_message = '(Info)';
 elseif type == 2
     final_message = '(Warning)';
+    WARNING_MSG{end+1} = str;
 elseif type == 3
     final_message = '(Error)';
     ERROR_MSG{end+1} = str;
 elseif type == 4
     final_message = '(Debug)';
+    DEBUG_MSG{end+1} = str;
 elseif type == 5
     final_message = '(Result)';
 end
@@ -47,7 +64,7 @@ str_sp = regexp(str, '\\n', 'split');
 
 % disp([final_message ' ' str{1}]);
 
-msg = [final_message ' ' str_sp{1} '\n'];
+msg = [final_message ' ' str_sp{1}];
 try
     tgroup = evalin('base','cocosim_tgroup_handle');
     if (tgroup.isvalid)
@@ -76,16 +93,17 @@ if tgroup_found && isa(tgroup,'matlab.ui.container.TabGroup')
     if (type~=4 || cocosim_debug), tgroup.SelectedTab = tgroup.Children(type); end
     drawnow limitrate
 else
+    
     if type == 1
-        cprintf('black', msg);
+        cprintf('black', '%s\n', msg);
     elseif type == 3
-        cprintf('red', msg)
+        cprintf('red', '%s\n', msg)
     elseif (type == 4 && cocosim_debug)
-        cprintf([1,0.5,0], msg)
+        cprintf([1,0.5,0], '%s\n', msg)
     elseif type == 2
-        cprintf('cyan', msg)
+        cprintf('cyan', '%s\n', msg)
     elseif type == 5
-        cprintf('*blue', msg)
+        cprintf('blue', '%s\n', msg)
     end
     for idx_str=2:numel(str_sp)
         if ~strcmp(str_sp{idx_str}, '')

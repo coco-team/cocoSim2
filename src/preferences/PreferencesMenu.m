@@ -213,7 +213,7 @@ classdef PreferencesMenu
             CoCoSimPreferences = callbackInfo.userdata;            
             
             % ToDo: remove the hardcoded options
-            timeoutOptions = [1 3 5 10 20];
+            timeoutOptions = [0 1 3 5 10 20 60 120];
             data = {};
             data.selectedOption = CoCoSimPreferences.verificationTimeout / 60; % seconds
             data.CoCoSimPreferences = CoCoSimPreferences;
@@ -226,8 +226,10 @@ classdef PreferencesMenu
         
         function schema = timeoutOption(callbackInfo)
             schema = sl_toggle_schema;
-            data = callbackInfo.userdata;    
-            if data.currentOption == 1
+            data = callbackInfo.userdata;  
+            if data.currentOption == 0
+                schema.label = 'No timeout';
+            elseif data.currentOption == 1
                 schema.label = '1 minute';
             else
                 schema.label = strcat(num2str(data.currentOption), ' minutes');
@@ -251,9 +253,13 @@ classdef PreferencesMenu
         end        
         
         function saveCoCoSimPreferences(CoCoSimPreferences)
-            [cocosim_path, ~, ~] = fileparts(mfilename('fullpath'));
-            preferencesFile = fullfile(cocosim_path, 'preferences.mat');
-            save(preferencesFile, 'CoCoSimPreferences');
+            if isfield(CoCoSimPreferences, 'preferencesPath')
+                save(CoCoSimPreferences.preferencesPath, 'CoCoSimPreferences');
+            else
+                [cocosim_path, ~, ~] = fileparts(mfilename('fullpath'));
+                preferencesFile = fullfile(cocosim_path, 'preferences.mat');
+                save(preferencesFile, 'CoCoSimPreferences');
+            end
         end
         
     end

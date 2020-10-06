@@ -36,6 +36,21 @@ else
             end
         end
     end
+    % for masked blocks: masked Sum block, add IntrinsicDialogParameters
+    intrinsic_dialog_param = get_param(block_path, 'IntrinsicDialogParameters');
+    if ~isempty(intrinsic_dialog_param)
+        fields = fieldnames(intrinsic_dialog_param);
+        for i=1:numel(fields)
+            index = find(strcmp(unwanted_params, fields{i}), 1);
+            if isempty(index)
+                try
+                    S.(fields{i}) = get_param(block_path, fields{i});
+                catch
+                    % ignore
+                end
+            end
+        end
+    end
 end
 
 end

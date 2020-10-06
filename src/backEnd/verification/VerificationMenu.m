@@ -124,14 +124,25 @@ classdef VerificationMenu
             model_handle = callbackInfo.studio.App.blockDiagramHandle;
             VerificationMenu.displayHtmlVerificationResultsCallbackCode(model_handle);
         end
-        function displayHtmlVerificationResultsCallbackCode(model_handle)
-             % get the verification results from the model workspace
-            modelWorkspace = get_param(model_handle, 'modelworkspace');   
-            if ~modelWorkspace.hasVariable('verificationResults')
-                errordlg('verificationResults not found in the model Workspace')
-                return;
+        function displayHtmlVerificationResultsCallbackCode(model_handle, verification_results, output_dir)
+            % get the verification results from the model workspace
+            if nargin < 2
+                modelWorkspace = get_param(model_handle, 'modelworkspace');
+                if ~modelWorkspace.hasVariable('verificationResults')
+                    errordlg('verificationResults not found in the model Workspace')
+                    return;
+                end
+                verification_results = modelWorkspace.getVariable('verificationResults');
+            end    
+            
+            if nargin < 3
+                [tempFolder, fname, ~] = fileparts(tempname);
+            else
+                tempFolder = output_dir;
+                fname = strcat(get_param(model_handle, 'Name'),...
+                    '_verificationResults_', ...
+                    strrep(datestr(now), ' ', '-'));
             end
-            verificationResults = modelWorkspace.getVariable('verificationResults');    
             
             modelPath = get_param(model_handle, 'FileName');
             
@@ -140,17 +151,24 @@ classdef VerificationMenu
             filePath = fileparts(mfilename('fullpath'));
             filePath = fullfile(filePath, 'cocoSpecVerify', 'utils', 'html');
             html = fileread(fullfile(filePath, 'verificationResultsTemplate.html'));
-            json = json_encode(verificationResults);    
+            try
+                % use jsonencode of Matlab versions > R2017a
+                json = jsonencode(verification_results);
+            catch
+                % we will use our c function json_encode
+                json = json_encode(verification_results);
+            end
+            %json = json_encode(verificationResults);    
             html = strrep(html, '[(verificationResults)]', json);
             html = strrep(html, '[(modelPath)]', modelPath);
-            htmlFile = strcat(tempname, '.html');
+            htmlFile = fullfile(tempFolder, strcat(fname, '.html'));
             fid = fopen(htmlFile, 'w');
             fprintf(fid,'%s', html);
             fclose(fid);    
 
             % check css and js files
 
-            tempFolder = fileparts(tempname);
+            
             
             if ~ exist(fullfile(tempFolder, 'jquery.min.js'), 'file')
                 copyfile(fullfile(filePath, 'js', 'jquery.min.js'), ...
@@ -184,7 +202,7 @@ classdef VerificationMenu
             
             % open the web page in matlab browser
             url = ['file:///',htmlFile];
-            web(url);
+            web(url, '-new');
             
         end
         

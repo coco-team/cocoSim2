@@ -5,14 +5,18 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-function status = cocoSpecKind2(lustre_file_name, mapping_file, kind2_out)
+function [status, verificationResults] = cocoSpecKind2(lustre_file_name, mapping_file, kind2_out, disp_verif)
 try
     status = 0;
+    verificationResults = {};
     cocosim_config;
     try
         kind2_option = evalin('base','kind2_option');
     catch
         kind2_option  = '';
+    end
+    if nargin < 4
+        disp_verif = true;
     end
     
     % Get start time
@@ -32,14 +36,21 @@ try
         
         t_end = now;
         t_compute = t_end - t_start;
-        display_msg(['Total Kind2 verification time: ' datestr(t_compute, 'HH:MM:SS.FFF')], Constants.RESULT, 'Time', '');
+        %display_msg(['Total Kind2 verification time: ' datestr(t_compute, 'HH:MM:SS.FFF')], Constants.RESULT, 'Time', '');
         
         % read the mapping file
         fid = fopen(mapping_file);
         raw = fread(fid, inf);
         str = char(raw');
         fclose(fid);
-        json = json_decode(str);
+        try
+            % use Matlab built-in version
+            json = jsondecode(str);
+        catch
+            % we will use the c function json_encode
+            json = json_decode(str);
+        end
+        %json = json_decode(str);
         %convert to cell if its json is struct
         if isstruct(json)
             json = num2cell(json);
@@ -69,7 +80,6 @@ try
         
         [nodeNameToBlockNameMap] = getBlocksMapping(json);
         
-        verificationResults = {};
         
         if s.bytes ~= 0
             xml_doc = xmlread(results_file_name);
@@ -90,8 +100,9 @@ try
             if status
                 return;
             end
-            displayVerificationResults(verificationResults, compositionalMap);
-            
+            if disp_verif
+                displayVerificationResults(verificationResults, compositionalMap);
+            end
             %save the model
             if strcmp(get_param(bdroot(gcs),'Dirty'),'on')
                 save_system;
@@ -433,6 +444,12 @@ for childIndex = 0 : (children.getLength - 1)
                 cmd = [streamStruct.enumName '.' value];                
                 streamStruct.values(valueIndex + 1) = eval(cmd);
             else
+                % remove type casting: e.g., (real 345)
+                if contains(value, 'real ')
+                    value = strrep(value, 'real ', '');
+                elseif contains(value, 'int ')
+                    value = strrep(value, 'int ', '');
+                end
                 streamStruct.values(valueIndex + 1) = str2num(value);
             end
         end
