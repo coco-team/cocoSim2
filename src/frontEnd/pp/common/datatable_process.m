@@ -40,11 +40,13 @@ if size(time) ~= size(datatable)
         disp([size(datatable) ]);
        error('Incompatible dimension for time and datatable');
 end
-if size(time,1) > 1 
+
+if not(isvector(datatable))
        error('Only 1D lookup table');
 end
-
-nb_items = size(time,2);
+time = time(:);
+datatable = datatable(:);
+nb_items = size(time,1);
 
 % Inport
 inport='In';
@@ -61,9 +63,9 @@ for i = 1:nb_items
 % Adding i-th elements of tables
 
 add_block('built-in/Constant',idxblock(i),'Position',pos(3,1+i));
-set_param(idxblock(i),'Value',num2str(time(1,i)));
+set_param(idxblock(i),'Value',num2str(time(i)));
 add_block('built-in/Constant',datablock(i),'Position',pos(4,0.5+i));
-set_param(datablock(i),'Value',num2str(datatable(1,i)));
+set_param(datablock(i),'Value',num2str(datatable(i)));
 
 if i > 1
     if time(i)~=time(i-1)
